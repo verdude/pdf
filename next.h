@@ -35,7 +35,7 @@ void* allocate(int len);
  * Returns char* pointer.
  * There will be at least one 0 at the end of the string.
  */
-char* consume_chars(FILE* fs, int (*fn)(), int len);
+unsigned char* consume_chars(FILE* fs, int (*fn)(), int len);
 
 /**
  * fseek wrapper. Exit on fail if specified.

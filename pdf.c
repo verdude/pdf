@@ -49,16 +49,19 @@ int read_bin_comment(FILE* fs) {
   printf("Checking if is bin...\n");
   char c = (char) get_char(fs, 1);
   if (c != '%') {
+    unget_char(fs, c, FAIL);
     return 0;
   }
+
   // arbitrary size. Doesn't seem like there is a limit in 2008 spec.
   const size_t len = 1024;
-  char* chars = consume_chars(fs, &is_not_space, len);
+  unsigned char* chars = consume_chars(fs, &is_not_space, len);
 
   int i = 0;
   while (chars[i] != 0) {
-    printf("%u\n", (unsigned char) chars[i]);
+    printf("%u\n", chars[i]);
     if (chars[i] <= 128) {
+      printf("Non-bin char in comment: %#4x\n", chars[i]);
       free(chars);
       return 0;
     }

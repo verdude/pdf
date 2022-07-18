@@ -57,21 +57,21 @@ char* next_sym(FILE* fs) {
   return NULL;
 }
 
-char* consume_chars(FILE* fs, int (*fn)(), int len) {
-  char* chars = (char*) allocate(len);
+unsigned char* consume_chars(FILE* fs, int (*fn)(), int len) {
+  unsigned char* chars = allocate(len);
   int c;
 
   for (size_t i = 0; i < len - 1; ++i) {
     c = get_char(fs, IGNORE);
     if (fn(c)) {
-      chars[i] = (char) c;
+      chars[i] = (unsigned char) c;
     } else {
       unget_char(fs, c, IGNORE);
       break;
     }
   }
 
-  printf("Consumed %li chars out of possible %i.\n", strnlen(chars, len), len);
+  printf("Consumed %li chars out of possible %i.\n", strnlen((char*) chars, len), len);
   return chars;
 }
 
