@@ -3,7 +3,7 @@ CFLAGS := -Wall
 
 BUILDDIR = build
 CLIENT = pdf
-SRC = $(CLIENT:%=%.c)
+SRC = $(wildcard *.c)
 OBJS = $(SRC:%.c=%.o)
 OBJECTS = $(patsubst %,$(BUILDDIR)/%,$(OBJS))
 EXE = $(BUILDDIR)/$(CLIENT)
