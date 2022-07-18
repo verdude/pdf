@@ -17,21 +17,44 @@ FILE* file_exists(char* path) {
 }
 
 int version1_7(FILE* fs) {
-  const int header_len = 8;
-  const char* header = "%PDF-1.7";
+  const int prefix_len = 5;
+  const int version_len = 3;
+  const int header_len = prefix_len + version_len;
+  const char* prefix = "%PDF-";
+  const char version[3][3] = {"1", ".", "76"};
   char bytes[header_len+1];
   char c;
 
-  for (size_t i = 0; i < header_len; ++i) {
-    c = get_char(fs, 1);
+  for (size_t i = 0; i < prefix_len; ++i) {
+    c = get_char(fs, FAIL);
     bytes[i] = (char) c;
 
-    if (c != header[i]) {
+    if (c != prefix[i]) {
+      bytes[i+1] = 0;
+      printf("Unsupported prefix: %s, Should prefix(v): %s\n", bytes, prefix);
+      return 0;
+    }
+  }
+
+  for (size_t i = 0; i < version_len; ++i) {
+    int ok = 0;
+    c = get_char(fs, FAIL);
+    bytes[i] = (char) c;
+
+    for (size_t j = 0; j < strlen(version[i]); ++j) {
+      if (c == version[i][j]) {
+        ok = 1;
+        break;
+      }
+    }
+
+    if (!ok) {
       bytes[i+1] = 0;
       printf("Unsupported version string prefix: %s\n", bytes);
       return 0;
     }
   }
+
   c = (char) get_char(fs, FAIL);
   if (c != '\n') {
     bytes[header_len] = 0;
