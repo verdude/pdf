@@ -105,7 +105,7 @@ static long check_for_match(FILE* fs, char* s) {
     return EOF;
   }
 
-  if ((unsigned char) c != (unsigned char) s[0]) {
+  if (c != s[0]) {
     unget_char(fs, c, FAIL);
     return 0;
   }
