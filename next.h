@@ -10,6 +10,9 @@
  */
 int get_char(FILE* fs, int eof_fail);
 
+/**
+ * ungetc wrapper.
+ */
 void unget_char(FILE* fs, int c, int fail_on_error);
 
 /**
@@ -38,9 +41,24 @@ void* allocate(int len);
 unsigned char* consume_chars(FILE* fs, int (*fn)(), int len);
 
 /**
+ * ftell wrapper.
+ * Exits on failure.
+ */
+long get_pos(FILE* fs);
+
+/**
  * fseek wrapper. Exit on fail if specified.
  */
 int seek(FILE* fs, long offset, int whence, int fail_on_error);
+
+/**
+ * Finds a sequence searching backwards through the stream.
+ * sequence is the length of len.
+ * Max 10 char sequence for now.
+ * Updates the fs to point at the start of the sequence and
+ * returns 0 if not found and 1 if found.
+ */
+int find_backwards(FILE* fs, unsigned char* sequence, int len);
 
 /**
  * Does what you think it does.

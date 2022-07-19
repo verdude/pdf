@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "next.h"
+#include "trailer.h"
 
 FILE* file_exists(char* path) {
   FILE* fs = fopen(path, "r");
@@ -16,7 +17,7 @@ FILE* file_exists(char* path) {
   return 0;
 }
 
-int version1_7(FILE* fs) {
+int supported_version(FILE* fs) {
   const int prefix_len = 5;
   const int version_len = 3;
   const int header_len = prefix_len + version_len;
@@ -102,9 +103,11 @@ int main(int argc, char** argv) {
 
   FILE* fs = file_exists(argv[1]);
   if (fs) {
-    if (version1_7(fs)) {
+    if (supported_version(fs)) {
       int is_bin = read_bin_comment(fs);
       printf("Is %sbin.\n", is_bin ? "" : "not ");
+      trailer_t* trailer = get_trailer(fs);
+      free(trailer);
     }
     fclose(fs);
   }
