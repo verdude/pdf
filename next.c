@@ -95,7 +95,7 @@ int seek(FILE* fs, long offset, int whence, int fail_on_error) {
 }
 
 // Checks for a match at the current position.
-static long check_for_match(FILE* fs, unsigned char* s) {
+static long check_for_match(FILE* fs, char* s) {
   if (s[0] == 0) {
     return 1;
   }
@@ -105,7 +105,7 @@ static long check_for_match(FILE* fs, unsigned char* s) {
     return EOF;
   }
 
-  if ((unsigned char) c != s[0]) {
+  if ((unsigned char) c != (unsigned char) s[0]) {
     unget_char(fs, c, FAIL);
     return 0;
   }
@@ -113,22 +113,25 @@ static long check_for_match(FILE* fs, unsigned char* s) {
   return check_for_match(fs, s + 1);
 }
 
-int find_backwards(FILE* fs, unsigned char* sequence, int len) {
+int find_backwards(FILE* fs, char* sequence, int len) {
   if (len > 10) {
     fprintf(stderr, "Sequence too long: %i\n", len);
-    return -1;
+    return 0;
   }
 
   long curr_pos = get_pos(fs);
   int match = 0;
+
   while ((match = check_for_match(fs, sequence)) != 1) {
     if (match == EOF) {
-      return -1;
+      return 0;
     }
     seek(fs, curr_pos - 1 > 0 ? curr_pos - 1 : 0, SEEK_SET, FAIL);
     curr_pos = get_pos(fs);
   }
-  return curr_pos;
+
+  seek(fs, curr_pos, SEEK_SET, FAIL);
+  return 1;
 }
 
 void cexit(FILE* fs, int code) {

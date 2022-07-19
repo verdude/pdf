@@ -1,16 +1,24 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "trailer.h"
 #include "next.h"
 
 trailer_t* get_trailer(FILE* fs) {
-  trailer_t* t = calloc(sizeof(trailer_t), 1);
   seek(fs, -(EOF_LEN+1), SEEK_END, FAIL);
 
-  unsigned char* trailer_string = "\ntrailer\n";
-  int pos = find_backwards(fs, trailer_string, 10);
-  printf("Found trailer at: %i\n", pos);
+  char* trailer_string = "\ntrailer\n";
+  size_t trailer_len = strlen(trailer_string);
+  int found = find_backwards(fs, trailer_string, trailer_len + 1);
+
+  if (!found) {
+    fprintf(stderr, "Failed to find trailer.\n");
+    return NULL;
+  }
+
+  trailer_t* t = calloc(sizeof(trailer_t), 1);
+  printf("Found trailer at: %li\n", get_pos(fs));
 
   return t;
 }

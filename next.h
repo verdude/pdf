@@ -57,8 +57,9 @@ int seek(FILE* fs, long offset, int whence, int fail_on_error);
  * Max 10 char sequence for now.
  * Updates the fs to point at the start of the sequence and
  * returns 0 if not found and 1 if found.
+ * O(n) where n is the length of the pdf in bytes.
  */
-int find_backwards(FILE* fs, unsigned char* sequence, int len);
+int find_backwards(FILE* fs, char* sequence, int len);
 
 /**
  * Does what you think it does.
