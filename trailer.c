@@ -18,7 +18,8 @@ trailer_t* get_trailer(FILE* fs) {
   }
 
   trailer_t* t = calloc(sizeof(trailer_t), 1);
-  printf("Found trailer at: %li\n", get_pos(fs));
+  t->offset = get_pos(fs);
+  printf("Found trailer at: %li\n", t->offset);
 
   return t;
 }

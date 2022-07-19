@@ -4,7 +4,7 @@
 #define EOF_LEN 5
 
 typedef struct {
-  int offset;
+  long offset;
 } trailer_t;
 
 trailer_t* get_trailer();
