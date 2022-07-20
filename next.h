@@ -16,6 +16,11 @@ int get_char(FILE* fs, int eof_fail);
 void unget_char(FILE* fs, int c, int fail_on_error);
 
 /**
+ * unget wrapper for list of unsigned char cast to int.
+ */
+void unget_chars(FILE* fs, int* c, int len, int fail_on_error);
+
+/**
  * Finds the next symbol.
  */
 char* next_sym(FILE* fs);

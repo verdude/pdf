@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "next.h"
+#include "object.h"
 
 int get_char(FILE* fs, int eof_fail) {
   int c = fgetc(fs);
@@ -21,6 +22,12 @@ void unget_char(FILE* fs, int c, int fail_on_error) {
   if (r == EOF && fail_on_error) {
     perror("unget_char failure");
     cexit(fs, 1);
+  }
+}
+
+void unget_chars(FILE* fs, int* c, int len, int fail_on_error) {
+  for (int i = 0; i < len; ++i) {
+    unget_char(fs, c[i], fail_on_error);
   }
 }
 
@@ -54,7 +61,38 @@ char* next_sym(FILE* fs) {
 
   printf("Got next char: %i\n", c);
 
-  return NULL;
+  switch ((unsigned char) c) {
+    case '/':
+      unget_char(fs, c, FAIL);
+      return get_name(fs, FAIL);
+    case '<':
+      return next_angle_bracket_sym(fs);
+    case '(':
+      // string
+      fprintf(stderr, "String parsing is not yet implemented.\n");
+      return NULL;
+    default:
+      printf("unknown! %c\n", c);
+      return NULL;
+  }
+}
+
+/**
+ * Preceding char is '<', check what type of object it could be.
+ */
+static char* next_angle_bracket_sym(FILE* fs) {
+  int c = get_char(fs, FAIL);
+
+  switch ((unsigned char) c) {
+    case '<':
+      // dictionary
+      fprintf(stderr, "Dictionary parsing is not yet implemented.\n");
+      return ;
+    default:
+      // hex string
+      fprintf(stderr, "Hex string parsing is not yet implemented.\n");
+      return NULL;
+  }
 }
 
 unsigned char* consume_chars(FILE* fs, int (*fn)(), int len) {

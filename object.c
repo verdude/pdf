@@ -6,7 +6,7 @@
 #include "next.h"
 #include "object.h"
 
-static char valid_name_char(FILE* fs, int c) {
+static int valid_name_char(FILE* fs, int c) {
   if (c > 0x21 && c < 0x7e) {
     return c;
   }
@@ -22,27 +22,37 @@ static char valid_name_char(FILE* fs, int c) {
       cexit(fs, 1);
     }
 
-    return (char) abnormal;
+    return (int) abnormal;
   } else {
     fprintf(stderr, "Invalid char in name: %#4x", c);
     return 0;
   }
 }
 
-name_t get_name(FILE* fs, int fail_on_error) {
+object_t* get_name(FILE* fs, int fail_on_error) {
   int c = get_char(fs, FAIL);
   if (c != '/' && fail_on_error) {
     printf("Invalid name char: %c\n", c);
     cexit(fs, 1);
   }
 
-  int len = 1024;
-  name_t name = calloc(len, 1);
-  size_t i = 0;
-  while (i < len - 1 && (c = get_char(fs, FAIL)) && (c = valid_name_char(fs, c))) {
-    name[i++] = c;
+  object_t* name = allocate(sizeof(object_t));
+  name->offset = get_pos(fs);
+  name->len = 0;
+  name->type = o_type.name;
+
+  while ((c = get_char(fs, FAIL)) && (c = valid_name_char(fs, c))) {
+    name->len += c;
   }
 
   return name;
+}
+
+char* name_str(FILE* fs, object_t* name) {
+  long cpos = get_pos(fs);
+  char* ns = allocate(name->len);
+  seek(fs, name->offset, FAIL);
+
+  return ns;
 }
 
