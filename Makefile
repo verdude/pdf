@@ -20,6 +20,7 @@ build:
 .PHONY: clean test
 clean:
 	rm -rf $(BUILDDIR)
+	rm test/tester.o test/tester
 
 test: $(EXE)
 	make -C test
