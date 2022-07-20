@@ -126,7 +126,12 @@ int find_backwards(FILE* fs, char* sequence, int len) {
     if (match == EOF) {
       return 0;
     }
-    seek(fs, curr_pos - 1 > 0 ? curr_pos - 1 : 0, SEEK_SET, FAIL);
+    int new_pos = curr_pos - 1 > 0 ? curr_pos - 1 : 0;
+    if (new_pos == curr_pos) {
+      fprintf(stderr, "Could not find sequence %s in file\n", sequence);
+      return 0;
+    }
+    seek(fs, new_pos, SEEK_SET, FAIL);
     curr_pos = get_pos(fs);
   }
 

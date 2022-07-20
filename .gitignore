@@ -2,3 +2,5 @@ build/**
 assets/**
 *.pdf
 vgcore.*
+test/*.o
+test/tester

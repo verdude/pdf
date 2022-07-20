@@ -17,7 +17,10 @@ $(BUILDDIR)/%.o: %.c
 build:
 	mkdir -p build
 
-.PHONY: clean
+.PHONY: clean test
 clean:
 	rm -rf $(BUILDDIR)
+
+test: $(EXE)
+	make -C test
 
