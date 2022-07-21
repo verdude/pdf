@@ -14,16 +14,16 @@
  * ind -> tbd
  */
 enum o_type {
-  boo,
-  num,
-  str,
-  hstr,
-  name,
-  arr,
-  dict,
-  null,
-  stream,
-  ind
+  Boo,
+  Num,
+  Str,
+  Hstr,
+  Name,
+  Arr,
+  Dict,
+  Null,
+  Stream,
+  Ind
 };
 
 // TODO: update types
@@ -40,16 +40,24 @@ typedef struct {
  * val: pointer to the parsed value of the object. See o_type (above) for pointer types.
  */
 typedef struct {
-  int type;
+  enum o_type type;
   long offset;
   int len;
   void* val;
 } object_t;
 
-object_t* get_name(FILE*, int);
+/**
+ * Create object_t pointing to name that starts at the current position.
+ */
+object_t* get_name(FILE* fs, int fail_on_error);
 
 object_t* get_string(FILE*, int);
 
 object_t* get_hex_string(FILE*, int);
+
+/**
+ * Load the name into a char string.
+ */
+char* name_str(FILE* fs, object_t* name);
 
 #endif // object_h

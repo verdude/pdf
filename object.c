@@ -32,14 +32,15 @@ static int valid_name_char(FILE* fs, int c) {
 object_t* get_name(FILE* fs, int fail_on_error) {
   int c = get_char(fs, FAIL);
   if (c != '/' && fail_on_error) {
-    printf("Invalid name char: %c\n", c);
+    printf("Invalid first char for Name object: [%c]. "
+        "Must begin with forward slash.\n", c);
     cexit(fs, 1);
   }
 
   object_t* name = allocate(sizeof(object_t));
   name->offset = get_pos(fs);
   name->len = 0;
-  name->type = o_type.name;
+  name->type = Name;
 
   while ((c = get_char(fs, FAIL)) && (c = valid_name_char(fs, c))) {
     name->len += c;
@@ -49,9 +50,8 @@ object_t* get_name(FILE* fs, int fail_on_error) {
 }
 
 char* name_str(FILE* fs, object_t* name) {
-  long cpos = get_pos(fs);
   char* ns = allocate(name->len);
-  seek(fs, name->offset, FAIL);
+  seek(fs, name->offset, SEEK_SET, FAIL);
 
   return ns;
 }

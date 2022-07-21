@@ -4,6 +4,8 @@
 #define FAIL 1
 #define IGNORE 0
 
+#include "object.h"
+
 /**
  * Returns the next character.
  * If eof_fail is non-zero, will exit on EOF; otherwise, EOF is returned.
@@ -23,7 +25,7 @@ void unget_chars(FILE* fs, int* c, int len, int fail_on_error);
 /**
  * Finds the next symbol.
  */
-char* next_sym(FILE* fs);
+object_t* next_sym(FILE* fs);
 
 /**
  * Gets the next non space block of chars.

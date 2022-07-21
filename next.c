@@ -50,7 +50,25 @@ static void consume_whitespace(FILE* fs) {
   unget_char(fs, c, FAIL);
 }
 
-char* next_sym(FILE* fs) {
+/**
+ * Preceding char is '<', check what type of object it could be.
+ */
+static object_t* next_angle_bracket_sym(FILE* fs) {
+  int c = get_char(fs, FAIL);
+
+  switch ((unsigned char) c) {
+    case '<':
+      // dictionary
+      fprintf(stderr, "Dictionary parsing is not yet implemented.\n");
+      return NULL;
+    default:
+      // hex string
+      fprintf(stderr, "Hex string parsing is not yet implemented.\n");
+      return NULL;
+  }
+}
+
+object_t* next_sym(FILE* fs) {
   consume_whitespace(fs);
 
   int c = get_char(fs, IGNORE);
@@ -58,8 +76,6 @@ char* next_sym(FILE* fs) {
     printf("Reached EOF.");
     return NULL;
   }
-
-  printf("Got next char: %i\n", c);
 
   switch ((unsigned char) c) {
     case '/':
@@ -72,25 +88,8 @@ char* next_sym(FILE* fs) {
       fprintf(stderr, "String parsing is not yet implemented.\n");
       return NULL;
     default:
-      printf("unknown! %c\n", c);
-      return NULL;
-  }
-}
-
-/**
- * Preceding char is '<', check what type of object it could be.
- */
-static char* next_angle_bracket_sym(FILE* fs) {
-  int c = get_char(fs, FAIL);
-
-  switch ((unsigned char) c) {
-    case '<':
-      // dictionary
-      fprintf(stderr, "Dictionary parsing is not yet implemented.\n");
-      return ;
-    default:
-      // hex string
-      fprintf(stderr, "Hex string parsing is not yet implemented.\n");
+      printf("Next char: %i\n", c);
+      printf("unknown symbol! [%c]\n", c);
       return NULL;
   }
 }
@@ -178,7 +177,29 @@ int find_backwards(FILE* fs, char* sequence, int len) {
 }
 
 void cexit(FILE* fs, int code) {
+  fprintf(stderr, "~~~~> exiting with code: %i\n", code);
   fclose(fs);
   exit(code);
+}
+
+char* fs_read(FILE* fs, size_t size) {
+  char* bytes = allocate(size + 1);
+  size_t read = fread(bytes, 1, size, fs);
+
+  if (read == size) {
+    return bytes;
+  }
+
+  fprintf(stderr,
+      "fs_read expected to read %li bytes. Read %li instead.\n", size, read);
+  if (feof(fs)) {
+    fprintf(stderr, "Got EOF before could read bytes");
+  } else if (ferror(fs)) {
+    perror("fread error:");
+  } else {
+    fprintf(stderr, "Unknown error from fread.\n");
+  }
+  cexit(fs, 1);
+  return NULL;
 }
 
