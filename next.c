@@ -143,7 +143,6 @@ static long check_for_match(FILE* fs, char* s) {
   }
 
   if (c != s[0]) {
-    unget_char(fs, c, FAIL);
     return 0;
   }
 
@@ -172,7 +171,6 @@ int find_backwards(FILE* fs, char* sequence, int len) {
     curr_pos = get_pos(fs);
   }
 
-  seek(fs, curr_pos, SEEK_SET, FAIL);
   return 1;
 }
 
