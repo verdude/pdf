@@ -33,7 +33,7 @@ object_t* next_sym(FILE* fs);
 char* get_word(FILE* fs);
 
 /**
- * Returns pointer to initialized mem of size len bytes.
+ * Returns pointer to 0 initialized mem (by calloc) of size len bytes.
  * Exits on failure.
  */
 void* allocate(int len);
@@ -72,5 +72,10 @@ int find_backwards(FILE* fs, char* sequence, int len);
  * Does what you think it does.
  */
 void cexit(FILE* fs, int code);
+
+/**
+ * Skips whitespace.
+ */
+void consume_whitespace(FILE* fs);
 
 #endif // next_h

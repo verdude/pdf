@@ -41,7 +41,7 @@ void* allocate(int len) {
   return m;
 }
 
-static void consume_whitespace(FILE* fs) {
+void consume_whitespace(FILE* fs) {
   int c;
   do {
     c = get_char(fs, FAIL);
@@ -58,9 +58,7 @@ static object_t* next_angle_bracket_sym(FILE* fs) {
 
   switch ((unsigned char) c) {
     case '<':
-      // dictionary
-      fprintf(stderr, "Dictionary parsing is not yet implemented.\n");
-      return NULL;
+      return get_dictionary(fs, FAIL);
     default:
       // hex string
       fprintf(stderr, "Hex string parsing is not yet implemented.\n");
@@ -149,6 +147,8 @@ static long check_for_match(FILE* fs, char* s) {
   return check_for_match(fs, s + 1);
 }
 
+// TODO: perhaps validate the sequence? Make sure it is null terminated
+// at the given length?
 int find_backwards(FILE* fs, char* sequence, int len) {
   if (len > 10) {
     fprintf(stderr, "Sequence too long: %i\n", len);
@@ -176,7 +176,9 @@ int find_backwards(FILE* fs, char* sequence, int len) {
 
 void cexit(FILE* fs, int code) {
   fprintf(stderr, "~~~~> exiting with code: %i\n", code);
-  fclose(fs);
+  if (fs) {
+    fclose(fs);
+  }
   exit(code);
 }
 
