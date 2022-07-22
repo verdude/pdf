@@ -101,4 +101,6 @@ char* name_str(FILE* fs, object_t* name);
 
 void print_dictionary(dict_t* d);
 
+int add_byte(unsigned char c, string_t* st);
+
 #endif // object_h

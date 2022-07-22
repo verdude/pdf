@@ -26,32 +26,33 @@ static unsigned char get_hex_char(FILE* fs) {
 
 /**
  * Adds a char to ptr+len, reallocating ptr if len >= memsize.
- * returns NULL in case of failure.
+ * Updates memsize and len.
+ * returns 0 in case of failure, 1 in case of success.
  */
-static int add_byte(unsigned char c, string_t* name) {
-  int new_size = name->memsize;
-  name->str = (unsigned char*) name->str;
-  while (new_size < name->len + 1) {
-    new_size += name->memsize;
+int add_byte(unsigned char c, string_t* st) {
+  int new_size = st->memsize;
+  st->str = (unsigned char*) st->str;
+  while (new_size < st->len + 1) {
+    new_size += st->memsize;
   }
 
   if (new_size < 0) {
     fprintf(stderr, "Overflow computing new size: ptr:"
-        " %p memsize: %i strlen: %i\n", name->str, name->memsize, name->len);
+        " %p memsize: %i strlen: %i\n", st->str, st->memsize, st->len);
     return 0;
   }
 
-  if (new_size > name->memsize) {
-    name->str = realloc(name->str, new_size);
-    if (name->str == NULL) {
+  if (new_size > st->memsize) {
+    st->str = realloc(st->str, new_size);
+    if (st->str == NULL) {
       perror("realloc in add_byte");
       return 0;
     }
   }
 
-  name->memsize = new_size;
-  name->str[name->len++] = c;
-  name->str[name->len] = 0;
+  st->memsize = new_size;
+  st->str[st->len++] = c;
+  st->str[st->len] = 0;
   return 1;
 }
 
