@@ -39,6 +39,7 @@ object_t* get_number(FILE* fs, int fail_on_error) {
   num_obj->val = allocate(sizeof(long));
   *((long*)num_obj->val) = value;
 
+  free(num->str);
   free(num);
   return num_obj;
 }

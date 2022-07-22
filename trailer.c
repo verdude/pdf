@@ -21,10 +21,17 @@ trailer_t* get_trailer(FILE* fs) {
   trailer_t* t = calloc(sizeof(trailer_t), 1);
   t->offset = get_pos(fs) + trailer_len;
   printf("Found trailer at: %li\n", t->offset);
-  object_t* dictionary = next_sym(fs);
+  // TODO: make sure it is a dictionary...
+  t->dictionary = next_sym(fs);
 
-  print_dictionary((dict_t*) dictionary->val);
+  print_dictionary((dict_t*) t->dictionary->val);
 
   return t;
+}
+
+int free_trailer_t(trailer_t* t) {
+  int success = free_object_t(t->dictionary);
+  free(t);
+  return success;
 }
 

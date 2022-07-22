@@ -107,7 +107,9 @@ int main(int argc, char** argv) {
       int is_bin = read_bin_comment(fs);
       printf("Is %sbin.\n", is_bin ? "" : "not ");
       trailer_t* trailer = get_trailer(fs);
-      free(trailer);
+      if (trailer) {
+        free_trailer_t(trailer);
+      }
     }
     fclose(fs);
   }

@@ -50,11 +50,13 @@ typedef struct {
 } d_entry_t;
 
 /**
- * Dictionry object. Has entries and number (len) of entries.
+ * Dictionary object. Has entries and number (len) of entries.
+ * There is memsize memory allocated for the entries.
  */
 typedef struct {
   d_entry_t** entries;
   int len;
+  int memsize;
 } dict_t;
 
 /**
@@ -103,8 +105,19 @@ object_t* get_number(FILE* fs, int fail_on_error);
  */
 char* name_str(FILE* fs, object_t* name);
 
+/**
+ * Print a dictionary.
+ */
 void print_dictionary(dict_t* d);
 
+/**
+ * Add a byte to the string
+ */
 int add_byte(unsigned char c, string_t* st);
+
+/**
+ * Free an object_t*
+ */
+int free_object_t(object_t* o);
 
 #endif // object_h
