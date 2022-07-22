@@ -29,36 +29,35 @@ static unsigned char get_hex_char(FILE* fs) {
  * Adds a char to ptr+len, reallocating ptr if len >= memsize.
  * returns NULL in case of failure.
  */
-static void* add_byte(unsigned char c, void* ptr, int* memsize, int len) {
-  int new_size = *memsize;
-  unsigned char* new_ptr = (unsigned char*) ptr;
-  printf("adding char: %c to ptr: %p size %i len %i\n", c, ptr, *memsize, len);
-  while (new_size <= len + 1) {
-    new_size += *memsize;
+static int add_byte(unsigned char c, name_t* name) {
+  int new_size = name->memsize;
+  name->str = (unsigned char*) name->str;
+  while (new_size < name->len + 1) {
+    new_size += name->memsize;
   }
 
   if (new_size < 0) {
     fprintf(stderr, "Overflow computing new size: ptr:"
-        " %p memsize: %i strlen: %i\n", ptr, *memsize, len);
-    return NULL;
+        " %p memsize: %i strlen: %i\n", name->str, name->memsize, name->len);
+    return 0;
   }
 
-  if (new_size > *memsize) {
-    new_ptr = realloc(ptr, new_size);
-    if (new_ptr == NULL) {
+  if (new_size > name->memsize) {
+    name->str = realloc(name->str, new_size);
+    if (name->str == NULL) {
       perror("realloc in add_byte");
-      return NULL;
+      return 0;
     }
-    memset(new_ptr + len, 0, new_size - len);
   }
 
-  *memsize = new_size;
-  new_ptr[len] = c;
-  return new_ptr;
+  name->memsize = new_size;
+  name->str[name->len++] = c;
+  name->str[name->len] = 0;
+  return 1;
 }
 
 /**
- * 1 for a regular char,
+ * 1 for a regular char.
  * 3 for a hex char, encoded as: #0A in the pdf.
  * 0 for invalid chars. May be the start of another symbol.
  *
@@ -69,21 +68,19 @@ static void* add_byte(unsigned char c, void* ptr, int* memsize, int len) {
  */
 static int add_name_char(FILE* fs, int c, name_t* name) {
   if (c > 0x21 && c < 0x7e) {
-    name->str = add_byte(c, name->str, &name->memsize, name->len);
-    if (name->str == NULL) {
+    int success = add_byte(c, name);
+    if (!success) {
       cexit(fs, 1);
     }
-    name->len++;
     return 1;
   }
 
   if (c == '#') {
     unsigned char h_char = get_hex_char(fs);
-    name->str = add_byte(h_char, name->str, &name->memsize, name->len);
-    if (name->str == NULL) {
+    int success = add_byte(h_char, name);
+    if (!success) {
       cexit(fs, 1);
     }
-    name->len++;
     return 3;
   } else {
     fprintf(stderr, "Invalid char in name: %#4x\n", c);
@@ -101,13 +98,13 @@ object_t* get_name(FILE* fs, int fail_on_error) {
     cexit(fs, 1);
   }
 
-  object_t* name = allocate(sizeof(object_t));
-  name->offset = get_pos(fs);
-  name->len = 0;
-  name->type = Name;
-  name->val = allocate(sizeof(name_t));
+  object_t* name_obj = allocate(sizeof(object_t));
+  name_obj->offset = get_pos(fs);
+  name_obj->len = 0;
+  name_obj->type = Name;
+  name_obj->val = allocate(sizeof(name_t));
 
-  name_t* name_val = name->val;
+  name_t* name_val = name_obj->val;
   name_val->memsize = 1;
   name_val->str = allocate(name_val->memsize);
 
@@ -119,11 +116,11 @@ object_t* get_name(FILE* fs, int fail_on_error) {
       unget_char(fs, c, FAIL);
       break;
     } else {
-      name->len += char_len;
+      name_obj->len += char_len;
     }
   }
 
-  return name;
+  return name_obj;
 }
 
 // TODO: remove this.
@@ -141,11 +138,7 @@ char* name_str(FILE* fs, object_t* name) {
 
 object_t* get_dictionary(FILE* fs, int fail_on_error) {
   size_t pos = get_pos(fs);
-  object_t* first_key = allocate(sizeof(object_t));
-  first_key->type = Name;
-  first_key->offset = pos;
-  first_key->len = 0;
-  first_key->val = get_name(fs, fail_on_error);
+  object_t* first_key = get_name(fs, fail_on_error);
 
   d_entry_t* entry = allocate(sizeof(d_entry_t));
   entry->key = first_key;
@@ -168,7 +161,7 @@ object_t* get_dictionary(FILE* fs, int fail_on_error) {
 
 void print_dictionary(dict_t* d) {
   for (int i = 0; i < d->len; ++i) {
-    printf("KEY: (%s) VAL: %p\n", (char*) ((name_t*) d->entries[i]->key->val)->str, d->entries[i]->val);
+    printf("KEY: (%s) VAL: %p\n", (unsigned char*) ((name_t*) d->entries[i]->key->val)->str, d->entries[i]->val);
   }
 }
 

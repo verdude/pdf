@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -Wall
+CFLAGS := -Wall -g3
 
 BUILDDIR = build
 CLIENT = pdf
