@@ -87,12 +87,12 @@ object_t* next_sym(FILE* fs) {
     case '<':
       return next_angle_bracket_sym(fs);
     case '(':
-      // string
-      fprintf(stderr, "String parsing is not yet implemented.\n");
+      unget_char(fs, c, FAIL);
+      return get_string(fs, FAIL);
       return NULL;
     default:
-      printf("Next char: %i\n", c);
-      printf("unknown symbol! [%c]\n", c);
+      fprintf(stderr, "Next char: %i\n", c);
+      fprintf(stderr, "unknown symbol! [%c]\n", c);
       return NULL;
   }
 }

@@ -3,6 +3,9 @@
 #include "next.h"
 #include "object.h"
 
+/**
+ * Returns 1 on success, 0 on failure, -1 on string end
+ */
 static int add_string_char(FILE* fs, int c, string_t* string) {
   switch (c) {
     case 0x8:
@@ -31,8 +34,8 @@ static int add_string_char(FILE* fs, int c, string_t* string) {
       return 0;
     case 0x29:
       // )
-      printf("close paren in string\n");
-      return 0;
+      // End of string
+      return -1;
     case 0x5c:
       // \\ backslash
       printf("backslash in string\n");
@@ -51,6 +54,10 @@ object_t* get_string(FILE* fs, int fail_on_error) {
 
   while ((c = get_char(fs, FAIL))) {
     int char_len = add_string_char(fs, c, s);
+
+    if (char_len == -1) {
+      break;
+    }
 
     if (!char_len) {
       // finished reading name

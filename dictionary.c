@@ -4,6 +4,7 @@
 #include "next.h"
 #include "object.h"
 
+// TODO: indent nested dictionaries
 void print_dictionary(dict_t* d) {
   for (int i = 0; i < d->len; ++i) {
     d_entry_t* entry = d->entries[i];
@@ -76,27 +77,52 @@ static int add_entry(dict_t* dict, d_entry_t* entry) {
   return 1;
 }
 
+/*
+ * returns 0 if current position does not point to the end of the dictionary
+ * returns the offset from the start of the file if the current position
+ * points to the end of a dictionary.
+ */
+static size_t get_end_of_dictionary(FILE* fs) {
+  consume_whitespace(fs);
+  int c1 = get_char(fs, FAIL);
+  int c2 = get_char(fs, FAIL);
+  int right_angle_bracket = '>';
+
+  if (c1 == right_angle_bracket && c2 == right_angle_bracket) {
+    // point to last >
+    return get_pos(fs) - 1;
+  }
+
+  unget_char(fs, c2, FAIL);
+  unget_char(fs, c1, FAIL);
+
+  return 0;
+}
+
 object_t* get_dictionary(FILE* fs, int fail_on_error) {
   size_t pos = get_pos(fs);
-
-  d_entry_t* entry = get_entry(fs, fail_on_error);
+  size_t end = pos;
 
   size_t size = sizeof(d_entry_t*) * 10;
   dict_t* dict = allocate(sizeof(dict_t));
   dict->entries = allocate(size);
   dict->memsize = size;
 
-  int success = add_entry(dict, entry);
-  if (!success) {
-    // TODO: free dict..
-    cexit(fs, 1);
+  while (!(end = get_end_of_dictionary(fs))) {
+    d_entry_t* entry = get_entry(fs, fail_on_error);
+
+    int success = add_entry(dict, entry);
+    if (!success) {
+      free_dict_t(dict);
+      cexit(fs, 1);
+    }
   }
 
   object_t* obj = allocate(sizeof(object_t));
   obj->type = Dict;
   // points to the first char after dictionary sym '<<'
   obj->offset = pos;
-  obj->len = 0;
+  obj->len = end - pos;
   obj->val = (void*) dict;
 
   return obj;

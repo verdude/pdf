@@ -120,4 +120,6 @@ int add_byte(unsigned char c, string_t* st);
  */
 int free_object_t(object_t* o);
 
+void free_dict_t(dict_t* d);
+
 #endif // object_h

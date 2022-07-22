@@ -71,7 +71,7 @@ int is_not_space(int c) {
 
 int read_bin_comment(FILE* fs) {
   printf("Checking if is bin...\n");
-  char c = (char) get_char(fs, 1);
+  char c = (char) get_char(fs, FAIL);
   if (c != '%') {
     unget_char(fs, c, FAIL);
     return 0;
