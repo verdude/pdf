@@ -79,7 +79,7 @@ int read_bin_comment(FILE* fs) {
 
   // arbitrary size. Doesn't seem like there is a limit in 2008 spec.
   const size_t len = 1024;
-  unsigned char* chars = consume_chars(fs, &is_not_space, len);
+  char* chars = consume_chars(fs, &is_not_space, len);
 
   int i = 0;
   while (chars[i] != 0) {

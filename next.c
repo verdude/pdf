@@ -75,6 +75,11 @@ object_t* next_sym(FILE* fs) {
     return NULL;
   }
 
+  if (isdigit(c)) {
+    unget_char(fs, c, FAIL);
+    return get_number(fs, FAIL);
+  }
+
   switch ((unsigned char) c) {
     case '/':
       unget_char(fs, c, FAIL);
@@ -92,8 +97,8 @@ object_t* next_sym(FILE* fs) {
   }
 }
 
-unsigned char* consume_chars(FILE* fs, int (*fn)(), int len) {
-  unsigned char* chars = allocate(len);
+char* consume_chars(FILE* fs, int (*fn)(), int len) {
+  char* chars = allocate(len);
   int c;
 
   for (size_t i = 0; i < len - 1; ++i) {

@@ -45,7 +45,7 @@ void* allocate(int len);
  * Returns char* pointer.
  * There will be at least one 0 at the end of the string.
  */
-unsigned char* consume_chars(FILE* fs, int (*fn)(), int len);
+char* consume_chars(FILE* fs, int (*fn)(), int len);
 
 /**
  * ftell wrapper.

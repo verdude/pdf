@@ -31,7 +31,7 @@ static unsigned char get_hex_char(FILE* fs) {
  */
 int add_byte(unsigned char c, string_t* st) {
   int new_size = st->memsize;
-  st->str = (unsigned char*) st->str;
+  st->str = st->str;
   while (new_size < st->len + 1) {
     new_size += st->memsize;
   }

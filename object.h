@@ -1,6 +1,8 @@
 #ifndef object_h
 #define object_h
 
+#include <stdio.h>
+
 /**
  * boo -> int
  * num -> long
@@ -67,7 +69,7 @@ typedef struct {
  * memsize: allocated size of str object in bytes.
  */
 typedef struct {
-  unsigned char* str;
+  char* str;
   int memsize;
   int len;
 } string_t;
@@ -93,6 +95,8 @@ object_t* get_hex_string(FILE* fs, int fail_on_error);
 object_t* get_string_type_obj(FILE* fs, unsigned char first_char, int fail_on_error);
 
 object_t* get_dictionary(FILE* fs, int fail_on_error);
+
+object_t* get_number(FILE* fs, int fail_on_error);
 
 /**
  * Load the name into a char string.

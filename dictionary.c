@@ -6,20 +6,22 @@
 void print_dictionary(dict_t* d) {
   for (int i = 0; i < d->len; ++i) {
     d_entry_t* entry = d->entries[i];
-    void* val = val;
+    object_t* key = entry->key;
+    object_t* val = entry->val;
+    // type of the value
     enum o_type type = entry->val->type;
 
-    printf("KEY: (%s) ", (unsigned char*) ((string_t*) entry->key->val)->str);
+    printf("KEY: (%s) ", ((string_t*) key->val)->str);
 
     switch (type) {
       case Str:
       case Hstr:
       case Name:
-        printf("VAL: %s\n", ((string_t*) val)->str);
+        printf("VAL: %s\n", ((string_t*) val->val)->str);
         break;
       case Num:
       case Boo:
-          printf("VAL: %i\n", *(int*) val);
+          printf("VAL: %li\n", *((long*) val->val));
           break;
       case Null:
           printf("VAL: null\n");
