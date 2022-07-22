@@ -4,9 +4,9 @@
 /**
  * boo -> int
  * num -> long
- * str -> char
- * hstr -> char
- * name -> name_t
+ * str -> string_t
+ * hstr -> string_t
+ * name -> string_t
  * arr -> object_t*
  * dict -> dict_t*
  * null -> NULL
@@ -56,24 +56,41 @@ typedef struct {
 } dict_t;
 
 /**
- * Name object.
- * len: length of the name in bytes as represented in single chars.
- * memsize: allocated size of val object in bytes.
+ * stringish object.
+ *
+ * used by:
+ *  - string
+ *  - hex string
+ *  - name
+ *
+ * len: length of the text in bytes as represented in single chars.
+ * memsize: allocated size of str object in bytes.
  */
 typedef struct {
   unsigned char* str;
   int memsize;
   int len;
-} name_t;
+} string_t;
 
 /**
  * Create object_t pointing to name that starts at the current position.
  */
 object_t* get_name(FILE* fs, int fail_on_error);
 
+/**
+ * Create object_t pointing to string that starts at the current position.
+ */
 object_t* get_string(FILE* fs, int fail_on_error);
 
+/**
+ * Create object_t pointing to hex string that starts at the current position.
+ */
 object_t* get_hex_string(FILE* fs, int fail_on_error);
+
+/**
+ * Get object_t* with val pointing to string_t.
+ */
+object_t* get_string_type_obj(FILE* fs, unsigned char first_char, int fail_on_error);
 
 object_t* get_dictionary(FILE* fs, int fail_on_error);
 

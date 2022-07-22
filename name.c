@@ -28,7 +28,7 @@ static unsigned char get_hex_char(FILE* fs) {
  * Adds a char to ptr+len, reallocating ptr if len >= memsize.
  * returns NULL in case of failure.
  */
-static int add_byte(unsigned char c, name_t* name) {
+static int add_byte(unsigned char c, string_t* name) {
   int new_size = name->memsize;
   name->str = (unsigned char*) name->str;
   while (new_size < name->len + 1) {
@@ -65,7 +65,7 @@ static int add_byte(unsigned char c, name_t* name) {
  * the character in the pdf.
  * returns 0 when done reading.
  */
-static int add_name_char(FILE* fs, int c, name_t* name) {
+static int add_name_char(FILE* fs, int c, string_t* name) {
   if (c > 0x21 && c < 0x7e) {
     int success = add_byte(c, name);
     if (!success) {
@@ -89,23 +89,9 @@ static int add_name_char(FILE* fs, int c, name_t* name) {
 }
 
 object_t* get_name(FILE* fs, int fail_on_error) {
-  consume_whitespace(fs);
-  int c = get_char(fs, FAIL);
-  if (c != '/' && fail_on_error) {
-    printf("Invalid first char for Name object: [%c]. "
-        "Must begin with forward slash.\n", c);
-    cexit(fs, 1);
-  }
-
-  object_t* name_obj = allocate(sizeof(object_t));
-  name_obj->offset = get_pos(fs);
-  name_obj->len = 0;
-  name_obj->type = Name;
-  name_obj->val = allocate(sizeof(name_t));
-
-  name_t* name_val = name_obj->val;
-  name_val->memsize = 1;
-  name_val->str = allocate(name_val->memsize);
+  object_t* name_obj = get_string_type_obj(fs, '/', fail_on_error);
+  string_t* name_val = name_obj->val;
+  int c;
 
   while ((c = get_char(fs, FAIL))) {
     int char_len = add_name_char(fs, c, name_val);
