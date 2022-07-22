@@ -122,15 +122,3 @@ object_t* get_name(FILE* fs, int fail_on_error) {
   return name_obj;
 }
 
-// TODO: remove this.
-char* name_str(FILE* fs, object_t* name) {
-  char* ns = allocate(name->len + 1);
-  seek(fs, name->offset, SEEK_SET, FAIL);
-  size_t read = fread(ns, 1, name->len, fs);
-  if (read != name->len) {
-    fprintf(stderr,
-        "Failed to read %i from fs. Read %li instead.\n",
-        name->len, read);
-  }
-  return ns;
-}
