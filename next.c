@@ -58,7 +58,7 @@ static object_t* next_angle_bracket_sym(FILE* fs) {
 
   switch ((unsigned char) c) {
     case '<':
-      return get_dictionary(fs, FAIL);
+      return get_list(fs, DictionaryEntry);
     default:
       // hex string
       fprintf(stderr, "Hex string parsing is not yet implemented.\n");
@@ -89,7 +89,9 @@ object_t* next_sym(FILE* fs) {
     case '(':
       unget_char(fs, c, FAIL);
       return get_string(fs, FAIL);
-      return NULL;
+    case '[':
+      unget_char(fs, c, FAIL);
+      return get_list(fs, Object);
     default:
       fprintf(stderr, "Next char: %i\n", c);
       fprintf(stderr, "unknown symbol! [%c]\n", c);
@@ -134,10 +136,14 @@ int seek(FILE* fs, long offset, int whence, int fail_on_error) {
   return ret;
 }
 
-// Checks for a match at the current position.
-static long check_for_match(FILE* fs, char* s) {
+/**
+ * Checks for a match at the current position.
+ * returns the current position if found, 0 otherwise.
+ * Returns EOF in case of EOF.
+ */
+size_t check_for_match(FILE* fs, char* s) {
   if (s[0] == 0) {
-    return 1;
+    return get_pos(fs);
   }
 
   int c = get_char(fs, IGNORE);
@@ -161,7 +167,7 @@ int find_backwards(FILE* fs, char* sequence, int len) {
   }
 
   long curr_pos = get_pos(fs);
-  int match = 0;
+  size_t match = 0;
 
   while ((match = check_for_match(fs, sequence)) != 1) {
     if (match == EOF) {

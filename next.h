@@ -24,6 +24,7 @@ void unget_chars(FILE* fs, int* c, int len, int fail_on_error);
 
 /**
  * Finds the next symbol.
+ * Returns NULL unless an object is successfully read.
  */
 object_t* next_sym(FILE* fs);
 
@@ -57,6 +58,12 @@ long get_pos(FILE* fs);
  * fseek wrapper. Exit on fail if specified.
  */
 int seek(FILE* fs, long offset, int whence, int fail_on_error);
+
+/**
+ * Checks for a match at the current position.
+ * returns 1 if a match is found, returns 0 otherwise.
+ */
+size_t check_for_match(FILE* fs, char* s);
 
 /**
  * Finds a sequence searching backwards through the stream.

@@ -10,7 +10,7 @@
  * hstr -> string_t
  * name -> string_t
  * arr -> object_t*
- * dict -> dict_t*
+ * dict -> list_t*
  * null -> NULL
  * stream -> tbd
  * ind -> tbd
@@ -26,6 +26,14 @@ enum o_type {
   Null,
   Stream,
   Ind
+};
+
+/**
+ * List element Type
+ */
+enum el_t {
+  DictionaryEntry,
+  Object
 };
 
 /**
@@ -50,14 +58,15 @@ typedef struct {
 } d_entry_t;
 
 /**
- * Dictionary object. Has entries and number (len) of entries.
- * There is memsize memory allocated for the entries.
+ * List object. Has number `len` of elements.
+ * There is `memsize` memory allocated for the entries.
  */
 typedef struct {
-  d_entry_t** entries;
+  void** el;
   int len;
   int memsize;
-} dict_t;
+  enum el_t el_type;
+} list_t;
 
 /**
  * stringish object.
@@ -75,6 +84,14 @@ typedef struct {
   int memsize;
   int len;
 } string_t;
+
+/**
+ * Function pointer types to read a dictionary entry or object.
+ * read_element for casting.
+ */
+typedef d_entry_t* (*read_dict_entry)(FILE*);
+typedef object_t* (*read_object)(FILE*);
+typedef void* (*read_element)(FILE*);
 
 /**
  * Create object_t pointing to name that starts at the current position.
@@ -100,6 +117,13 @@ object_t* get_dictionary(FILE* fs, int fail_on_error);
 
 object_t* get_number(FILE* fs, int fail_on_error);
 
+object_t* get_list(FILE* fs, enum el_t el_type);
+
+/**
+ * Reads a dictionary entry from fs.
+ */
+d_entry_t* get_entry(FILE* fs);
+
 /**
  * Load the name into a char string.
  */
@@ -108,7 +132,8 @@ char* name_str(FILE* fs, object_t* name);
 /**
  * Print a dictionary.
  */
-void print_dictionary(dict_t* d);
+void print_dictionary(list_t* d);
+void print_list(list_t* list);
 
 /**
  * Add a byte to the string
@@ -120,6 +145,7 @@ int add_byte(unsigned char c, string_t* st);
  */
 int free_object_t(object_t* o);
 
-void free_dict_t(dict_t* d);
+void free_list_t(list_t* d);
+
 
 #endif // object_h

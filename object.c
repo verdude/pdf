@@ -43,11 +43,16 @@ void free_d_entry_t(d_entry_t* e) {
   free(e);
 }
 
-void free_dict_t(dict_t* d) {
+void free_list_t(list_t* d) {
   for (int i = 0; i < d->len; i++) {
-    free_d_entry_t(d->entries[i]);
+    switch (d->el_type) {
+      case DictionaryEntry:
+        free_d_entry_t(d->el[i]);
+      case Object:
+        free_object_t(d->el[i]);
+    }
   }
-  free(d->entries);
+  free(d->el);
   free(d);
 }
 
@@ -64,7 +69,7 @@ int free_object_t(object_t* o) {
       free_string_t(o->val);
       break;
     case Dict:
-      free_dict_t(o->val);
+      free_list_t(o->val);
       break;
     case Arr:
     case Null:

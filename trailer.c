@@ -24,7 +24,7 @@ trailer_t* get_trailer(FILE* fs) {
   // TODO: make sure it is a dictionary...
   t->dictionary = next_sym(fs);
 
-  print_dictionary((dict_t*) t->dictionary->val);
+  print_list((list_t*) t->dictionary->val);
 
   return t;
 }
