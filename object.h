@@ -9,7 +9,7 @@
  * str -> string_t
  * hstr -> string_t
  * name -> string_t
- * arr -> object_t*
+ * arr -> list_t*
  * dict -> list_t*
  * null -> NULL
  * stream -> tbd
@@ -143,9 +143,6 @@ int add_byte(unsigned char c, string_t* st);
 /**
  * Free an object_t*
  */
-int free_object_t(object_t* o);
-
-void free_list_t(list_t* d);
-
+void free_object_t(object_t* o);
 
 #endif // object_h

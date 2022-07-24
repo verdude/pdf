@@ -7,7 +7,7 @@
 #include "trailer.h"
 
 trailer_t* get_trailer(FILE* fs) {
-  seek(fs, -(EOF_LEN+1), SEEK_END, FAIL);
+  seek(fs, -(EOF_LEN+1), SEEK_END);
 
   char* trailer_string = "\ntrailer\n";
   size_t trailer_len = strlen(trailer_string);
@@ -29,9 +29,8 @@ trailer_t* get_trailer(FILE* fs) {
   return t;
 }
 
-int free_trailer_t(trailer_t* t) {
-  int success = free_object_t(t->dictionary);
+void free_trailer_t(trailer_t* t) {
+  free_object_t(t->dictionary);
   free(t);
-  return success;
 }
 

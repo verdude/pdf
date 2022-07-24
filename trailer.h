@@ -12,6 +12,6 @@ typedef struct {
 
 trailer_t* get_trailer();
 
-int free_trailer_t(trailer_t* t);
+void free_trailer_t(trailer_t* t);
 
 #endif // trailer_h

@@ -105,7 +105,7 @@ char* consume_chars(FILE* fs, int (*fn)(), int len) {
 
   for (size_t i = 0; i < len - 1; ++i) {
     c = get_char(fs, IGNORE);
-    if (fn(c)) {
+    if ((*fn)(c)) {
       chars[i] = (unsigned char) c;
     } else {
       unget_char(fs, c, IGNORE);
@@ -127,9 +127,9 @@ long get_pos(FILE* fs) {
   return pos;
 }
 
-int seek(FILE* fs, long offset, int whence, int fail_on_error) {
+int seek(FILE* fs, long offset, int whence) {
   int ret = fseek(fs, offset, whence);
-  if (ret == -1 && fail_on_error) {
+  if (ret == -1) {
     perror("fseek");
     cexit(fs, 1);
   }
@@ -158,6 +158,13 @@ size_t check_for_match(FILE* fs, char* s) {
   return check_for_match(fs, s + 1);
 }
 
+size_t check_for_match_seek_back(FILE* fs, char* s) {
+  long pos = get_pos(fs);
+  size_t result = check_for_match(fs, s);
+  seek(fs, pos, SEEK_SET);
+  return result;
+}
+
 // TODO: perhaps validate the sequence? Make sure it is null terminated
 // at the given length?
 int find_backwards(FILE* fs, char* sequence, int len) {
@@ -169,7 +176,7 @@ int find_backwards(FILE* fs, char* sequence, int len) {
   long curr_pos = get_pos(fs);
   size_t match = 0;
 
-  while ((match = check_for_match(fs, sequence)) != 1) {
+  while ((match = check_for_match(fs, sequence)) <= 0) {
     if (match == EOF) {
       return 0;
     }
@@ -178,7 +185,7 @@ int find_backwards(FILE* fs, char* sequence, int len) {
       fprintf(stderr, "Could not find sequence %s in file\n", sequence);
       return 0;
     }
-    seek(fs, new_pos, SEEK_SET, FAIL);
+    seek(fs, new_pos, SEEK_SET);
     curr_pos = get_pos(fs);
   }
 

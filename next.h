@@ -19,6 +19,7 @@ void unget_char(FILE* fs, int c, int fail_on_error);
 
 /**
  * unget wrapper for list of unsigned char cast to int.
+ * TODO: remove?
  */
 void unget_chars(FILE* fs, int* c, int len, int fail_on_error);
 
@@ -57,13 +58,16 @@ long get_pos(FILE* fs);
 /**
  * fseek wrapper. Exit on fail if specified.
  */
-int seek(FILE* fs, long offset, int whence, int fail_on_error);
+int seek(FILE* fs, long offset, int whence);
 
 /**
  * Checks for a match at the current position.
  * returns 1 if a match is found, returns 0 otherwise.
+ * check_for_match_seek_back returns to the current position
+ * after checking for a match if one was not found.
  */
 size_t check_for_match(FILE* fs, char* s);
+size_t check_for_match_seek_back(FILE* fs, char* s);
 
 /**
  * Finds a sequence searching backwards through the stream.
@@ -86,3 +90,4 @@ void cexit(FILE* fs, int code);
 void consume_whitespace(FILE* fs);
 
 #endif // next_h
+

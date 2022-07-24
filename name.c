@@ -83,8 +83,9 @@ static int add_name_char(FILE* fs, int c, string_t* name) {
     }
     return 3;
   } else {
-    fprintf(stderr, "Invalid char in name: %#4x\n", c);
-    fprintf(stderr, "File Offset: %li\n", get_pos(fs));
+    fprintf(stderr, "~~~> Invalid char in name (%s): %#4x\n", name->str, c);
+    fprintf(stderr, "~~~> File Offset: %li\n", get_pos(fs));
+    fprintf(stderr, "~~~>\n");
     return 0;
   }
 }

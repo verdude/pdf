@@ -61,7 +61,7 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
     re = (read_element) &next_sym;
   }
 
-  while (!(end = check_for_match(fs, terminator))) {
+  while (!(end = check_for_match_seek_back(fs, terminator))) {
     void* element = (*re)(fs);
 
     if (element == NULL) {
@@ -73,10 +73,11 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
     if (!success) {
       fprintf(stderr, "not success! adding object to list\n");
     }
+    consume_whitespace(fs);
   }
 
   object_t* obj = allocate(sizeof(object_t));
-  obj->type = list->el_type;
+  obj->type = Arr;
   // points to the first char after init sym ("<<" or "[")
   obj->offset = pos;
   obj->len = end - pos;

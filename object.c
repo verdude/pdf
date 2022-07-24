@@ -48,15 +48,19 @@ void free_list_t(list_t* d) {
     switch (d->el_type) {
       case DictionaryEntry:
         free_d_entry_t(d->el[i]);
+        break;
       case Object:
         free_object_t(d->el[i]);
+        break;
+      default:
+        fprintf(stderr, "WOW. Very strange.");
     }
   }
   free(d->el);
   free(d);
 }
 
-int free_object_t(object_t* o) {
+void free_object_t(object_t* o) {
   enum o_type type = o->type;
   switch (type) {
     case Num:
@@ -69,21 +73,19 @@ int free_object_t(object_t* o) {
       free_string_t(o->val);
       break;
     case Dict:
+    case Arr:
       free_list_t(o->val);
       break;
-    case Arr:
     case Null:
     case Stream:
     case Ind:
-      fprintf(stderr, "Call free with unhandled object type: %i\n", type);
-      free(o);
+      fprintf(stderr, "Called free with unhandled object type: %i\n", type);
       break;
     default:
       fprintf(stderr, "Bad object type: %i\n", type);
-      return 0;
+      return;
   }
 
   free(o);
-  return 1;
 }
 
