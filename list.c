@@ -1,8 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "next.h"
 #include "object.h"
+
+void print_list(list_t* l) {
+  for (int i = 0; i < l->len; ++i) {
+    switch (l->el_type) {
+      case Object:
+        print_object(l->el[i]);
+        break;
+      case DictionaryEntry:
+        print_d_entry(l->el[i]);
+        break;
+      default:
+        fprintf(stderr, "Bad List type: %i\n", l->el_type);
+        return;
+    }
+  }
+}
 
 int add_obj_to_list(list_t* list, void* ptr) {
   size_t ptr_width = sizeof(void*);
@@ -76,6 +93,9 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
     consume_whitespace(fs);
   }
 
+  // skip terminator
+  seek(fs, strlen(terminator), SEEK_CUR);
+
   object_t* obj = allocate(sizeof(object_t));
   obj->type = Arr;
   // points to the first char after init sym ("<<" or "[")
@@ -84,21 +104,5 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
   obj->val = list;
 
   return obj;
-}
-
-void print_list(list_t* l) {
-  for (int i = 0; i < l->len; ++i) {
-    switch (l->el_type) {
-      case Object:
-        print_object(l->el[i]);
-        break;
-      case DictionaryEntry:
-        print_d_entry(l->el[i]);
-        break;
-      default:
-        fprintf(stderr, "Bad List type: %i\n", l->el_type);
-        return;
-    }
-  }
 }
 

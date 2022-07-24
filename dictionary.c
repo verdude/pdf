@@ -8,7 +8,7 @@ void print_d_entry(d_entry_t* d) {
   object_t* key = d->key;
   object_t* val = d->val;
 
-  printf("KEY: (%s) VAL:", ((string_t*) key->val)->str);
+  printf("[%s]:", ((string_t*) key->val)->str);
   print_object(val);
 }
 
