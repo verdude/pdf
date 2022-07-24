@@ -86,9 +86,19 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
   return obj;
 }
 
-void print_list(list_t* list) {
-  if (list->el_type == Object) {
-
+void print_list(list_t* l) {
+  for (int i = 0; i < l->len; ++i) {
+    switch (l->el_type) {
+      case Object:
+        print_object(l->el[i]);
+        break;
+      case DictionaryEntry:
+        print_d_entry(l->el[i]);
+        break;
+      default:
+        fprintf(stderr, "Bad List type: %i\n", l->el_type);
+        return;
+    }
   }
 }
 

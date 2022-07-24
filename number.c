@@ -29,7 +29,7 @@ object_t* get_number(FILE* fs, int fail_on_error) {
     }
   }
 
-  int value = strtol(num->str, NULL, 10);
+  long value = strtol(num->str, NULL, 10);
   if ((value == LONG_MIN || value == LONG_MAX) && fail_on_error) {
     fprintf(stderr, "Failed converting number to long: %s\n", num->str);
     perror("strtol");

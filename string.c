@@ -71,3 +71,7 @@ object_t* get_string(FILE* fs, int fail_on_error) {
   return string;
 }
 
+void print_string(string_t* s) {
+  printf("%s\n", s->str);
+}
+

@@ -133,7 +133,10 @@ char* name_str(FILE* fs, object_t* name);
  * Print a dictionary.
  */
 void print_dictionary(list_t* d);
-void print_list(list_t* list);
+void print_list(list_t* l);
+void print_object(object_t* o);
+void print_string(string_t* s);
+void print_d_entry(d_entry_t* e);
 
 /**
  * Add a byte to the string

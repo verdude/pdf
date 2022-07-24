@@ -4,33 +4,12 @@
 #include "next.h"
 #include "object.h"
 
-void print_dictionary_entry(d_entry_t* d) {
+void print_d_entry(d_entry_t* d) {
   object_t* key = d->key;
   object_t* val = d->val;
-  // type of the value
-  enum o_type type = val->type;
 
-  printf("KEY: (%s) ", ((string_t*) key->val)->str);
-
-  switch (type) {
-    case Str:
-    case Hstr:
-    case Name:
-      printf("VAL: %s\n", ((string_t*) val->val)->str);
-      break;
-    case Num:
-    case Boo:
-        printf("VAL: %li\n", *((long*) val->val));
-        break;
-    case Null:
-        printf("VAL: null\n");
-        break;
-    case Dict:
-        print_list((list_t*) val->val);
-        break;
-    default:
-        printf("unhandled type: %i\n", type);
-  }
+  printf("KEY: (%s) VAL:", ((string_t*) key->val)->str);
+  print_object(val);
 }
 
 d_entry_t* get_entry(FILE* fs) {

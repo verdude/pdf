@@ -89,3 +89,29 @@ void free_object_t(object_t* o) {
   free(o);
 }
 
+void print_object(object_t* o) {
+  enum o_type type = o->type;
+  switch (type) {
+    case Num:
+    case Boo:
+      printf("%li\n", *(long*)o->val);
+      break;
+    case Str:
+    case Hstr:
+    case Name:
+      print_string(o->val);
+      break;
+    case Dict:
+    case Arr:
+      print_list(o->val);
+      break;
+    case Null:
+    case Stream:
+    case Ind:
+      fprintf(stderr, "Called print with unhandled object type: %i\n", type);
+      break;
+    default:
+      fprintf(stderr, "Bad object type (print_object): %i\n", type);
+      return;
+  }
+}
