@@ -21,7 +21,7 @@ void unget_char(FILE* fs, int c, int fail_on_error);
  * unget wrapper for list of unsigned char cast to int.
  * TODO: remove?
  */
-void unget_chars(FILE* fs, int* c, int len, int fail_on_error);
+void unget_chars(FILE* fs, unsigned char* c, int len);
 
 /**
  * Finds the next symbol.

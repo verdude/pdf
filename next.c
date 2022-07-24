@@ -25,9 +25,9 @@ void unget_char(FILE* fs, int c, int fail_on_error) {
   }
 }
 
-void unget_chars(FILE* fs, int* c, int len, int fail_on_error) {
+void unget_chars(FILE* fs, unsigned char* s, int len) {
   for (int i = 0; i < len; ++i) {
-    unget_char(fs, c[i], fail_on_error);
+    unget_char(fs, s[i], FAIL);
   }
 }
 
@@ -58,10 +58,13 @@ static object_t* next_angle_bracket_sym(FILE* fs) {
 
   switch ((unsigned char) c) {
     case '<':
+      unget_chars(fs, (unsigned char*) "<<", 2);
       return get_list(fs, DictionaryEntry);
     default:
+      unget_char(fs, c, FAIL);
       // hex string
       fprintf(stderr, "Hex string parsing is not yet implemented.\n");
+      cexit(fs, 1);
       return NULL;
   }
 }
@@ -93,8 +96,7 @@ object_t* next_sym(FILE* fs) {
       unget_char(fs, c, FAIL);
       return get_list(fs, Object);
     default:
-      fprintf(stderr, "Next char: %i\n", c);
-      fprintf(stderr, "unknown symbol! [%c]\n", c);
+      fprintf(stderr, "unknown symbol! [%c] int: %i\n", c, c);
       return NULL;
   }
 }
@@ -186,7 +188,7 @@ int find_backwards(FILE* fs, char* sequence, int len) {
       return 0;
     }
     seek(fs, new_pos, SEEK_SET);
-    curr_pos = get_pos(fs);
+    curr_pos = new_pos;
   }
 
   return 1;

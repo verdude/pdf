@@ -72,11 +72,16 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
 
   if (list->el_type == DictionaryEntry) {
     terminator = ">>";
+    // Needs to consume these chars to get into position
+    check_for_match(fs, "<<");
     re = (read_element) &get_entry;
   } else {
     terminator = "]";
+    check_for_match(fs, "[");
     re = (read_element) &next_sym;
   }
+
+  consume_whitespace(fs);
 
   while (!(end = check_for_match_seek_back(fs, terminator))) {
     void* element = (*re)(fs);
