@@ -66,6 +66,12 @@ int add_byte(unsigned char c, string_t* st) {
  * returns 0 when done reading.
  */
 static int add_name_char(FILE* fs, int c, string_t* name) {
+  // TODO: add warning for other object symbols
+  // to make debugging invalid dict entries easier.
+  // ex:
+  //   /ID[<...><...>]
+  //   No space, next char is [ which is valid in a name
+  //   but not intended to be part of the name in this case.
   if (c > 0x21 && c < 0x7e) {
     int success = add_byte(c, name);
     if (!success) {
