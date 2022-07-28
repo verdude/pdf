@@ -65,12 +65,7 @@ int supported_version(FILE* fs) {
   return 1;
 }
 
-int is_not_space(int c) {
-  return !isspace(c) && c != EOF;
-}
-
 int read_bin_comment(FILE* fs) {
-  printf("Checking if is bin...\n");
   char c = (char) get_char(fs, FAIL);
   if (c != '%') {
     unget_char(fs, c, FAIL);
@@ -83,8 +78,7 @@ int read_bin_comment(FILE* fs) {
 
   int i = 0;
   while (chars[i] != 0) {
-    printf("%u\n", chars[i]);
-    if (chars[i] <= 128) {
+    if ((unsigned char) chars[i] <= 128) {
       printf("Non-bin char in comment: %#4x\n", chars[i]);
       free(chars);
       return 0;
@@ -104,8 +98,6 @@ int main(int argc, char** argv) {
   FILE* fs = file_exists(argv[1]);
   if (fs) {
     if (supported_version(fs)) {
-      int is_bin = read_bin_comment(fs);
-      printf("Is %sbin.\n", is_bin ? "" : "not ");
       trailer_t* trailer = get_trailer(fs);
       if (trailer) {
         free_trailer_t(trailer);

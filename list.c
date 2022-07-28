@@ -25,7 +25,7 @@ int add_obj_to_list(list_t* list, void* ptr) {
   size_t ptr_width = sizeof(void*);
   int new_size = list->memsize;
 
-  while (new_size / ptr_width < list->len) {
+  while (new_size / ptr_width <= list->len) {
     new_size += list->memsize;
   }
 
@@ -78,7 +78,7 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
   } else {
     terminator = "]";
     check_for_match(fs, "[");
-    re = (read_element) &next_sym;
+    re = (read_element) &next_arr_sym;
   }
 
   consume_whitespace(fs);
@@ -87,7 +87,7 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
     void* element = (*re)(fs);
 
     if (element == NULL) {
-      fprintf(stderr, "Failed to get object");
+      fprintf(stderr, "Failed to get object\n");
       cexit(fs, 1);
     }
 
@@ -102,8 +102,8 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
   seek(fs, strlen(terminator), SEEK_CUR);
 
   object_t* obj = allocate(sizeof(object_t));
-  obj->type = Arr;
-  // points to the first char after init sym ("<<" or "[")
+  obj->type = el_type == DictionaryEntry ? Dict : Arr;
+  // points to the first char in init sym ("<<" or "[")
   obj->offset = pos;
   obj->len = end - pos;
   obj->val = list;

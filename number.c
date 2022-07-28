@@ -4,7 +4,7 @@
 
 #include "next.h"
 
-object_t* get_number(FILE* fs, int fail_on_error) {
+object_t* get_number(FILE* fs) {
   string_t* num = allocate(sizeof(string_t));
   int size = 10;
   num->str = allocate(size);
@@ -30,7 +30,7 @@ object_t* get_number(FILE* fs, int fail_on_error) {
   }
 
   long value = strtol(num->str, NULL, 10);
-  if ((value == LONG_MIN || value == LONG_MAX) && fail_on_error) {
+  if ((value == LONG_MIN || value == LONG_MAX)) {
     fprintf(stderr, "Failed converting number to long: %s\n", num->str);
     perror("strtol");
     cexit(fs, 1);

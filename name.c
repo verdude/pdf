@@ -20,7 +20,6 @@ static unsigned char get_hex_char(FILE* fs) {
     return 0;
   }
 
-  printf("hex: %c%c\n", c1, c2);
   return (unsigned char) abnormal;
 }
 
@@ -88,7 +87,7 @@ static int add_name_char(FILE* fs, int c, string_t* name) {
 }
 
 object_t* get_name(FILE* fs, int fail_on_error) {
-  object_t* name_obj = get_string_type_obj(fs, '/', fail_on_error);
+  object_t* name_obj = get_string_type_obj(fs, NameString);
   string_t* name_val = name_obj->val;
   int c;
 

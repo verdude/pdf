@@ -6,6 +6,13 @@
 
 #include "object.h"
 
+enum indirect {
+  INVALID,
+  TOP,
+  DICTIONARY,
+  STREAM
+};
+
 /**
  * Returns the next character.
  * If eof_fail is non-zero, will exit on EOF; otherwise, EOF is returned.
@@ -27,7 +34,8 @@ void unget_chars(FILE* fs, unsigned char* c, int len);
  * Finds the next symbol.
  * Returns NULL unless an object is successfully read.
  */
-object_t* next_sym(FILE* fs);
+object_t* next_sym(FILE* fs, int indirect);
+object_t* next_arr_sym(FILE* fs);
 
 /**
  * Gets the next non space block of chars.
@@ -47,7 +55,7 @@ void* allocate(int len);
  * Returns char* pointer.
  * There will be at least one 0 at the end of the string.
  */
-char* consume_chars(FILE* fs, int (*fn)(), int len);
+char* consume_chars(FILE* fs, int (*fn)(int), int len);
 
 /**
  * ftell wrapper.
@@ -88,6 +96,8 @@ void cexit(FILE* fs, int code);
  * Skips whitespace.
  */
 void consume_whitespace(FILE* fs);
+
+int is_not_space(int c);
 
 #endif // next_h
 

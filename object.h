@@ -37,6 +37,15 @@ enum el_t {
 };
 
 /**
+ * String encoding/format
+ */
+enum encoding {
+  HexString,
+  LiteralString,
+  NameString
+};
+
+/**
  * type: Object type (o_type)
  * offset: Byte offset from beginning of file stream
  * len: length of object in the stream in bytes
@@ -69,6 +78,15 @@ typedef struct {
 } list_t;
 
 /**
+ * Indirect object
+ */
+typedef struct {
+  long obj_num;
+  long gen_num;
+  object_t* obj;
+} indirect_t;
+
+/**
  * stringish object.
  *
  * used by:
@@ -83,6 +101,7 @@ typedef struct {
   char* str;
   int memsize;
   int len;
+  enum encoding enc;
 } string_t;
 
 /**
@@ -101,23 +120,23 @@ object_t* get_name(FILE* fs, int fail_on_error);
 /**
  * Create object_t pointing to string that starts at the current position.
  */
-object_t* get_string(FILE* fs, int fail_on_error);
+object_t* get_string(FILE* fs, enum encoding enc);
 
 /**
  * Create object_t pointing to hex string that starts at the current position.
  */
-object_t* get_hex_string(FILE* fs, int fail_on_error);
+object_t* get_hex_string(FILE* fs);
+
+object_t* get_dictionary(FILE* fs, int fail_on_error);
+
+object_t* get_number(FILE* fs);
+
+object_t* get_list(FILE* fs, enum el_t el_type);
 
 /**
  * Get object_t* with val pointing to string_t.
  */
-object_t* get_string_type_obj(FILE* fs, unsigned char first_char, int fail_on_error);
-
-object_t* get_dictionary(FILE* fs, int fail_on_error);
-
-object_t* get_number(FILE* fs, int fail_on_error);
-
-object_t* get_list(FILE* fs, enum el_t el_type);
+object_t* get_string_type_obj(FILE* fs, enum encoding enc);
 
 /**
  * Reads a dictionary entry from fs.
@@ -137,6 +156,7 @@ void print_list(list_t* l);
 void print_object(object_t* o);
 void print_string(string_t* s);
 void print_d_entry(d_entry_t* e);
+void print_indirect(indirect_t* i);
 
 /**
  * Add a byte to the string

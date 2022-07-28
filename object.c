@@ -6,28 +6,6 @@
 #include "next.h"
 #include "object.h"
 
-object_t* get_string_type_obj(FILE* fs, unsigned char first_char, int fail_on_error) {
-  consume_whitespace(fs);
-  int c = get_char(fs, FAIL);
-  if (c != first_char && fail_on_error) {
-    printf("Invalid first char for object: [%c]. "
-        "Must begin with %c.\n", c, first_char);
-    cexit(fs, 1);
-  }
-
-  object_t* obj = allocate(sizeof(object_t));
-  obj->offset = get_pos(fs);
-  obj->len = 0;
-  obj->type = Name;
-  obj->val = allocate(sizeof(string_t));
-
-  string_t* val = obj->val;
-  val->memsize = 1;
-  val->str = allocate(val->memsize);
-
-  return obj;
-}
-
 void free_num_boo(void* n) {
   free(n);
 }
@@ -43,21 +21,28 @@ void free_d_entry_t(d_entry_t* e) {
   free(e);
 }
 
-void free_list_t(list_t* d) {
-  for (int i = 0; i < d->len; i++) {
-    switch (d->el_type) {
+void free_indirect_object(indirect_t* i) {
+  if (i->obj) {
+    free_object_t(i->obj);
+  }
+  free(i);
+}
+
+void free_list_t(list_t* l) {
+  for (int i = 0; i < l->len; i++) {
+    switch (l->el_type) {
       case DictionaryEntry:
-        free_d_entry_t(d->el[i]);
+        free_d_entry_t(l->el[i]);
         break;
       case Object:
-        free_object_t(d->el[i]);
+        free_object_t(l->el[i]);
         break;
       default:
-        fprintf(stderr, "WOW. Very strange.");
+        fprintf(stderr, "Invalid list type: %i\n", l->el_type);
     }
   }
-  free(d->el);
-  free(d);
+  free(l->el);
+  free(l);
 }
 
 void free_object_t(object_t* o) {
@@ -76,13 +61,15 @@ void free_object_t(object_t* o) {
     case Arr:
       free_list_t(o->val);
       break;
+    case Ind:
+      free_indirect_object(o->val);
+      break;
     case Null:
     case Stream:
-    case Ind:
-      fprintf(stderr, "Called free with unhandled object type: %i\n", type);
+      fprintf(stderr, "Called free object with unhandled object type: %i\n", type);
       break;
     default:
-      fprintf(stderr, "Bad object type: %i\n", type);
+      fprintf(stderr, "free_object: Bad object type: %i\n", type);
       return;
   }
 
@@ -102,12 +89,18 @@ void print_object(object_t* o) {
       print_string(o->val);
       break;
     case Dict:
+      printf("<<\n");
+      print_list(o->val);
+      printf(">>\n");
+      break;
     case Arr:
       print_list(o->val);
       break;
+    case Ind:
+      print_indirect(o->val);
+      break;
     case Null:
     case Stream:
-    case Ind:
       fprintf(stderr, "Called print with unhandled object type: %i\n", type);
       break;
     default:
