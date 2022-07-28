@@ -38,6 +38,11 @@ object_t* next_sym(FILE* fs, int indirect);
 object_t* next_arr_sym(FILE* fs);
 
 /**
+ * Gets a number at the current position.
+ */
+long get_num(FILE* fs);
+
+/**
  * Gets the next non space block of chars.
  */
 char* get_word(FILE* fs);
@@ -81,7 +86,7 @@ size_t check_for_match_seek_back(FILE* fs, char* s);
  * Finds a sequence searching backwards through the stream.
  * sequence is the length of len.
  * Max 10 char sequence for now.
- * Updates the fs to point at the start of the sequence and
+ * fs will point to the char after the sequence.
  * returns 0 if not found and 1 if found.
  * O(n) where n is the length of the pdf in bytes.
  */

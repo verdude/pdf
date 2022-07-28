@@ -99,7 +99,7 @@ int is_not_space(int c) {
   return !isspace(c) && c != EOF;
 }
 
-static long get_num(FILE* fs) {
+long get_num(FILE* fs) {
   char* s = consume_chars(fs, &is_not_space, 64);
   char* end;
   size_t slen = strnlen(s, 64);
@@ -126,7 +126,7 @@ static long get_num(FILE* fs) {
  * ["9", "0", "R"] is an indirect reference
  * Anything else will be a number.
  */
-static object_t* parse_num(FILE* fs, int ind) {
+static object_t* parse_num(FILE* fs, enum indirect ind) {
   long pos = get_pos(fs);
   long num = get_num(fs);
   int c = get_char(fs, FAIL);
@@ -256,7 +256,7 @@ size_t check_for_match_seek_back(FILE* fs, char* s) {
 // TODO: perhaps validate the sequence? Make sure it is null terminated
 // at the given length?
 int find_backwards(FILE* fs, char* sequence, int len) {
-  if (len > 10) {
+  if (len > 15) {
     fprintf(stderr, "Sequence too long: %i\n", len);
     return 0;
   }

@@ -8,6 +8,18 @@
 
 trailer_t* get_trailer(FILE* fs) {
   seek(fs, -(EOF_LEN+1), SEEK_END);
+  trailer_t* t = allocate(sizeof(trailer_t));
+
+  char* startxref_string = "\nstartxref\n";
+  size_t startxref_len = strlen(startxref_string);
+
+  int xro_offset = find_backwards(fs, startxref_string, startxref_len + 1);
+  if (xro_offset) {
+    long xro = get_num(fs);
+    t->startxref_offset = xro;
+  } else {
+    fprintf(stderr, "startxref string not found.\n");
+  }
 
   char* trailer_string = "\ntrailer\n";
   size_t trailer_len = strlen(trailer_string);
@@ -18,13 +30,13 @@ trailer_t* get_trailer(FILE* fs) {
     return NULL;
   }
 
-  trailer_t* t = calloc(sizeof(trailer_t), 1);
   t->offset = get_pos(fs) + trailer_len;
 
   // TODO: make sure it is a dictionary...
   t->dictionary = next_sym(fs, DICTIONARY);
 
   print_object(t->dictionary);
+  printf("startxref: %li\n", t->startxref_offset);
 
   return t;
 }
