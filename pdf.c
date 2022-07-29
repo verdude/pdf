@@ -104,6 +104,9 @@ int main(int argc, char** argv) {
       if (trailer) {
         free_trailer_t(trailer);
       }
+      if (xref) {
+        free_xref_t(xref);
+      }
     }
     fclose(fs);
   }
