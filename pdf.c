@@ -6,6 +6,7 @@
 
 #include "next.h"
 #include "trailer.h"
+#include "xref.h"
 
 FILE* file_exists(char* path) {
   FILE* fs = fopen(path, "r");
@@ -99,6 +100,7 @@ int main(int argc, char** argv) {
   if (fs) {
     if (supported_version(fs)) {
       trailer_t* trailer = get_trailer(fs);
+      xref_t* xref = get_xref(fs, trailer->startxref_offset);
       if (trailer) {
         free_trailer_t(trailer);
       }

@@ -30,10 +30,10 @@ trailer_t* get_trailer(FILE* fs) {
     return NULL;
   }
 
-  t->offset = get_pos(fs) + trailer_len;
+  t->offset = get_pos(fs) - trailer_len;
 
   // TODO: make sure it is a dictionary...
-  t->dictionary = next_sym(fs, DICTIONARY);
+  t->dictionary = next_sym(fs, INVALID);
 
   print_object(t->dictionary);
   printf("startxref: %li\n", t->startxref_offset);

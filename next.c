@@ -42,11 +42,11 @@ void* allocate(int len) {
   return m;
 }
 
-void consume_whitespace(FILE* fs) {
+void skip_while(FILE* fs, int (*fn)(int)) {
   int c;
   do {
     c = get_char(fs, FAIL);
-  } while (isspace(c));
+  } while ((*fn)(c));
 
   unget_char(fs, c, FAIL);
 }
@@ -93,6 +93,24 @@ long estrtol(char* s, char** endptr) {
     cexit(NULL, 1);
   }
   return n;
+}
+
+void consume_whitespace(FILE* fs) {
+  skip_while(fs, &isspace);
+}
+
+int skip_string(FILE* fs, char* s, long pos) {
+  if (*s == 0) {
+    return 1;
+  }
+  int c = get_char(fs, FAIL);
+
+  if (*s != (char) c) {
+    seek(fs, pos, SEEK_SET);
+    return 0;
+  }
+
+  return skip_string(fs, s+1, pos);
 }
 
 int is_not_space(int c) {
@@ -201,6 +219,7 @@ object_t* next_sym(FILE* fs, int indirect) {
       return get_list(fs, Object);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
+      fprintf(stderr, "pos: %li\n", get_pos(fs));
       return NULL;
   }
 }

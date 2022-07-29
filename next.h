@@ -63,6 +63,14 @@ void* allocate(int len);
 char* consume_chars(FILE* fs, int (*fn)(int), int len);
 
 /**
+ * Moves the fs position to the first byte after
+ * the given string.
+ * Returns 0 if there is no match at the current position
+ * and resets to the starting position.
+ */
+int skip_string(FILE* fs, char* s, long pos);
+
+/**
  * ftell wrapper.
  * Exits on failure.
  */
