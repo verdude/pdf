@@ -78,7 +78,7 @@ object_t* get_list(FILE* fs, enum el_t el_type) {
   } else {
     terminator = "]";
     check_for_match(fs, "[");
-    re = (read_element) &next_arr_sym;
+    re = (read_element) &next_sym;
   }
 
   consume_whitespace(fs);

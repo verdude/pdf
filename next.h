@@ -6,13 +6,6 @@
 
 #include "object.h"
 
-enum indirect {
-  INVALID,
-  TOP,
-  DICTIONARY,
-  STREAM
-};
-
 /**
  * Returns the next character.
  * If eof_fail is non-zero, will exit on EOF; otherwise, EOF is returned.
@@ -34,13 +27,7 @@ void unget_chars(FILE* fs, unsigned char* c, int len);
  * Finds the next symbol.
  * Returns NULL unless an object is successfully read.
  */
-object_t* next_sym(FILE* fs, enum indirect ind);
-object_t* next_arr_sym(FILE* fs);
-
-/**
- * Gets a number at the current position.
- */
-long get_num(FILE* fs, int base);
+object_t* next_sym(FILE* fs);
 
 /**
  * Gets the next non space block of chars.
@@ -117,6 +104,11 @@ int is_not_space(int c);
  * Reads n bytes.
  */
 char* fs_read(FILE* fs, size_t n);
+
+/**
+ * strtol wrapper
+ */
+long estrtol(char* s, char** endptr, int base);
 
 #endif // next_h
 

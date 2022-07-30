@@ -101,11 +101,13 @@ int main(int argc, char** argv) {
       trailer_t* trailer = get_trailer(fs);
       xref_t* xref = get_xref(fs, trailer->startxref_offset);
       if (trailer) {
+        print_object(trailer->dictionary);
         free_trailer_t(trailer);
       }
       if (xref) {
-        print_xref(xref);
-        print_object(next_obj(fs, xref));
+        object_t* o = next_obj(fs, xref);
+        print_object(o);
+        free_object_t(o);
         free_xref_t(xref);
       }
     }

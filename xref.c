@@ -105,7 +105,7 @@ object_t* next_obj(FILE* fs, xref_t* xref) {
 
   seek(fs, offset, SEEK_SET);
 
-  return next_sym(fs, TOP);
+  return next_sym(fs);
 }
 
 xref_t* get_xref(FILE* fs, long offset) {

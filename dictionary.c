@@ -17,7 +17,7 @@ d_entry_t* get_entry(FILE* fs) {
 
   d_entry_t* list_t = allocate(sizeof(d_entry_t));
   list_t->key = first_key;
-  list_t->val = next_sym(fs, DICTIONARY);
+  list_t->val = next_sym(fs);
 
   return list_t;
 }

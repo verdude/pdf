@@ -130,82 +130,7 @@ int is_not_space(int c) {
   return !isspace(c) && c != EOF;
 }
 
-long get_num(FILE* fs, int base) {
-  const int len = 64;
-  char s[64] = {0};
-  consume_chars_stack(fs, &is_not_space, s, len);
-  char* end;
-  size_t slen = strnlen(s, len);
-
-  if (!slen) {
-    fprintf(stderr, "bad number.\n");
-    cexit(fs, 1);
-  }
-
-  long n = estrtol(s, &end, base);
-  if (*end != 0) {
-    size_t extra = strnlen(end, len);
-    seek(fs, -extra, SEEK_CUR);
-  } else if (end == s) {
-    fprintf(stderr, "whole string it not a num! [%s]\n", s);
-    cexit(fs, 1);
-  }
-
-  return n;
-}
-
-/**
- * ["9", "0", "R"] is an indirect reference
- * Anything else will be a number.
- */
-static object_t* parse_num(FILE* fs, enum indirect ind) {
-  long pos = get_pos(fs);
-  long num = get_num(fs, 0);
-  int c = get_char(fs, FAIL);
-
-  if (c != ' ' || ind == INVALID) {
-    unget_char(fs, c, FAIL);
-    object_t* o = allocate(sizeof(object_t));
-    o->type = Num;
-    o->offset = pos;
-    o->len = get_pos(fs) - pos;
-    o->val = allocate(sizeof(long));
-    *((long*)o->val) = num;
-    return o;
-  }
-
-  long gen_num = get_num(fs, 0);
-  c = get_char(fs, FAIL);
-  if (c != ' ') {
-    fprintf(stderr, "Invalid indrect obj\n");
-    fprintf(stderr, "On char [%#04x]\n", c);
-    cexit(fs, 1);
-  }
-
-  c = get_char(fs, FAIL);
-  if (c != 'R' && c != 'o') {
-    fprintf(stderr, "Warning: char [%c] at: %li is not a valid indirect object\n", c, get_pos(fs) - 1);
-  }
-
-  indirect_t* indirect = allocate(sizeof(indirect_t));
-  indirect->obj_num = num;
-  indirect->gen_num = gen_num;
-  indirect->obj = NULL;
-
-  object_t* o = allocate(sizeof(object_t));
-  o->type = Ind;
-  o->offset = pos;
-  o->len = get_pos(fs) - pos;
-  o->val = indirect;
-
-  return o;
-}
-
-object_t* next_arr_sym(FILE* fs) {
-  return next_sym(fs, INVALID);
-}
-
-object_t* next_sym(FILE* fs, enum indirect ind) {
+object_t* next_sym(FILE* fs) {
   consume_whitespace(fs);
 
   int c = get_char(fs, IGNORE);
@@ -216,7 +141,7 @@ object_t* next_sym(FILE* fs, enum indirect ind) {
 
   if (isdigit(c)) {
     unget_char(fs, c, FAIL);
-    return parse_num(fs, ind);
+    return parse_num(fs);
   }
 
   switch ((unsigned char) c) {

@@ -77,12 +77,27 @@ void free_object_t(object_t* o) {
   free(o);
 }
 
+void print_term(int v, enum o_type type) {
+  switch (type) {
+    case Null:
+      printf("null ");
+      break;
+    case Boo:
+      printf(v ? "true " : "false ");
+      break;
+    default:
+      printf("called print with unknown term\n");
+  }
+}
+
 void print_object(object_t* o) {
   enum o_type type = o->type;
   switch (type) {
     case Num:
-    case Boo:
       printf("%li\n", *(long*)o->val);
+      break;
+    case Boo:
+      print_term(*((int*)o->val), o->type);
       break;
     case Str:
     case Hstr:
@@ -95,18 +110,21 @@ void print_object(object_t* o) {
       printf(">>\n");
       break;
     case Arr:
+      printf("[");
       print_list(o->val);
+      printf("]\n");
       break;
     case Ind:
       print_indirect(o->val);
       break;
     case Null:
+      print_term(0, o->type);
+      break;
     case Stream:
       fprintf(stderr, "Called print with unhandled object type: %i\n", type);
       break;
     default:
       fprintf(stderr, "Bad object type (print_object): %i\n", type);
-      return;
   }
 }
 
@@ -142,7 +160,7 @@ object_t* get_term(FILE* fs, enum term type) {
   }
 
   object_t* o = allocate(sizeof(object_t));
-  o->type = Null;
+  o->type = type == NullTerm ? Null : Boo;
   o->len = 4;
   o->offset = offset;
   o->val = NULL;

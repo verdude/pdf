@@ -28,6 +28,12 @@ enum o_type {
   Ind
 };
 
+/**
+ * Corresponds to a static string value:
+ * NullTerm -> null
+ * TrueTerm -> true
+ * FalseTerm -> false
+ */
 enum term {
   NullTerm,
   TrueTerm,
@@ -133,9 +139,25 @@ object_t* get_string(FILE* fs, enum encoding enc);
  */
 object_t* get_hex_string(FILE* fs);
 object_t* get_dictionary(FILE* fs, int fail_on_error);
-object_t* get_number(FILE* fs);
 object_t* get_list(FILE* fs, enum el_t el_type);
 object_t* get_term(FILE* fs, enum term type);
+
+/**
+ * ["9", "0", "R"] is an indirect reference
+ * object_t for references will not contain the referenced object in val.
+ *
+ * ["9", "0", "obj\n"] is an indirect object.
+ * object_t for indirect objects will contain the referenced object in val.
+ *
+ * Anything else will be a number.
+ */
+object_t* parse_num(FILE* fs);
+
+/**
+ * Reads and parses a number at the current position.
+ * fs points to the first char after the number.
+ */
+long get_num(FILE* fs, int base);
 
 /**
  * Get object_t* with val pointing to string_t.
