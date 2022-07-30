@@ -5,11 +5,15 @@
 #include "next.h"
 #include "object.h"
 
+void print_x_entry(x_entry_t* e) {
+    printf("%li %li %c\n", e->offset, e->gen, e->status);
+}
+
+void print_xref(xref_t* x) {
+  printf("%li %li\n", x->obj_num, x->count);
+}
+
 void free_xref_t(xref_t* x) {
-  for (int i = 0; i < x->count; ++i) {
-    free(x->entries[i]);
-  }
-  free(x->entries);
   free(x);
 }
 
@@ -23,6 +27,7 @@ static int read_size(FILE* fs, xref_t* x) {
   return 1;
 }
 
+// TODO: read space/2 char eol instead of any whitespace
 static x_entry_t* read_entry(FILE* fs) {
   x_entry_t* e = allocate(sizeof(x_entry_t));
 
@@ -36,14 +41,6 @@ static x_entry_t* read_entry(FILE* fs) {
   consume_whitespace(fs);
 
   return e;
-}
-
-static int read_entries(FILE* fs, xref_t* xref) {
-  xref->entries = allocate(sizeof(x_entry_t*) * xref->count);
-  for (int i = 0; i < xref->count; ++i) {
-    xref->entries[0] = read_entry(fs);
-  }
-  return 1;
 }
 
 xref_t* get_xref(FILE* fs, long offset) {
@@ -63,13 +60,6 @@ xref_t* get_xref(FILE* fs, long offset) {
   int success = read_size(fs, xref);
   if (!success) {
     fprintf(stderr, "Failed to read xref obj index/size.\n");
-    free_xref_t(xref);
-    return NULL;
-  }
-
-  success = read_entries(fs, xref);
-  if (!success) {
-    fprintf(stderr, "Failed to read xref table.\n");
     free_xref_t(xref);
     return NULL;
   }
