@@ -231,9 +231,12 @@ object_t* next_sym(FILE* fs, enum indirect ind) {
     case '[':
       unget_char(fs, c, FAIL);
       return get_list(fs, Object);
+    case 'n':
+      unget_char(fs, c, FAIL);
+      return get_null(fs);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
-      fprintf(stderr, "pos: %li\n", get_pos(fs));
+      fprintf(stderr, "pos: %li\n", get_pos(fs)-1);
       return NULL;
   }
 }
@@ -259,7 +262,7 @@ int seek(FILE* fs, long offset, int whence) {
 /**
  * Checks for a match at the current position.
  * returns the current position if found, 0 otherwise.
- * Returns EOF in case of EOF.
+ * Exits in case of EOF.
  * Are size_t and EOF compatible?
  */
 size_t check_for_match(FILE* fs, char* s) {
@@ -268,9 +271,6 @@ size_t check_for_match(FILE* fs, char* s) {
   }
 
   int c = get_char(fs, FAIL);
-  if (c == EOF) {
-    return EOF;
-  }
 
   if (c != *s) {
     return 0;

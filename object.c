@@ -108,3 +108,21 @@ void print_object(object_t* o) {
       return;
   }
 }
+
+object_t* get_null(FILE* fs) {
+  char* null = "null";
+  long offset = get_pos(fs);
+  int success = check_for_match(fs, null);
+  if (!success) {
+    fprintf(stderr, "Expected 'null' at %li.\n", get_pos(fs));
+    return NULL;
+  }
+
+  object_t* o = allocate(sizeof(object_t));
+  o->type = Null;
+  o->len = 4;
+  o->offset = offset;
+  o->val = NULL;
+
+  return o;
+}
