@@ -11,6 +11,7 @@ void print_x_entry(x_entry_t* e) {
 
 void print_xref(xref_t* x) {
   printf("%li %li\n", x->obj_num, x->count);
+  printf("INDEX: %li\n", x->index);
 }
 
 void free_xref_t(xref_t* x) {
@@ -63,6 +64,8 @@ xref_t* get_xref(FILE* fs, long offset) {
     free_xref_t(xref);
     return NULL;
   }
+
+  xref->index = get_pos(fs) + ENTRY_WIDTH;
 
   return xref;
 }
