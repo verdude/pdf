@@ -75,19 +75,18 @@ int read_bin_comment(FILE* fs) {
 
   // arbitrary size. Doesn't seem like there is a limit in 2008 spec.
   const size_t len = 1024;
-  char* chars = consume_chars(fs, &is_not_space, len);
+  char chars[1024] = {0};
+  consume_chars_stack(fs, &is_not_space, chars, len);
 
   int i = 0;
   while (chars[i] != 0) {
     if ((unsigned char) chars[i] <= 128) {
       printf("Non-bin char in comment: %#4x\n", chars[i]);
-      free(chars);
       return 0;
     }
     ++i;
   }
 
-  free(chars);
   return 1;
 }
 
@@ -106,6 +105,7 @@ int main(int argc, char** argv) {
       }
       if (xref) {
         print_xref(xref);
+        print_object(next_obj(fs, xref));
         free_xref_t(xref);
       }
     }

@@ -34,13 +34,13 @@ void unget_chars(FILE* fs, unsigned char* c, int len);
  * Finds the next symbol.
  * Returns NULL unless an object is successfully read.
  */
-object_t* next_sym(FILE* fs, int indirect);
+object_t* next_sym(FILE* fs, enum indirect ind);
 object_t* next_arr_sym(FILE* fs);
 
 /**
  * Gets a number at the current position.
  */
-long get_num(FILE* fs);
+long get_num(FILE* fs, int base);
 
 /**
  * Gets the next non space block of chars.
@@ -61,6 +61,7 @@ void* allocate(int len);
  * There will be at least one 0 at the end of the string.
  */
 char* consume_chars(FILE* fs, int (*fn)(int), int len);
+void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len);
 
 /**
  * Moves the fs position to the first byte after

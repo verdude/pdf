@@ -15,7 +15,7 @@ trailer_t* get_trailer(FILE* fs) {
 
   int xro_offset = find_backwards(fs, startxref_string, startxref_len + 1);
   if (xro_offset) {
-    long xro = get_num(fs);
+    long xro = get_num(fs, 0);
     t->startxref_offset = xro;
   } else {
     fprintf(stderr, "startxref string not found.\n");

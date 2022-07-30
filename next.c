@@ -86,8 +86,21 @@ char* consume_chars(FILE* fs, int (*fn)(int), int len) {
   return chars;
 }
 
-long estrtol(char* s, char** endptr) {
-  long n = strtol(s, endptr, 0);
+void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len) {
+  int c;
+  for (size_t i = 0; i < len - 1; ++i) {
+    c = get_char(fs, IGNORE);
+    if ((*fn)(c)) {
+      chars[i] = c;
+    } else {
+      unget_char(fs, c, IGNORE);
+      break;
+    }
+  }
+}
+
+long estrtol(char* s, char** endptr, int base) {
+  long n = strtol(s, endptr, base);
   if (n == LONG_MIN || n == LONG_MAX) {
     fprintf(stderr, "strtol failed on input: %s\n", s);
     cexit(NULL, 1);
@@ -117,26 +130,27 @@ int is_not_space(int c) {
   return !isspace(c) && c != EOF;
 }
 
-long get_num(FILE* fs) {
-  char* s = consume_chars(fs, &is_not_space, 64);
+long get_num(FILE* fs, int base) {
+  const int len = 64;
+  char s[64] = {0};
+  consume_chars_stack(fs, &is_not_space, s, len);
   char* end;
-  size_t slen = strnlen(s, 64);
+  size_t slen = strnlen(s, len);
 
   if (!slen) {
     fprintf(stderr, "bad number.\n");
     cexit(fs, 1);
   }
 
-  long n = estrtol(s, &end);
+  long n = estrtol(s, &end, base);
   if (*end != 0) {
-    size_t extra = strnlen(end, 64);
+    size_t extra = strnlen(end, len);
     seek(fs, -extra, SEEK_CUR);
   } else if (end == s) {
     fprintf(stderr, "whole string it not a num! [%s]\n", s);
     cexit(fs, 1);
   }
 
-  free(s);
   return n;
 }
 
@@ -146,7 +160,7 @@ long get_num(FILE* fs) {
  */
 static object_t* parse_num(FILE* fs, enum indirect ind) {
   long pos = get_pos(fs);
-  long num = get_num(fs);
+  long num = get_num(fs, 0);
   int c = get_char(fs, FAIL);
 
   if (c != ' ' || ind == INVALID) {
@@ -160,7 +174,7 @@ static object_t* parse_num(FILE* fs, enum indirect ind) {
     return o;
   }
 
-  long gen_num = get_num(fs);
+  long gen_num = get_num(fs, 0);
   c = get_char(fs, FAIL);
   if (c != ' ') {
     fprintf(stderr, "Invalid indrect obj\n");
@@ -191,7 +205,7 @@ object_t* next_arr_sym(FILE* fs) {
   return next_sym(fs, INVALID);
 }
 
-object_t* next_sym(FILE* fs, int indirect) {
+object_t* next_sym(FILE* fs, enum indirect ind) {
   consume_whitespace(fs);
 
   int c = get_char(fs, IGNORE);
@@ -202,7 +216,7 @@ object_t* next_sym(FILE* fs, int indirect) {
 
   if (isdigit(c)) {
     unget_char(fs, c, FAIL);
-    return parse_num(fs, indirect);
+    return parse_num(fs, ind);
   }
 
   switch ((unsigned char) c) {

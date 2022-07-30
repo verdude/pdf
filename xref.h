@@ -17,17 +17,22 @@ typedef struct {
 } x_entry_t;
 
 /**
- * Offset: byte offset to start of table from beginning of the file.
+ * x_offset: byte offset to 'xref' keyword from beginning of the file.
+ * t_offset: byte offset to start of table from beginning of the file.
+ *           This value should never change.
  * obj_num: The number of the first object in the table.
  * count: The number of entries in the table.
  *        Also corresponds to the number of pointers in the entries array.
- * index: An offset to the current entry.
+ * ce_index: The index of the current entry in the xref table.
+ * ce_offset: byte offset from the beginning of the file to the current entry.
  */
 typedef struct {
-  long offset;
+  long x_offset;
+  long t_offset;
   long obj_num;
   long count;
-  long index;
+  long ce_index;
+  long ce_offset;
 } xref_t;
 
 /**
@@ -40,4 +45,8 @@ xref_t* get_xref(FILE* fs, long offset);
 void free_xref_t(xref_t* x);
 
 void print_xref(xref_t* x);
+
+x_entry_t* read_entry(FILE* fs, xref_t* xref);
+
+object_t* next_obj(FILE* fs, xref_t* xref);
 
