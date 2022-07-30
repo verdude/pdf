@@ -21,7 +21,7 @@ build:
 clean:
 	rm -rf $(BUILDDIR)
 	rm -f test/tester.o test/tester
-	rm vgcore.*
+	rm -f vgcore.*
 
 test: $(EXE)
 	make -C test

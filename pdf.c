@@ -105,6 +105,7 @@ int main(int argc, char** argv) {
         free_trailer_t(trailer);
       }
       if (xref) {
+        print_xref(xref);
         free_xref_t(xref);
       }
     }

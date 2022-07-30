@@ -112,5 +112,10 @@ void consume_whitespace(FILE* fs);
 
 int is_not_space(int c);
 
+/**
+ * Reads n bytes.
+ */
+char* fs_read(FILE* fs, size_t n);
+
 #endif // next_h
 
