@@ -65,6 +65,7 @@ void free_object_t(object_t* o) {
       free_indirect_object(o->val);
       break;
     case Null:
+      break;
     case Stream:
       fprintf(stderr, "Called free object with unhandled object type: %i\n", type);
       break;
@@ -109,12 +110,34 @@ void print_object(object_t* o) {
   }
 }
 
-object_t* get_null(FILE* fs) {
-  char* null = "null";
+object_t* get_term(FILE* fs, enum term type) {
+  char* false_str = "false";
+  char* true_str = "true";
+  char* null_str = "null";
+  char* str;
+  int val;
+
+  switch (type) {
+    case FalseTerm:
+      str = false_str;
+      val = 0;
+      break;
+    case TrueTerm:
+      str = true_str;
+      val = 1;
+      break;
+    case NullTerm:
+      str = null_str;
+      break;
+    default:
+      fprintf(stderr, "Unknown term type: %i\n", type);
+      return NULL;
+  }
+
   long offset = get_pos(fs);
-  int success = check_for_match(fs, null);
+  int success = check_for_match(fs, str);
   if (!success) {
-    fprintf(stderr, "Expected 'null' at %li.\n", get_pos(fs));
+    fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(fs));
     return NULL;
   }
 
@@ -124,5 +147,11 @@ object_t* get_null(FILE* fs) {
   o->offset = offset;
   o->val = NULL;
 
+  if (type == TrueTerm || type == FalseTerm) {
+    o->val = allocate(sizeof(int));
+    *(int*)o->val = val;
+  }
+
   return o;
 }
+

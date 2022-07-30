@@ -233,7 +233,13 @@ object_t* next_sym(FILE* fs, enum indirect ind) {
       return get_list(fs, Object);
     case 'n':
       unget_char(fs, c, FAIL);
-      return get_null(fs);
+      return get_term(fs, NullTerm);
+    case 't':
+      unget_char(fs, c, FAIL);
+      return get_term(fs, TrueTerm);
+    case 'f':
+      unget_char(fs, c, FAIL);
+      return get_term(fs, FalseTerm);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
       fprintf(stderr, "pos: %li\n", get_pos(fs)-1);

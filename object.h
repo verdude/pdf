@@ -28,6 +28,12 @@ enum o_type {
   Ind
 };
 
+enum term {
+  NullTerm,
+  TrueTerm,
+  FalseTerm
+};
+
 /**
  * List element Type
  */
@@ -126,12 +132,10 @@ object_t* get_string(FILE* fs, enum encoding enc);
  * Create object_t pointing to hex string that starts at the current position.
  */
 object_t* get_hex_string(FILE* fs);
-
 object_t* get_dictionary(FILE* fs, int fail_on_error);
-
 object_t* get_number(FILE* fs);
-
 object_t* get_list(FILE* fs, enum el_t el_type);
+object_t* get_term(FILE* fs, enum term type);
 
 /**
  * Get object_t* with val pointing to string_t.
