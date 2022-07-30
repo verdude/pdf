@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <execinfo.h>
 
 #include "next.h"
 #include "object.h"
@@ -245,11 +246,17 @@ int find_backwards(FILE* fs, char* sequence, int len) {
 }
 
 void cexit(FILE* fs, int code) {
+  void *array[10];
+  size_t size;
+
   fprintf(stderr, "~~~~> Offset: %li\n", get_pos(fs));
   fprintf(stderr, "~~~~> Exiting with code: %i\n", code);
   if (fs) {
     fclose(fs);
   }
+
+  size = backtrace(array, 10);
+  backtrace_symbols_fd(array, size, 1);
   exit(code);
 }
 

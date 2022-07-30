@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -Wall -g3
+CFLAGS := -Wall -g3 -rdynamic
 
 BUILDDIR = build
 CLIENT = pdf
@@ -9,10 +9,10 @@ OBJECTS = $(patsubst %,$(BUILDDIR)/%,$(OBJS))
 EXE = $(BUILDDIR)/$(CLIENT)
 
 $(EXE): build $(OBJECTS)
-	$(CC) -o $@ $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $(OBJECTS)
 
 $(BUILDDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -c $< -o $@
 
 build:
 	mkdir -p build
