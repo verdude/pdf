@@ -166,6 +166,9 @@ object_t* next_sym(FILE* fs) {
     case 'f':
       unget_char(fs, c, FAIL);
       return get_term(fs, FalseTerm);
+    case '-':
+      long n = get_num(fs, 10);
+      return create_num_obj(fs, get_pos(fs) - 1, -n);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
       fprintf(stderr, "pos: %li\n", get_pos(fs)-1);

@@ -66,6 +66,7 @@ object_t* parse_num(FILE* fs) {
     return create_num_obj(fs, pos, num);
   }
 
+  // Is indirect object
   indirect_t* indirect = allocate(sizeof(indirect_t));
   indirect->obj_num = num;
   indirect->gen_num = gen_num;

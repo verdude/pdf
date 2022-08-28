@@ -163,6 +163,11 @@ object_t* get_term(FILE* fs, enum term type);
 object_t* parse_num(FILE* fs);
 
 /**
+ * Creates a number object_t.
+ */
+object_t* create_num_obj(FILE*, long, long);
+
+/**
  * Reads and parses a number at the current position.
  * fs points to the first char after the number.
  */
