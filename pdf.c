@@ -99,6 +99,9 @@ int main(int argc, char** argv) {
   if (fs) {
     if (supported_version(fs)) {
       trailer_t* trailer = get_trailer(fs);
+      if (!trailer) {
+        cexit(fs, 1);
+      }
       xref_t* xref = get_xref(fs, trailer->startxref_offset);
       if (trailer) {
         print_object(trailer->dictionary);

@@ -1,5 +1,9 @@
-#include "zlib.h"
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include <zlib.h>
 
+#define CHUNK 16384
 int inf(FILE* source)
 {
   int ret;
@@ -44,7 +48,7 @@ int inf(FILE* source)
         return ret;
       }
       have = CHUNK - strm.avail_out;
-      if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
+      if (fwrite(out, 1, have, stdout) != have || ferror(stdout)) {
         (void)inflateEnd(&strm);
         return Z_ERRNO;
       }
