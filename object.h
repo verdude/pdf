@@ -126,13 +126,22 @@ typedef void* (*read_element)(FILE*);
 
 /**
  * Create object_t pointing to name that starts at the current position.
+ * Type determines whether the name is in a dictionary or not.
+ * If we are reading from a dictionary, we anticipate errors like:
+ * /Key/Value
+ * as being two names instead of 1.
  */
-object_t* get_name(FILE* fs, int fail_on_error);
+object_t* get_name(FILE* fs, int fail_on_error, enum el_t type);
 
 /**
  * Create object_t pointing to string that starts at the current position.
  */
 object_t* get_string(FILE* fs, enum encoding enc);
+
+/**
+ * Returns the expected first char for the specified string format.
+ */
+int get_first_char(enum encoding enc);
 
 /**
  * Create object_t pointing to hex string that starts at the current position.

@@ -63,12 +63,25 @@ int first_char(enum encoding enc, int c) {
   }
 }
 
+int get_first_char(enum encoding enc) {
+  switch (enc) {
+    case HexString:
+      return '<';
+    case LiteralString:
+      return '(';
+    case NameString:
+      return '/';
+    default:
+      return 0;
+  }
+}
+
 object_t* get_string_type_obj(FILE* fs, enum encoding enc) {
   consume_whitespace(fs);
   int c = get_char(fs, FAIL);
   if (!first_char(enc, c)) {
     fprintf(stderr, "Invalid first char for string: [%c]. Should be: %c\n",
-        c, first_char(enc, c));
+        c, get_first_char(enc));
     cexit(fs, 1);
   }
 

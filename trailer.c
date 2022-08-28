@@ -27,6 +27,7 @@ trailer_t* get_trailer(FILE* fs) {
 
   if (!found) {
     fprintf(stderr, "Failed to find trailer.\n");
+    free(t);
     return NULL;
   }
 

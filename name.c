@@ -65,7 +65,7 @@ int add_byte(unsigned char c, string_t* st) {
  * the character in the pdf.
  * returns 0 when done reading.
  */
-static int add_name_char(FILE* fs, int c, string_t* name) {
+static int add_name_char(FILE* fs, int c, string_t* name, enum el_t type) {
   // TODO: add warning for other object symbols
   // to make debugging invalid dict entries easier.
   // ex:
@@ -73,6 +73,12 @@ static int add_name_char(FILE* fs, int c, string_t* name) {
   //   No space, next char is [ which is valid in a name
   //   but not intended to be part of the name in this case.
   if (c > 0x21 && c < 0x7e) {
+    if (c == 0x2f && type == DictionaryEntry) {
+      // Contains forward slash in name.
+      // Invalid format but assume the pdf
+      // contains something like: /Key/Val
+      return 0;
+    }
     int success = add_byte(c, name);
     if (!success) {
       cexit(fs, 1);
@@ -92,13 +98,13 @@ static int add_name_char(FILE* fs, int c, string_t* name) {
   }
 }
 
-object_t* get_name(FILE* fs, int fail_on_error) {
+object_t* get_name(FILE* fs, int fail_on_error, enum el_t type) {
   object_t* name_obj = get_string_type_obj(fs, NameString);
   string_t* name_val = name_obj->val;
   int c;
 
   while ((c = get_char(fs, FAIL))) {
-    int char_len = add_name_char(fs, c, name_val);
+    int char_len = add_name_char(fs, c, name_val, type);
 
     if (!char_len) {
       // finished reading name
