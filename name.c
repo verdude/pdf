@@ -73,7 +73,7 @@ static int add_name_char(FILE* fs, int c, string_t* name, enum el_t type) {
   //   No space, next char is [ which is valid in a name
   //   but not intended to be part of the name in this case.
   if (c > 0x21 && c < 0x7e) {
-    if (c == 0x2f && type == DictionaryEntry) {
+    if (c == 0x2f) {
       // Contains forward slash in name.
       // Invalid format but assume the pdf
       // contains something like: /Key/Val
