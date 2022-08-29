@@ -104,7 +104,6 @@ int main(int argc, char** argv) {
       }
       xref_t* xref = get_xref(fs, trailer->startxref_offset);
       if (trailer) {
-        print_object(trailer->dictionary);
         free_trailer_t(trailer);
       }
       if (xref) {

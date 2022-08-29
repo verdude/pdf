@@ -176,7 +176,7 @@ object_t* create_num_obj(FILE*, long, long);
  * Reads and parses a number at the current position.
  * fs points to the first char after the number.
  */
-long get_num(FILE* fs, int base);
+long get_num(FILE* fs, int base, int fail_on_error);
 
 /**
  * Get object_t* with val pointing to string_t.

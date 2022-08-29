@@ -13,7 +13,7 @@ int num_char(int c) {
   return 0;
 }
 
-long get_num(FILE* fs, int base) {
+long get_num(FILE* fs, int base, int fail_on_error) {
   const int len = 64;
   char s[64] = {0};
   char decimal[64] = {0};
@@ -21,9 +21,11 @@ long get_num(FILE* fs, int base) {
   char* end;
   size_t slen = strnlen(s, len);
 
-  if (!slen) {
-    fprintf(stderr, "bad number.\n");
+  if (!slen && fail_on_error) {
+    fprintf(stderr, "bad number. [%s]\n", s);
     cexit(fs, 1);
+  } else if (!slen) {
+    return -1;
   }
 
   long n = estrtol(s, &end, base);
@@ -31,7 +33,7 @@ long get_num(FILE* fs, int base) {
     size_t extra = strnlen(end, len);
     seek(fs, -extra, SEEK_CUR);
     if (*end == '.') {
-      printf("%c\n", get_char(fs, FAIL));
+      get_char(fs, FAIL);
       // read decimal
       consume_chars_stack(fs, &isdigit, decimal, len);
       printf("Decimal string: [%s]\n", decimal);
@@ -58,7 +60,7 @@ object_t* create_num_obj(FILE* fs, long start, long num) {
 object_t* parse_num(FILE* fs) {
   long cpos = get_pos(fs);
   long pos = cpos;
-  long num = get_num(fs, 0);
+  long num = get_num(fs, 0, FAIL);
   int c = get_char(fs, FAIL);
   cpos = get_pos(fs);
 
@@ -67,9 +69,9 @@ object_t* parse_num(FILE* fs) {
     return create_num_obj(fs, pos, num);
   }
 
-  long gen_num = get_num(fs, 0);
+  long gen_num = get_num(fs, 0, IGNORE);
   c = get_char(fs, FAIL);
-  if (c != ' ') {
+  if (c != ' ' || gen_num < 0) {
     seek(fs, cpos, SEEK_SET);
     return create_num_obj(fs, pos, num);
   }
