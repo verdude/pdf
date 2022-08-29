@@ -148,7 +148,7 @@ object_t* next_sym(FILE* fs) {
   switch ((unsigned char) c) {
     case '/':
       unget_char(fs, c, FAIL);
-      return get_name(fs, FAIL, Object);
+      return get_name(fs, FAIL);
     case '<':
       return next_angle_bracket_sym(fs);
     case '(':

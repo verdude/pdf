@@ -50,3 +50,8 @@ x_entry_t* read_entry(FILE* fs, xref_t* xref);
 
 object_t* next_obj(FILE* fs, xref_t* xref);
 
+/**
+ * Parse and print EVERY entry in the xref table.
+ */
+void parse_entries(FILE*, xref_t*);
+

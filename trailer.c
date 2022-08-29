@@ -36,6 +36,14 @@ trailer_t* get_trailer(FILE* fs) {
   // TODO: make sure it is a dictionary...
   t->dictionary = next_sym(fs);
 
+  object_t* encryption = get_val(t->dictionary->val, "Encryption");
+  if (!encryption) {
+    fprintf(stderr, "Warning: Encryption key not found.\n");
+  } else {
+    printf("encryption:\n");
+    print_object(encryption);
+  }
+
   printf("startxref: %li\n", t->startxref_offset);
 
   return t;

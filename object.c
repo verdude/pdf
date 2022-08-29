@@ -100,9 +100,13 @@ void print_object(object_t* o) {
       print_term(*((int*)o->val), o->type);
       break;
     case Str:
+      print_string(o->val, '(', ')');
+      break;
     case Hstr:
+      print_string(o->val, '<', '>');
+      break;
     case Name:
-      print_string(o->val);
+      print_string(o->val, '/', 0);
       break;
     case Dict:
       printf("<<\n");

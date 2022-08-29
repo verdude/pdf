@@ -108,9 +108,7 @@ int main(int argc, char** argv) {
         free_trailer_t(trailer);
       }
       if (xref) {
-        object_t* o = next_obj(fs, xref);
-        print_object(o);
-        free_object_t(o);
+        parse_entries(fs, xref);
         free_xref_t(xref);
       }
     }

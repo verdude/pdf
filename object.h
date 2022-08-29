@@ -131,7 +131,7 @@ typedef void* (*read_element)(FILE*);
  * /Key/Value
  * as being two names instead of 1.
  */
-object_t* get_name(FILE* fs, int fail_on_error, enum el_t type);
+object_t* get_name(FILE* fs, int fail_on_error);
 
 /**
  * Create object_t pointing to string that starts at the current position.
@@ -150,6 +150,11 @@ object_t* get_hex_string(FILE* fs);
 object_t* get_dictionary(FILE* fs, int fail_on_error);
 object_t* get_list(FILE* fs, enum el_t el_type);
 object_t* get_term(FILE* fs, enum term type);
+
+/**
+ * Gets the value for the key in the dictionary object.
+ */
+object_t* get_val(list_t* obj, char* key);
 
 /**
  * ["9", "0", "R"] is an indirect reference
@@ -194,7 +199,7 @@ char* name_str(FILE* fs, object_t* name);
 void print_dictionary(list_t* d);
 void print_list(list_t* l);
 void print_object(object_t* o);
-void print_string(string_t* s);
+void print_string(string_t* s, char open, char close);
 void print_d_entry(d_entry_t* e);
 void print_indirect(indirect_t* i);
 

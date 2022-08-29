@@ -5,10 +5,19 @@
 
 #include "next.h"
 
+int num_char(int c) {
+  if (isdigit(c) || c == '.') {
+    return 1;
+  }
+
+  return 0;
+}
+
 long get_num(FILE* fs, int base) {
   const int len = 64;
   char s[64] = {0};
-  consume_chars_stack(fs, &is_not_space, s, len);
+  char decimal[64] = {0};
+  consume_chars_stack(fs, &num_char, s, len);
   char* end;
   size_t slen = strnlen(s, len);
 
@@ -21,6 +30,12 @@ long get_num(FILE* fs, int base) {
   if (*end != 0) {
     size_t extra = strnlen(end, len);
     seek(fs, -extra, SEEK_CUR);
+    if (*end == '.') {
+      printf("%c\n", get_char(fs, FAIL));
+      // read decimal
+      consume_chars_stack(fs, &isdigit, decimal, len);
+      printf("Decimal string: [%s]\n", decimal);
+    }
   } else if (end == s) {
     fprintf(stderr, "whole string it not a num! [%s]\n", s);
     cexit(fs, 1);
@@ -62,7 +77,6 @@ object_t* parse_num(FILE* fs) {
   c = get_char(fs, FAIL);
   if (c != 'R' && c != 'o') {
     seek(fs, cpos, SEEK_SET);
-    fprintf(stderr, "Warning: char [%c] at: %li is not a valid indirect object\n", c, get_pos(fs) - 1);
     return create_num_obj(fs, pos, num);
   }
 

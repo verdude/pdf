@@ -136,3 +136,20 @@ xref_t* get_xref(FILE* fs, long offset) {
   return xref;
 }
 
+static int has_next(xref_t* xref) {
+  return xref->ce_index < xref->count - 1;
+}
+
+void parse_entries(FILE* fs, xref_t* xref) {
+  for (int i = xref->ce_index; i < xref->count; ++i) {
+    if (!has_next(xref)) {
+      printf("early bidrd\n");
+      break;
+    }
+    object_t* o = next_obj(fs, xref);
+    //print_object(o);
+    free_object_t(o);
+    checkout_next_obj(fs, xref);
+  }
+}
+

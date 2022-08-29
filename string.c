@@ -88,8 +88,21 @@ object_t* get_string_type_obj(FILE* fs, enum encoding enc) {
   object_t* obj = allocate(sizeof(object_t));
   obj->offset = get_pos(fs);
   obj->len = 0;
-  obj->type = Name;
   obj->val = allocate(sizeof(string_t));
+  switch (enc) {
+    case NameString:
+      obj->type = Name;
+      break;
+    case HexString:
+      obj->type = Hstr;
+      break;
+    case LiteralString:
+      obj->type = Str;
+      break;
+    default:
+      fprintf(stderr, "Invalid string encoding type: %i\n", enc);
+      cexit(fs, 1);
+  }
 
   string_t* val = obj->val;
   val->memsize = 1;
@@ -124,7 +137,7 @@ object_t* get_string(FILE* fs, enum encoding enc) {
   return string;
 }
 
-void print_string(string_t* s) {
-  printf("%s\n", s->str);
+void print_string(string_t* s, char open, char close) {
+  printf("%c%s%c\n", open, s->str, close);
 }
 

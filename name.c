@@ -55,6 +55,21 @@ int add_byte(unsigned char c, string_t* st) {
   return 1;
 }
 
+int is_key_char(int c) {
+  switch (c) {
+    case 0x2f:
+    case 0x5b:
+    case 0x3c:
+    case 0x3e:
+    case 0x5d:
+    case 0x28:
+    case 0x29:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 /**
  * 1 for a regular char.
  * 3 for a hex char, encoded as: #0A in the pdf.
@@ -65,7 +80,7 @@ int add_byte(unsigned char c, string_t* st) {
  * the character in the pdf.
  * returns 0 when done reading.
  */
-static int add_name_char(FILE* fs, int c, string_t* name, enum el_t type) {
+static int add_name_char(FILE* fs, int c, string_t* name) {
   // TODO: add warning for other object symbols
   // to make debugging invalid dict entries easier.
   // ex:
@@ -73,10 +88,12 @@ static int add_name_char(FILE* fs, int c, string_t* name, enum el_t type) {
   //   No space, next char is [ which is valid in a name
   //   but not intended to be part of the name in this case.
   if (c > 0x21 && c < 0x7e) {
-    if (c == 0x2f) {
-      // Contains forward slash in name.
+    if (is_key_char(c)) {
       // Invalid format but assume the pdf
       // contains something like: /Key/Val
+      if (c == '(') {
+        printf("kicked in the mouth\n");
+      }
       return 0;
     }
     int success = add_byte(c, name);
@@ -98,13 +115,13 @@ static int add_name_char(FILE* fs, int c, string_t* name, enum el_t type) {
   }
 }
 
-object_t* get_name(FILE* fs, int fail_on_error, enum el_t type) {
+object_t* get_name(FILE* fs, int fail_on_error) {
   object_t* name_obj = get_string_type_obj(fs, NameString);
   string_t* name_val = name_obj->val;
   int c;
 
   while ((c = get_char(fs, FAIL))) {
-    int char_len = add_name_char(fs, c, name_val, type);
+    int char_len = add_name_char(fs, c, name_val);
 
     if (!char_len) {
       // finished reading name

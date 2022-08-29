@@ -12,7 +12,7 @@ $(EXE): build $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS)
 
 $(BUILDDIR)/%.o: %.c
-	$(CC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 build:
 	mkdir -p build
