@@ -134,6 +134,11 @@ typedef void* (*read_element)(FILE*);
 object_t* get_name(FILE* fs, int fail_on_error);
 
 /**
+ * Get a string representation of the object type.
+ */
+char* get_type_name(object_t* o);
+
+/**
  * Create object_t pointing to string that starts at the current position.
  */
 object_t* get_string(FILE* fs);
@@ -184,6 +189,12 @@ long get_num(FILE* fs, int base, int fail_on_error);
 object_t* get_string_type_obj(FILE* fs, enum encoding enc);
 
 /**
+ * Returns the result of calling strncmp on the object's string value
+ * and the given string for the given length.
+ */
+int string_equals(object_t* o, char* s, int n);
+
+/**
  * Reads a dictionary entry from fs.
  */
 d_entry_t* get_entry(FILE* fs);
@@ -192,6 +203,12 @@ d_entry_t* get_entry(FILE* fs);
  * Load the name into a char string.
  */
 char* name_str(FILE* fs, object_t* name);
+
+/**
+ * Get the value for the provided entry if it exists.
+ * Returns NULL otherwise.
+ */
+object_t* get_entry_value(object_t* dict, char* key);
 
 /**
  * Print a dictionary.

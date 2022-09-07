@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "next.h"
 #include "object.h"
@@ -14,6 +15,21 @@ char* get_string_type(string_t* s) {
     default:
       return "invalid string";
   }
+}
+
+int string_equals(object_t* o, char* s, int n) {
+  switch (o->type) {
+    case Str:
+    case Hstr:
+    case Name:
+      break;
+    default:
+      fprintf(stderr, "Bad object for string_equals: %s\n", get_type_name(o));
+      return -1;
+  }
+  string_t* string = o->val;
+
+  return strncmp(string->str, s, n);
 }
 
 /**

@@ -5,6 +5,23 @@
 #include "next.h"
 #include "object.h"
 
+object_t* get_entry_value(object_t* o, char* key) {
+  if (o->type != Dict) {
+    fprintf(stderr, "Invalid object for dictionary#has_key: %s\n", get_type_name(o));
+    return NULL;
+  }
+  list_t* dict = o->val;
+  d_entry_t** entries = dict->el;
+  int len = strlen(key);
+
+  for (int i = 0; i < dict->len; ++i) {
+    if (string_equals(entries[i]->key, key, len) == 0) {
+      return entries[i]->val;
+    }
+  }
+  return NULL;
+}
+
 void print_d_entry(d_entry_t* d) {
   object_t* key = d->key;
   object_t* val = d->val;
@@ -22,20 +39,3 @@ d_entry_t* get_entry(FILE* fs) {
 
   return list_t;
 }
-
-object_t* get_val(list_t* dict, char* key) {
-  if (dict->el_type != DictionaryEntry) {
-    printf("obj is not a dict.\n");
-    cexit(NULL, 1);
-  }
-
-  for (int i = 0; i < dict->len; ++i) {
-    d_entry_t* entry = ((d_entry_t*) dict->el[i]);
-    string_t* ckey = entry->key->val;
-    if (strncmp(key, ckey->str, ckey->len+1) == 0) {
-      return entry->val;
-    }
-  }
-  return NULL;
-}
-

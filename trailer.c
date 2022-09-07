@@ -6,6 +6,10 @@
 #include "object.h"
 #include "trailer.h"
 
+object_t* get_encryption(trailer_t* trailer) {
+  return get_entry_value(trailer->dictionary, "Encrypt");
+}
+
 trailer_t* get_trailer(FILE* fs) {
   seek(fs, -(EOF_LEN+1), SEEK_END);
   trailer_t* t = allocate(sizeof(trailer_t));
@@ -36,12 +40,12 @@ trailer_t* get_trailer(FILE* fs) {
   // TODO: make sure it is a dictionary...
   t->dictionary = next_sym(fs);
 
-  object_t* encryption = get_val(t->dictionary->val, "Encryption");
-  if (!encryption) {
+  t->encryption = get_encryption(t);
+  if (!t->encryption) {
     fprintf(stderr, "Warning: Encryption key not found.\n");
   } else {
     printf("encryption:\n");
-    print_object(encryption);
+    print_object(t->encryption);
   }
 
   printf("startxref: %li\n", t->startxref_offset);

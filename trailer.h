@@ -9,6 +9,7 @@ typedef struct {
   long offset;
   object_t* dictionary;
   long startxref_offset;
+  object_t* encryption;
 } trailer_t;
 
 trailer_t* get_trailer();

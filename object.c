@@ -177,3 +177,29 @@ object_t* get_term(FILE* fs, enum term type) {
   return o;
 }
 
+char* get_type_name(object_t* o) {
+  switch (o->type) {
+    case Boo:
+      return "Boolean";
+    case Num:
+      return "Number";
+    case Str:
+      return "String";
+    case Hstr:
+      return "HexString";
+    case Name:
+      return "NameString";
+    case Arr:
+      return "Array";
+    case Dict:
+      return "Dictionary";
+    case Null:
+      return "Null";
+    case Stream:
+      return "Stream";
+    case Ind:
+      return "Indirect";
+    default:
+      return "invalid type";
+  }
+}
