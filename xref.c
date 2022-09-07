@@ -143,7 +143,7 @@ static int has_next(xref_t* xref) {
 void parse_entries(FILE* fs, xref_t* xref) {
   for (int i = xref->ce_index; i < xref->count; ++i) {
     if (!has_next(xref)) {
-      printf("Traversed whole xref table.");
+      printf("Traversed whole xref table.\n");
       break;
     }
     object_t* o = next_obj(fs, xref);
