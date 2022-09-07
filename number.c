@@ -36,7 +36,6 @@ long get_num(FILE* fs, int base, int fail_on_error) {
       get_char(fs, FAIL);
       // read decimal
       consume_chars_stack(fs, &isdigit, decimal, len);
-      printf("Decimal string: [%s]\n", decimal);
     }
   } else if (end == s) {
     fprintf(stderr, "whole string it not a num! [%s]\n", s);

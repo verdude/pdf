@@ -120,7 +120,7 @@ object_t* get_name(FILE* fs, int fail_on_error) {
   string_t* name_val = name_obj->val;
   int c;
 
-  while ((c = get_char(fs, FAIL))) {
+  while ((c = get_char(fs, FAIL)) != EOF) {
     int char_len = add_name_char(fs, c, name_val);
 
     if (!char_len) {

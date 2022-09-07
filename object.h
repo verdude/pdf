@@ -136,7 +136,7 @@ object_t* get_name(FILE* fs, int fail_on_error);
 /**
  * Create object_t pointing to string that starts at the current position.
  */
-object_t* get_string(FILE* fs, enum encoding enc);
+object_t* get_string(FILE* fs);
 
 /**
  * Returns the expected first char for the specified string format.

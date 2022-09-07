@@ -98,14 +98,12 @@ object_t* next_obj(FILE* fs, xref_t* xref) {
       cexit(fs, 1);
       return NULL;
     }
-    printf("skipping\n");
     checkout_next_obj(fs, xref);
   }
 
   long offset = get_obj_offset(fs, xref);
 
   seek(fs, offset, SEEK_SET);
-  printf("next obj from table at: %li\n", offset);
 
   return next_sym(fs);
 }
@@ -115,7 +113,6 @@ xref_t* get_xref(FILE* fs, long offset) {
   xref_t* xref;
   size_t match;
 
-  printf("offset: %li\n", offset);
   seek(fs, offset, SEEK_SET);
   if (!(match = check_for_match(fs, xref_string))) {
     fprintf(stderr, "Did not find xref table at offset: %li\n", offset);
@@ -144,17 +141,12 @@ static int has_next(xref_t* xref) {
 }
 
 void parse_entries(FILE* fs, xref_t* xref) {
-  print_xref(xref);
   for (int i = xref->ce_index; i < xref->count; ++i) {
     if (!has_next(xref)) {
-      printf("early bidrd\n");
+      printf("Traversed whole xref table.");
       break;
     }
     object_t* o = next_obj(fs, xref);
-    if (o->type == Dict) {
-      printf("got a dict\n");
-    }
-    //print_object(o);
     free_object_t(o);
     checkout_next_obj(fs, xref);
   }

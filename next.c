@@ -153,7 +153,7 @@ object_t* next_sym(FILE* fs) {
       return next_angle_bracket_sym(fs);
     case '(':
       unget_char(fs, c, FAIL);
-      return get_string(fs, FAIL);
+      return get_string(fs);
     case '[':
       unget_char(fs, c, FAIL);
       return get_list(fs, Object);

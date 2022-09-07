@@ -23,7 +23,7 @@ int supported_version(FILE* fs) {
   const int version_len = 3;
   const int header_len = prefix_len + version_len;
   const char* prefix = "%PDF-";
-  const char version[3][3] = {"1", ".", "76"};
+  const char version[3][5] = {"1", ".", "4576"};
   char bytes[header_len+1];
   char c;
 

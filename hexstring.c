@@ -29,7 +29,7 @@ object_t* get_hex_string(FILE* fs) {
   string_t* hstring = obj->val;
 
   int c;
-  while ((c = get_char(fs, FAIL))) {
+  while ((c = get_char(fs, FAIL)) != EOF) {
     int char_len = add_hex_string_char(fs, c, hstring);
 
     if (!char_len) {
