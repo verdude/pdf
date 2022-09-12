@@ -5,9 +5,9 @@
 #include "next.h"
 #include "object.h"
 
-static unsigned char get_hex_char(state_t* state) {
-  int c1 = get_char(state->fs, FAIL);
-  int c2 = get_char(state->fs, FAIL);
+static unsigned char get_hex_char(pdf_t* pdf) {
+  int c1 = get_char(pdf->fs, FAIL);
+  int c2 = get_char(pdf->fs, FAIL);
   char hex_str[] = { (unsigned char) c1, (unsigned char) c2 };
 
   // Validate hex_str by converting to long
@@ -15,7 +15,7 @@ static unsigned char get_hex_char(state_t* state) {
   if (abnormal == LONG_MAX) {
     fprintf(stderr,
         "Invalid hex character [0x%c%c] at: %li\n",
-        c1, c2, get_pos(state->fs));
+        c1, c2, get_pos(pdf->fs));
     perror("get_name_char_len");
     return 0;
   }
@@ -80,7 +80,7 @@ int is_key_char(int c) {
  * the character in the pdf.
  * returns 0 when done reading.
  */
-static int add_name_char(state_t* state, int c, string_t* name) {
+static int add_name_char(pdf_t* pdf, int c, string_t* name) {
   // TODO: add warning for other object symbols
   // to make debugging invalid dict entries easier.
   // ex:
@@ -98,16 +98,16 @@ static int add_name_char(state_t* state, int c, string_t* name) {
     }
     int success = add_byte(c, name);
     if (!success) {
-      cexit(state->fs, 1);
+      cexit(pdf->fs, 1);
     }
     return 1;
   }
 
   if (c == '#') {
-    unsigned char h_char = get_hex_char(state);
+    unsigned char h_char = get_hex_char(pdf);
     int success = add_byte(h_char, name);
     if (!success) {
-      cexit(state->fs, 1);
+      cexit(pdf->fs, 1);
     }
     return 3;
   } else {
@@ -115,17 +115,17 @@ static int add_name_char(state_t* state, int c, string_t* name) {
   }
 }
 
-object_t* get_name(state_t* state, int fail_on_error) {
-  object_t* name_obj = get_string_type_obj(state, NameString);
+object_t* get_name(pdf_t* pdf, int fail_on_error) {
+  object_t* name_obj = get_string_type_obj(pdf, NameString);
   string_t* name_val = name_obj->val;
   int c;
 
-  while ((c = get_char(state->fs, FAIL)) != EOF) {
-    int char_len = add_name_char(state, c, name_val);
+  while ((c = get_char(pdf->fs, FAIL)) != EOF) {
+    int char_len = add_name_char(pdf, c, name_val);
 
     if (!char_len) {
       // finished reading name
-      unget_char(state->fs, c, FAIL);
+      unget_char(pdf->fs, c, FAIL);
       break;
     } else {
       name_obj->len += char_len;

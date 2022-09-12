@@ -61,8 +61,8 @@ list_t* create_list(enum el_t el_type) {
   return list;
 }
 
-object_t* get_list(state_t* state, enum el_t el_type) {
-  size_t pos = get_pos(state->fs);
+object_t* get_list(pdf_t* pdf, enum el_t el_type) {
+  size_t pos = get_pos(pdf->fs);
   size_t end = pos;
 
   list_t* list = create_list(el_type);
@@ -73,33 +73,33 @@ object_t* get_list(state_t* state, enum el_t el_type) {
   if (list->el_type == DictionaryEntry) {
     terminator = ">>";
     // Needs to consume these chars to get into position
-    check_for_match(state->fs, "<<");
+    check_for_match(pdf->fs, "<<");
     re = (read_element) &get_entry;
   } else {
     terminator = "]";
-    check_for_match(state->fs, "[");
+    check_for_match(pdf->fs, "[");
     re = (read_element) &next_sym;
   }
 
-  consume_whitespace(state->fs);
+  consume_whitespace(pdf->fs);
 
-  while (!(end = check_for_match_seek_back(state->fs, terminator))) {
-    void* element = (*re)(state);
+  while (!(end = check_for_match_seek_back(pdf->fs, terminator))) {
+    void* element = (*re)(pdf);
 
     if (element == NULL) {
       fprintf(stderr, "Failed to get object\n");
-      cexit(state->fs, 1);
+      cexit(pdf->fs, 1);
     }
 
     int success = add_obj_to_list(list, element);
     if (!success) {
       fprintf(stderr, "not success! adding object to list\n");
     }
-    consume_whitespace(state->fs);
+    consume_whitespace(pdf->fs);
   }
 
   // skip terminator
-  seek(state->fs, strlen(terminator), SEEK_CUR);
+  seek(pdf->fs, strlen(terminator), SEEK_CUR);
 
   object_t* obj = allocate(sizeof(object_t));
   obj->type = el_type == DictionaryEntry ? Dict : Arr;

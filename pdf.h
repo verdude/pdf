@@ -6,14 +6,14 @@
 #include "typedef.h"
 
 /**
- * The PDF state.
+ * The PDF pdf.
  */
 typedef struct {
   FILE* fs;
   xref_t* xref;
   trailer_t* trailer;
-} state_t;
+} pdf_t;
 
-void free_state_t(state_t* state);
+void free_pdf_t(pdf_t* pdf);
 
 #endif // pdf_h

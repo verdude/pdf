@@ -131,15 +131,15 @@ typedef struct {
  * Function pointer types to read a dictionary entry or object.
  * read_element for casting.
  */
-typedef d_entry_t* (*read_dict_entry)(state_t* state);
-typedef object_t* (*read_object)(state_t* state);
-typedef void* (*read_element)(state_t* state);
+typedef d_entry_t* (*read_dict_entry)(pdf_t* pdf);
+typedef object_t* (*read_object)(pdf_t* pdf);
+typedef void* (*read_element)(pdf_t* pdf);
 
 /**
  * Gets an indirect.
  * c: previous character. Should be either 'R' or 'o'.
  */
-indirect_t* get_indirect(state_t* state, int c);
+indirect_t* get_indirect(pdf_t* pdf, int c);
 
 /**
  * Create object_t pointing to name that starts at the current position.
@@ -148,7 +148,7 @@ indirect_t* get_indirect(state_t* state, int c);
  * /Key/Value
  * as being two names instead of 1.
  */
-object_t* get_name(state_t* state, int fail_on_error);
+object_t* get_name(pdf_t* pdf, int fail_on_error);
 
 /**
  * Get a string representation of the object type.
@@ -158,7 +158,7 @@ char* get_type_name(object_t* o);
 /**
  * Create object_t pointing to string that starts at the current position.
  */
-object_t* get_string(state_t* state);
+object_t* get_string(pdf_t* pdf);
 
 /**
  * Returns the expected first char for the specified string format.
@@ -168,10 +168,10 @@ int get_first_char(enum encoding enc);
 /**
  * Create object_t pointing to hex string that starts at the current position.
  */
-object_t* get_hex_string(state_t* state);
-object_t* get_dictionary(state_t* state, int fail_on_error);
-object_t* get_list(state_t* state, enum el_t el_type);
-object_t* get_term(state_t* state, enum term type);
+object_t* get_hex_string(pdf_t* pdf);
+object_t* get_dictionary(pdf_t* pdf, int fail_on_error);
+object_t* get_list(pdf_t* pdf, enum el_t el_type);
+object_t* get_term(pdf_t* pdf, enum term type);
 
 /**
  * Gets the value for the key in the dictionary object.
@@ -187,18 +187,18 @@ object_t* get_val(list_t* obj, char* key);
  *
  * Anything else will be a number.
  */
-object_t* parse_num(state_t* state);
+object_t* parse_num(pdf_t* pdf);
 
 /**
  * Creates a number object_t.
  */
-object_t* create_num_obj(state_t*, long, long);
+object_t* create_num_obj(pdf_t*, long, long);
 
 /**
  * Reads and parses a number at the current position.
  * fs points to the first char after the number.
  */
-long get_num(state_t* state, int base, int fail_on_error);
+long get_num(pdf_t* pdf, int base, int fail_on_error);
 
 /**
  * Get a long from an object_t of type Num
@@ -210,12 +210,12 @@ long get_num_val(object_t* o);
  * Stream is invalid if there is not a valid newline sequence
  * after len bytes followed by 'endstream'.
  */
-stream_t* try_read_stream(state_t* state, long len);
+stream_t* try_read_stream(pdf_t* pdf, long len);
 
 /**
  * Get object_t* with val pointing to string_t.
  */
-object_t* get_string_type_obj(state_t* state, enum encoding enc);
+object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc);
 
 /**
  * Returns the result of calling strncmp on the object's string value
@@ -226,12 +226,12 @@ int string_equals(object_t* o, char* s, int n);
 /**
  * Reads a dictionary entry from fs.
  */
-d_entry_t* get_entry(state_t* state);
+d_entry_t* get_entry(pdf_t* pdf);
 
 /**
  * Load the name into a char string.
  */
-char* name_str(state_t* state, object_t* name);
+char* name_str(pdf_t* pdf, object_t* name);
 
 /**
  * Get the value for the provided entry if it exists.

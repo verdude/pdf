@@ -11,16 +11,16 @@ object_t* get_encryption(trailer_t* trailer) {
   return get_entry_value(trailer->dictionary, "Encrypt");
 }
 
-int get_trailer(state_t* state) {
-  seek(state->fs, -(EOF_LEN+1), SEEK_END);
+int get_trailer(pdf_t* pdf) {
+  seek(pdf->fs, -(EOF_LEN+1), SEEK_END);
   trailer_t* t = allocate(sizeof(trailer_t));
 
   char* startxref_string = "\nstartxref\n";
   size_t startxref_len = strlen(startxref_string);
 
-  int xro_offset = find_backwards(state->fs, startxref_string, startxref_len + 1);
+  int xro_offset = find_backwards(pdf->fs, startxref_string, startxref_len + 1);
   if (xro_offset) {
-    long xro = get_num(state, 0, FAIL);
+    long xro = get_num(pdf, 0, FAIL);
     t->startxref_offset = xro;
   } else {
     fprintf(stderr, "startxref string not found.\n");
@@ -28,7 +28,7 @@ int get_trailer(state_t* state) {
 
   char* trailer_string = "\ntrailer\n";
   size_t trailer_len = strlen(trailer_string);
-  int found = find_backwards(state->fs, trailer_string, trailer_len + 1);
+  int found = find_backwards(pdf->fs, trailer_string, trailer_len + 1);
 
   if (!found) {
     fprintf(stderr, "Failed to find trailer.\n");
@@ -36,10 +36,10 @@ int get_trailer(state_t* state) {
     return 0;
   }
 
-  t->offset = get_pos(state->fs) - trailer_len;
+  t->offset = get_pos(pdf->fs) - trailer_len;
 
   // TODO: make sure it is a dictionary...
-  t->dictionary = next_sym(state);
+  t->dictionary = next_sym(pdf);
 
   t->encryption = get_encryption(t);
   if (!t->encryption) {
@@ -51,7 +51,7 @@ int get_trailer(state_t* state) {
 
   printf("startxref: %li\n", t->startxref_offset);
 
-  state->trailer = t;
+  pdf->trailer = t;
   return 1;
 }
 

@@ -56,17 +56,17 @@ void skip_while(FILE* fs, int (*fn)(int)) {
 /**
  * Preceding char is '<', check what type of object it could be.
  */
-static object_t* next_angle_bracket_sym(state_t* state) {
-  int c = get_char(state->fs, FAIL);
+static object_t* next_angle_bracket_sym(pdf_t* pdf) {
+  int c = get_char(pdf->fs, FAIL);
 
   switch ((unsigned char) c) {
     case '<':
-      unget_chars(state->fs, (unsigned char*) "<<", 2);
-      return get_list(state, DictionaryEntry);
+      unget_chars(pdf->fs, (unsigned char*) "<<", 2);
+      return get_list(pdf, DictionaryEntry);
     default:
-      unget_char(state->fs, c, FAIL);
-      unget_char(state->fs, '<', FAIL);
-      return get_hex_string(state);
+      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf->fs, '<', FAIL);
+      return get_hex_string(pdf);
   }
 }
 
@@ -132,47 +132,47 @@ int is_not_space(int c) {
   return !isspace(c) && c != EOF;
 }
 
-object_t* next_sym(state_t* state) {
-  consume_whitespace(state->fs);
+object_t* next_sym(pdf_t* pdf) {
+  consume_whitespace(pdf->fs);
 
-  int c = get_char(state->fs, IGNORE);
+  int c = get_char(pdf->fs, IGNORE);
   if (c == EOF) {
     printf("Reached EOF.");
     return NULL;
   }
 
   if (isdigit(c)) {
-    unget_char(state->fs, c, FAIL);
-    return parse_num(state);
+    unget_char(pdf->fs, c, FAIL);
+    return parse_num(pdf);
   }
 
   switch ((unsigned char) c) {
     case '/':
-      unget_char(state->fs, c, FAIL);
-      return get_name(state, FAIL);
+      unget_char(pdf->fs, c, FAIL);
+      return get_name(pdf, FAIL);
     case '<':
-      return next_angle_bracket_sym(state);
+      return next_angle_bracket_sym(pdf);
     case '(':
-      unget_char(state->fs, c, FAIL);
-      return get_string(state);
+      unget_char(pdf->fs, c, FAIL);
+      return get_string(pdf);
     case '[':
-      unget_char(state->fs, c, FAIL);
-      return get_list(state, Object);
+      unget_char(pdf->fs, c, FAIL);
+      return get_list(pdf, Object);
     case 'n':
-      unget_char(state->fs, c, FAIL);
-      return get_term(state, NullTerm);
+      unget_char(pdf->fs, c, FAIL);
+      return get_term(pdf, NullTerm);
     case 't':
-      unget_char(state->fs, c, FAIL);
-      return get_term(state, TrueTerm);
+      unget_char(pdf->fs, c, FAIL);
+      return get_term(pdf, TrueTerm);
     case 'f':
-      unget_char(state->fs, c, FAIL);
-      return get_term(state, FalseTerm);
+      unget_char(pdf->fs, c, FAIL);
+      return get_term(pdf, FalseTerm);
     case '-':
-      long n = get_num(state, 10, FAIL);
-      return create_num_obj(state, get_pos(state->fs) - 1, -n);
+      long n = get_num(pdf, 10, FAIL);
+      return create_num_obj(pdf, get_pos(pdf->fs) - 1, -n);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
-      fprintf(stderr, "pos: %li\n", get_pos(state->fs)-1);
+      fprintf(stderr, "pos: %li\n", get_pos(pdf->fs)-1);
       return NULL;
   }
 }
@@ -264,8 +264,8 @@ void cexit(FILE* fs, int code) {
   exit(code);
 }
 
-void scexit(state_t* state, int code) {
-  free_state_t(state);
+void scexit(pdf_t* pdf, int code) {
+  free_pdf_t(pdf);
   cexit(NULL, code);
 }
 

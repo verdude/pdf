@@ -132,7 +132,7 @@ void print_object(object_t* o) {
   }
 }
 
-object_t* get_term(state_t* state, enum term type) {
+object_t* get_term(pdf_t* pdf, enum term type) {
   char* false_str = "false";
   char* true_str = "true";
   char* null_str = "null";
@@ -156,10 +156,10 @@ object_t* get_term(state_t* state, enum term type) {
       return NULL;
   }
 
-  long offset = get_pos(state->fs);
-  int success = check_for_match(state->fs, str);
+  long offset = get_pos(pdf->fs);
+  int success = check_for_match(pdf->fs, str);
   if (!success) {
-    fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(state->fs));
+    fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(pdf->fs));
     return NULL;
   }
 

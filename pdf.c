@@ -18,15 +18,15 @@ FILE* file_exists(char* path) {
   return 0;
 }
 
-void free_state_t(state_t* state) {
-  if (!state) {
+void free_pdf_t(pdf_t* pdf) {
+  if (!pdf) {
     return;
   }
 
-  free_trailer_t(state->trailer);
-  free_xref_t(state->xref);
-  if (state->fs) {
-    fclose(state->fs);
+  free_trailer_t(pdf->trailer);
+  free_xref_t(pdf->xref);
+  if (pdf->fs) {
+    fclose(pdf->fs);
   }
 }
 
@@ -108,19 +108,21 @@ int main(int argc, char** argv) {
   }
 
   FILE* fs = file_exists(argv[1]);
-  state_t* state;
+  pdf_t* pdf;
   if (fs) {
     if (supported_version(fs)) {
-      state = allocate(sizeof(state));
-      int success = get_trailer(state);
+      pdf = allocate(sizeof(pdf));
+      pdf->fs = fs;
+      int success = get_trailer(pdf);
       if (success) {
-        scexit(state, 1);
+        fprintf(stderr, "failed to get trailer\n");
+        scexit(pdf, 1);
       }
-      success = get_xref(state);
+      success = get_xref(pdf);
       if (success) {
-        parse_entries(state);
+        parse_entries(pdf);
       }
-      free_state_t(state);
+      free_pdf_t(pdf);
     }
   }
 

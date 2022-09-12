@@ -12,7 +12,7 @@ int inf(FILE* source)
   unsigned char in[CHUNK];
   unsigned char out[CHUNK];
 
-  /* allocate inflate state */
+  /* allocate inflate pdf */
   strm.zalloc = Z_NULL;
   strm.zfree = Z_NULL;
   strm.opaque = Z_NULL;
@@ -38,7 +38,7 @@ int inf(FILE* source)
       strm.avail_out = CHUNK;
       strm.next_out = out;
       ret = inflate(&strm, Z_NO_FLUSH);
-      assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+      assert(ret != Z_STREAM_ERROR);  /* pdf not clobbered */
       switch (ret) {
       case Z_NEED_DICT:
         ret = Z_DATA_ERROR;   /* and fall through */

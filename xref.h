@@ -45,23 +45,23 @@ struct xref {
  * offset: The byte offset to the start of the xref table
  *         which can be found in the trailer.
  * Returns 1 for success. 0 for failure.
- * Adds the xref table to state->xref.
+ * Adds the xref table to pdf->xref.
  */
-int get_xref(state_t* state);
+int get_xref(pdf_t* pdf);
 
 void free_xref_t(xref_t* x);
 
 void print_xref(xref_t* x);
 
-x_entry_t* read_entry(state_t* state);
+x_entry_t* read_entry(pdf_t* pdf);
 
-object_t* next_obj(state_t* state);
+object_t* next_obj(pdf_t* pdf);
 
-object_t* get_object(state_t* state, int obj_num);
+object_t* get_object(pdf_t* pdf, int obj_num);
 
 /**
  * Parse and print EVERY entry in the xref table.
  */
-void parse_entries(state_t*);
+void parse_entries(pdf_t*);
 
 #endif // xref_h

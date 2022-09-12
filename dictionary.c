@@ -34,12 +34,12 @@ void print_d_entry(d_entry_t* d) {
   print_object(d->val);
 }
 
-d_entry_t* get_entry(state_t* state) {
-  object_t* first_key = get_name(state, FAIL);
+d_entry_t* get_entry(pdf_t* pdf) {
+  object_t* first_key = get_name(pdf, FAIL);
 
   d_entry_t* list_t = allocate(sizeof(d_entry_t));
   list_t->key = first_key;
-  list_t->val = next_sym(state);
+  list_t->val = next_sym(pdf);
 
   return list_t;
 }

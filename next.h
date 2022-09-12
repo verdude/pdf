@@ -30,7 +30,7 @@ void unget_chars(FILE* fs, unsigned char* c, int len);
  * Finds the next symbol.
  * Returns NULL unless an object is successfully read.
  */
-object_t* next_sym(state_t* state);
+object_t* next_sym(pdf_t* pdf);
 
 /**
  * Returns pointer to 0 initialized mem (by calloc) of size len bytes.
@@ -90,7 +90,7 @@ int find_backwards(FILE* fs, char* sequence, int len);
  * Does what you think it does.
  */
 void cexit(FILE* fs, int code);
-void scexit(state_t* state, int code);
+void scexit(pdf_t* pdf, int code);
 
 /**
  * Skips whitespace.

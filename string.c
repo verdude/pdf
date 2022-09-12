@@ -35,7 +35,7 @@ int string_equals(object_t* o, char* s, int n) {
 /**
  * Returns 1 on success, 0 on failure, -1 on string end
  */
-static int add_string_char(state_t* state, int c, string_t* string) {
+static int add_string_char(pdf_t* pdf, int c, string_t* string) {
   switch (c) {
     case 0x8:
       // backspace
@@ -73,7 +73,7 @@ static int add_string_char(state_t* state, int c, string_t* string) {
       return string->enc == HexString ? -1 : string->enc == LiteralString ? 1 : 0;
     case 0x5c:
       // \ backslash
-      int escaped = get_char(state->fs, FAIL);
+      int escaped = get_char(pdf->fs, FAIL);
       return add_byte(escaped, string);
   }
 
@@ -106,17 +106,17 @@ int get_first_char(enum encoding enc) {
   }
 }
 
-object_t* get_string_type_obj(state_t* state, enum encoding enc) {
-  consume_whitespace(state->fs);
-  int c = get_char(state->fs, FAIL);
+object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
+  consume_whitespace(pdf->fs);
+  int c = get_char(pdf->fs, FAIL);
   if (!first_char(enc, c)) {
     fprintf(stderr, "Invalid first char for string: [%c]. Should be: %c\n",
         c, get_first_char(enc));
-    cexit(state->fs, 1);
+    cexit(pdf->fs, 1);
   }
 
   object_t* obj = allocate(sizeof(object_t));
-  obj->offset = get_pos(state->fs);
+  obj->offset = get_pos(pdf->fs);
   obj->len = 0;
   obj->val = allocate(sizeof(string_t));
   switch (enc) {
@@ -131,7 +131,7 @@ object_t* get_string_type_obj(state_t* state, enum encoding enc) {
       break;
     default:
       fprintf(stderr, "Invalid string encoding type: %i\n", enc);
-      scexit(state, 1);
+      scexit(pdf, 1);
   }
 
   string_t* val = obj->val;
@@ -142,12 +142,12 @@ object_t* get_string_type_obj(state_t* state, enum encoding enc) {
   return obj;
 }
 
-object_t* get_string(state_t* state) {
-  object_t* string = get_string_type_obj(state, LiteralString);
+object_t* get_string(pdf_t* pdf) {
+  object_t* string = get_string_type_obj(pdf, LiteralString);
 
   int c;
-  while ((c = get_char(state->fs, FAIL)) != EOF) {
-    int char_len = get_char(state->fs, FAIL);
+  while ((c = get_char(pdf->fs, FAIL)) != EOF) {
+    int char_len = get_char(pdf->fs, FAIL);
 
     if (char_len == -1) {
       break;
