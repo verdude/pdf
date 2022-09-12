@@ -113,13 +113,16 @@ int main(int argc, char** argv) {
     if (supported_version(fs)) {
       pdf = allocate(sizeof(pdf));
       pdf->fs = fs;
+      printf("Getting trailer...\n");
       int success = get_trailer(pdf);
       if (!success) {
         fprintf(stderr, "failed to get trailer\n");
         scexit(pdf, 1);
       }
+      printf("Getting xref table\n");
       success = get_xref(pdf);
       if (success) {
+        printf("Getting entries\n");
         parse_entries(pdf);
       }
       free_pdf_t(pdf);

@@ -4,6 +4,7 @@
 #include "next.h"
 
 stream_t* try_read_stream(pdf_t* pdf, long len) {
+  printf("attempting to get stream\n");
   char* stream_end = "endstream";
   char* stream_start = stream_end + 3;
   size_t match = check_for_match_seek_back(pdf->fs, stream_start);

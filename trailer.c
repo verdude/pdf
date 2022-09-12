@@ -52,6 +52,7 @@ int get_trailer(pdf_t* pdf) {
   printf("startxref: %li\n", t->startxref_offset);
 
   pdf->trailer = t;
+  print_object(pdf->trailer->dictionary);
   return 1;
 }
 

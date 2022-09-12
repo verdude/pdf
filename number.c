@@ -89,7 +89,7 @@ object_t* parse_num(pdf_t* pdf) {
   o->type = Ind;
   o->offset = pos;
   o->len = get_pos(pdf->fs) - pos;
-  o->val = get_indirect(pdf, c);
+  o->val = get_indirect(pdf, c, num, gen_num);
 
   return o;
 }

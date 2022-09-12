@@ -141,6 +141,8 @@ object_t* next_sym(pdf_t* pdf) {
     return NULL;
   }
 
+  printf("Got char: %c\n", c);
+
   if (isdigit(c)) {
     unget_char(pdf->fs, c, FAIL);
     return parse_num(pdf);

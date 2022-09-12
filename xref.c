@@ -94,9 +94,9 @@ static long get_obj_offset(pdf_t* pdf) {
 }
 
 object_t* next_obj(pdf_t* pdf) {
-  xref_t* xref = pdf->xref;
+  printf("Getting xref entry #%li\n", pdf->xref->ce_index);
   int status;
-  seek(pdf->fs, xref->ce_offset, SEEK_SET);
+  seek(pdf->fs, pdf->xref->ce_offset, SEEK_SET);
   while (!(status = get_status(pdf))) {
     if (status == -1) {
       fprintf(stderr, "Invalid entry status.");
@@ -109,6 +109,7 @@ object_t* next_obj(pdf_t* pdf) {
 
   seek(pdf->fs, offset, SEEK_SET);
 
+  printf("Getting next obj at %li\n", get_pos(pdf->fs));
   return next_sym(pdf);
 }
 
@@ -149,9 +150,8 @@ static int has_next(xref_t* xref) {
 }
 
 void parse_entries(pdf_t* pdf) {
-  xref_t* xref = pdf->xref;
-  for (int i = xref->ce_index; i < xref->count; ++i) {
-    if (!has_next(xref)) {
+  for (int i = pdf->xref->ce_index; i < pdf->xref->count; ++i) {
+    if (!has_next(pdf->xref)) {
       printf("Traversed whole xref table.\n");
       break;
     }

@@ -138,8 +138,10 @@ typedef void* (*read_element)(pdf_t* pdf);
 /**
  * Gets an indirect.
  * c: previous character. Should be either 'R' or 'o'.
+ * on: object number
+ * gn: generation number
  */
-indirect_t* get_indirect(pdf_t* pdf, int c);
+indirect_t* get_indirect(pdf_t* pdf, int c, long on, long gn);
 
 /**
  * Create object_t pointing to name that starts at the current position.

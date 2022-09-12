@@ -34,8 +34,13 @@ void print_d_entry(d_entry_t* d) {
   print_object(d->val);
 }
 
+char* get_key(object_t* key) {
+  return ((string_t*)key->val)->str;
+}
+
 d_entry_t* get_entry(pdf_t* pdf) {
   object_t* first_key = get_name(pdf, FAIL);
+  printf("got name %s from dictionary at: %li\n", get_key(first_key), get_pos(pdf->fs));
 
   d_entry_t* list_t = allocate(sizeof(d_entry_t));
   list_t->key = first_key;

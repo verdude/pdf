@@ -157,6 +157,13 @@ object_t* get_string(pdf_t* pdf) {
       break;
     }
     string->len += char_len;
+    int success = add_string_char(pdf, c, string->val);
+    if (success == -1) {
+      break;
+    } else if (!success) {
+      free_object_t(string);
+      scexit(pdf, 1);
+    }
   }
 
   return string;

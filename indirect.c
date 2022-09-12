@@ -32,16 +32,18 @@ long get_stream_len(pdf_t* pdf, object_t* o) {
   }
 }
 
-indirect_t* get_indirect(pdf_t* pdf, int c) {
+indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
+  printf("entering experimental territory...\n");
   indirect_t* indirect = allocate(sizeof(indirect_t));
-  indirect->obj_num = 0; //TODO
-  indirect->gen_num = 0; // TODO
+  indirect->obj_num = on;
+  indirect->gen_num = gn;
   indirect->obj = NULL;
 
-  if (c == 'o') {
-    unget_char(pdf->fs, c, FAIL);
+  if (nc == 'o') {
+    unget_char(pdf->fs, nc, FAIL);
     skip_string(pdf->fs, "obj", get_pos(pdf->fs));
     consume_whitespace(pdf->fs);
+    printf("Getting next_sym...\n");
     indirect->obj = next_sym(pdf);
     consume_whitespace(pdf->fs);
 
@@ -51,9 +53,10 @@ indirect_t* get_indirect(pdf_t* pdf, int c) {
       long stream_len = -1;
 
       if (len->type == Num) {
-  stream_len = *(long*)len->val;
-  indirect->stream = try_read_stream(pdf, stream_len);
+        stream_len = *(long*)len->val;
+        indirect->stream = try_read_stream(pdf, stream_len);
       } else if (len->type == Ind) {
+        printf("Stream encountered... will fail without a doubt.\n");
         //stream_len = get_num_val(); // TODO !!!!
         indirect->stream = try_read_stream(pdf, stream_len);
         if (!indirect->stream) {
@@ -61,7 +64,7 @@ indirect_t* get_indirect(pdf_t* pdf, int c) {
           fprintf(stderr, "  at: %li\n", get_pos(pdf->fs));
         }
       } else {
-  fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
+        fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
       }
     }
     consume_whitespace(pdf->fs);
@@ -70,6 +73,8 @@ indirect_t* get_indirect(pdf_t* pdf, int c) {
     if (!match) {
       fprintf(stderr, "Missing endobj.\n");
       cexit(pdf->fs, 1);
+    } else {
+      printf("Got endobj at pos: %li\n", get_pos(pdf->fs));
     }
   }
 
