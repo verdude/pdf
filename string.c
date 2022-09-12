@@ -74,6 +74,7 @@ static int add_string_char(pdf_t* pdf, int c, string_t* string) {
     case 0x5c:
       // \ backslash
       int escaped = get_char(pdf->fs, FAIL);
+      // TODO: perhaps add length to the string?
       return add_byte(escaped, string);
   }
 
@@ -147,23 +148,13 @@ object_t* get_string(pdf_t* pdf) {
 
   int c;
   while ((c = get_char(pdf->fs, FAIL)) != EOF) {
-    int char_len = get_char(pdf->fs, FAIL);
-
-    if (char_len == -1) {
-      break;
-    }
-
-    if (!char_len) {
-      break;
-    }
-    string->len += char_len;
     int success = add_string_char(pdf, c, string->val);
-    if (success == -1) {
+
+    if (!success || success == -1) {
       break;
-    } else if (!success) {
-      free_object_t(string);
-      scexit(pdf, 1);
     }
+
+    string->len += success;
   }
 
   return string;
