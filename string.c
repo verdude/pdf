@@ -35,7 +35,7 @@ int string_equals(object_t* o, char* s, int n) {
 /**
  * Returns 1 on success, 0 on failure, -1 on string end
  */
-static int add_string_char(FILE* fs, int c, string_t* string) {
+static int add_string_char(state_t* state, int c, string_t* string) {
   switch (c) {
     case 0x8:
       // backspace
@@ -106,7 +106,7 @@ int get_first_char(enum encoding enc) {
   }
 }
 
-object_t* get_string_type_obj(FILE* fs, enum encoding enc) {
+object_t* get_string_type_obj(state_t* state, enum encoding enc) {
   consume_whitespace(fs);
   int c = get_char(fs, FAIL);
   if (!first_char(enc, c)) {
@@ -142,7 +142,7 @@ object_t* get_string_type_obj(FILE* fs, enum encoding enc) {
   return obj;
 }
 
-object_t* get_string(FILE* fs) {
+object_t* get_string(state_t* state) {
   object_t* string = get_string_type_obj(fs, LiteralString);
 
   string_t* s = (string_t*) string->val;

@@ -13,7 +13,7 @@ int num_char(int c) {
   return 0;
 }
 
-long get_num(FILE* fs, int base, int fail_on_error) {
+long get_num(state_t* state, int base, int fail_on_error) {
   const int len = 64;
   char s[64] = {0};
   char decimal[64] = {0};
@@ -38,14 +38,14 @@ long get_num(FILE* fs, int base, int fail_on_error) {
       consume_chars_stack(fs, &isdigit, decimal, len);
     }
   } else if (end == s) {
-    fprintf(stderr, "whole string it not a num! [%s]\n", s);
+    fprintf(stderr, "whole string is not a num! [%s]\n", s);
     cexit(fs, 1);
   }
 
   return n;
 }
 
-object_t* create_num_obj(FILE* fs, long start, long num) {
+object_t* create_num_obj(state_t* state, long start, long num) {
   object_t* o = allocate(sizeof(object_t));
   o->type = Num;
   o->offset = start;
@@ -56,7 +56,11 @@ object_t* create_num_obj(FILE* fs, long start, long num) {
   return o;
 }
 
-object_t* parse_num(FILE* fs) {
+long get_num_val(object_t* o) {
+ return *((long*)o->val);
+}
+
+object_t* parse_num(state_t* state) {
   long cpos = get_pos(fs);
   long pos = cpos;
   long num = get_num(fs, 0, FAIL);
@@ -81,25 +85,11 @@ object_t* parse_num(FILE* fs) {
     return create_num_obj(fs, pos, num);
   }
 
-  // Is indirect object
-  indirect_t* indirect = allocate(sizeof(indirect_t));
-  indirect->obj_num = num;
-  indirect->gen_num = gen_num;
-  indirect->obj = NULL;
-
-  if (c == 'o') {
-    unget_char(fs, c, FAIL);
-    skip_string(fs, "obj", get_pos(fs));
-    consume_whitespace(fs);
-    indirect->obj = next_sym(fs);
-  }
-
   object_t* o = allocate(sizeof(object_t));
   o->type = Ind;
   o->offset = pos;
   o->len = get_pos(fs) - pos;
-  o->val = indirect;
+  o->val = get_indirect(fs, c);
 
   return o;
 }
-

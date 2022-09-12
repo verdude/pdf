@@ -61,7 +61,7 @@ list_t* create_list(enum el_t el_type) {
   return list;
 }
 
-object_t* get_list(FILE* fs, enum el_t el_type) {
+object_t* get_list(state_t* state, enum el_t el_type) {
   size_t pos = get_pos(fs);
   size_t end = pos;
 

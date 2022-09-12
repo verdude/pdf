@@ -10,7 +10,7 @@ object_t* get_encryption(trailer_t* trailer) {
   return get_entry_value(trailer->dictionary, "Encrypt");
 }
 
-trailer_t* get_trailer(FILE* fs) {
+trailer_t* get_trailer(state_t* state) {
   seek(fs, -(EOF_LEN+1), SEEK_END);
   trailer_t* t = allocate(sizeof(trailer_t));
 

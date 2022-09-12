@@ -71,7 +71,15 @@ typedef struct {
 } object_t;
 
 /**
- * Dictionary entry. key -> val pointers. Key is always a Name, val is any object.
+ * non-decoded byte stream.
+ */
+typedef struct {
+  unsigned char* bytes;
+  size_t len;
+} stream_t;
+
+/**
+ * dictionary entry. key -> val pointers. key is always a name, val is any object.
  */
 typedef struct {
   object_t* key;
@@ -79,8 +87,8 @@ typedef struct {
 } d_entry_t;
 
 /**
- * List object. Has number `len` of elements.
- * There is `memsize` memory allocated for the entries.
+ * list object. has number `len` of elements.
+ * there is `memsize` memory allocated for the entries.
  */
 typedef struct {
   void** el;
@@ -96,6 +104,7 @@ typedef struct {
   long obj_num;
   long gen_num;
   object_t* obj;
+  stream_t* stream;
 } indirect_t;
 
 /**
@@ -125,13 +134,19 @@ typedef object_t* (*read_object)(FILE*);
 typedef void* (*read_element)(FILE*);
 
 /**
+ * Gets an indirect.
+ * c: previous character. Should be either 'R' or 'o'.
+ */
+indirect_t* get_indirect(state_t* state, int c);
+
+/**
  * Create object_t pointing to name that starts at the current position.
  * Type determines whether the name is in a dictionary or not.
  * If we are reading from a dictionary, we anticipate errors like:
  * /Key/Value
  * as being two names instead of 1.
  */
-object_t* get_name(FILE* fs, int fail_on_error);
+object_t* get_name(state_t* state, int fail_on_error);
 
 /**
  * Get a string representation of the object type.
@@ -141,7 +156,7 @@ char* get_type_name(object_t* o);
 /**
  * Create object_t pointing to string that starts at the current position.
  */
-object_t* get_string(FILE* fs);
+object_t* get_string(state_t* state);
 
 /**
  * Returns the expected first char for the specified string format.
@@ -151,10 +166,10 @@ int get_first_char(enum encoding enc);
 /**
  * Create object_t pointing to hex string that starts at the current position.
  */
-object_t* get_hex_string(FILE* fs);
-object_t* get_dictionary(FILE* fs, int fail_on_error);
-object_t* get_list(FILE* fs, enum el_t el_type);
-object_t* get_term(FILE* fs, enum term type);
+object_t* get_hex_string(state_t* state);
+object_t* get_dictionary(state_t* state, int fail_on_error);
+object_t* get_list(state_t* state, enum el_t el_type);
+object_t* get_term(state_t* state, enum term type);
 
 /**
  * Gets the value for the key in the dictionary object.
@@ -170,7 +185,7 @@ object_t* get_val(list_t* obj, char* key);
  *
  * Anything else will be a number.
  */
-object_t* parse_num(FILE* fs);
+object_t* parse_num(state_t* state);
 
 /**
  * Creates a number object_t.
@@ -181,12 +196,24 @@ object_t* create_num_obj(FILE*, long, long);
  * Reads and parses a number at the current position.
  * fs points to the first char after the number.
  */
-long get_num(FILE* fs, int base, int fail_on_error);
+long get_num(state_t* state, int base, int fail_on_error);
+
+/**
+ * Get a long from an object_t of type Num
+ */
+long get_num_val(object_t* o);
+
+/**
+ * Tries to read a stream.
+ * Stream is invalid if there is not a valid newline sequence
+ * after len bytes followed by 'endstream'.
+ */
+stream_t* try_read_stream(state_t* state, long len);
 
 /**
  * Get object_t* with val pointing to string_t.
  */
-object_t* get_string_type_obj(FILE* fs, enum encoding enc);
+object_t* get_string_type_obj(state_t* state, enum encoding enc);
 
 /**
  * Returns the result of calling strncmp on the object's string value
@@ -197,12 +224,12 @@ int string_equals(object_t* o, char* s, int n);
 /**
  * Reads a dictionary entry from fs.
  */
-d_entry_t* get_entry(FILE* fs);
+d_entry_t* get_entry(state_t* state);
 
 /**
  * Load the name into a char string.
  */
-char* name_str(FILE* fs, object_t* name);
+char* name_str(state_t* state, object_t* name);
 
 /**
  * Get the value for the provided entry if it exists.

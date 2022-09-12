@@ -10,7 +10,7 @@ static int is_hex_char(char c) {
   return 0;
 }
 
-static int add_hex_string_char(FILE* fs, int c, string_t* hstring) {
+static int add_hex_string_char(state_t* state, int c, string_t* hstring) {
   int c2 = get_char(fs, FAIL);
   if (is_hex_char(c) && is_hex_char(c2)) {
     int success = add_byte(c, hstring) & add_byte(c2, hstring);
@@ -24,7 +24,7 @@ static int add_hex_string_char(FILE* fs, int c, string_t* hstring) {
   return 0;
 }
 
-object_t* get_hex_string(FILE* fs) {
+object_t* get_hex_string(state_t* state) {
   object_t* obj = get_string_type_obj(fs, HexString);
   string_t* hstring = obj->val;
 

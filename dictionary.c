@@ -5,13 +5,17 @@
 #include "next.h"
 #include "object.h"
 
+char* get_entry_name(d_entry_t* entry) {
+  return ((string_t*)entry->key->val)->str;
+}
+
 object_t* get_entry_value(object_t* o, char* key) {
   if (o->type != Dict) {
-    fprintf(stderr, "Invalid object for dictionary#has_key: %s\n", get_type_name(o));
+    fprintf(stderr, "Invalid object for dictionary#get_entry_value: %s\n", get_type_name(o));
     return NULL;
   }
   list_t* dict = o->val;
-  d_entry_t** entries = dict->el;
+  d_entry_t** entries = (d_entry_t**)dict->el;
   int len = strlen(key);
 
   for (int i = 0; i < dict->len; ++i) {
@@ -24,13 +28,12 @@ object_t* get_entry_value(object_t* o, char* key) {
 
 void print_d_entry(d_entry_t* d) {
   object_t* key = d->key;
-  object_t* val = d->val;
 
   printf("/%s ", ((string_t*) key->val)->str);
-  print_object(val);
+  print_object(d->val);
 }
 
-d_entry_t* get_entry(FILE* fs) {
+d_entry_t* get_entry(state_t* state) {
   object_t* first_key = get_name(fs, FAIL);
 
   d_entry_t* list_t = allocate(sizeof(d_entry_t));

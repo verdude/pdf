@@ -132,7 +132,7 @@ void print_object(object_t* o) {
   }
 }
 
-object_t* get_term(FILE* fs, enum term type) {
+object_t* get_term(state_t* state, enum term type) {
   char* false_str = "false";
   char* true_str = "true";
   char* null_str = "null";

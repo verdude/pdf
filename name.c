@@ -5,7 +5,7 @@
 #include "next.h"
 #include "object.h"
 
-static unsigned char get_hex_char(FILE* fs) {
+static unsigned char get_hex_char(state_t* state) {
   int c1 = get_char(fs, FAIL);
   int c2 = get_char(fs, FAIL);
   char hex_str[] = { (unsigned char) c1, (unsigned char) c2 };
@@ -80,7 +80,7 @@ int is_key_char(int c) {
  * the character in the pdf.
  * returns 0 when done reading.
  */
-static int add_name_char(FILE* fs, int c, string_t* name) {
+static int add_name_char(state_t* state, int c, string_t* name) {
   // TODO: add warning for other object symbols
   // to make debugging invalid dict entries easier.
   // ex:
@@ -115,7 +115,7 @@ static int add_name_char(FILE* fs, int c, string_t* name) {
   }
 }
 
-object_t* get_name(FILE* fs, int fail_on_error) {
+object_t* get_name(state_t* state, int fail_on_error) {
   object_t* name_obj = get_string_type_obj(fs, NameString);
   string_t* name_val = name_obj->val;
   int c;

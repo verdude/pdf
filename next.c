@@ -8,7 +8,7 @@
 #include "next.h"
 #include "object.h"
 
-int get_char(FILE* fs, int eof_fail) {
+int get_char(state_t* state, int eof_fail) {
   int c = fgetc(fs);
   if (c == EOF && eof_fail) {
     fprintf(stderr, "Premature EOF.\n");
@@ -18,7 +18,7 @@ int get_char(FILE* fs, int eof_fail) {
   return c;
 }
 
-void unget_char(FILE* fs, int c, int fail_on_error) {
+void unget_char(state_t* state, int c, int fail_on_error) {
   clearerr(fs);
   int r = ungetc(c, fs);
   if (r == EOF && fail_on_error) {
@@ -27,7 +27,7 @@ void unget_char(FILE* fs, int c, int fail_on_error) {
   }
 }
 
-void unget_chars(FILE* fs, unsigned char* s, int len) {
+void unget_chars(state_t* state, unsigned char* s, int len) {
   for (int i = 0; i < len; ++i) {
     unget_char(fs, s[i], FAIL);
   }
@@ -43,7 +43,7 @@ void* allocate(int len) {
   return m;
 }
 
-void skip_while(FILE* fs, int (*fn)(int)) {
+void skip_while(state_t* state, int (*fn)(int)) {
   int c;
   do {
     c = get_char(fs, FAIL);
@@ -55,7 +55,7 @@ void skip_while(FILE* fs, int (*fn)(int)) {
 /**
  * Preceding char is '<', check what type of object it could be.
  */
-static object_t* next_angle_bracket_sym(FILE* fs) {
+static object_t* next_angle_bracket_sym(state_t* state) {
   int c = get_char(fs, FAIL);
 
   switch ((unsigned char) c) {
@@ -70,7 +70,7 @@ static object_t* next_angle_bracket_sym(FILE* fs) {
 }
 
 // rename to next_token or something
-char* consume_chars(FILE* fs, int (*fn)(int), int len) {
+char* consume_chars(state_t* state, int (*fn)(int), int len) {
   char* chars = allocate(len);
   int c;
 
@@ -87,7 +87,7 @@ char* consume_chars(FILE* fs, int (*fn)(int), int len) {
   return chars;
 }
 
-void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len) {
+void consume_chars_stack(state_t* state, int (*fn)(int), char* chars, int len) {
   int c;
   for (size_t i = 0; i < len - 1; ++i) {
     c = get_char(fs, IGNORE);
@@ -109,11 +109,11 @@ long estrtol(char* s, char** endptr, int base) {
   return n;
 }
 
-void consume_whitespace(FILE* fs) {
+void consume_whitespace(state_t* state) {
   skip_while(fs, &isspace);
 }
 
-int skip_string(FILE* fs, char* s, long pos) {
+int skip_string(state_t* state, char* s, long pos) {
   if (*s == 0) {
     return 1;
   }
@@ -131,7 +131,7 @@ int is_not_space(int c) {
   return !isspace(c) && c != EOF;
 }
 
-object_t* next_sym(FILE* fs) {
+object_t* next_sym(state_t* state) {
   consume_whitespace(fs);
 
   int c = get_char(fs, IGNORE);
@@ -176,7 +176,7 @@ object_t* next_sym(FILE* fs) {
   }
 }
 
-long get_pos(FILE* fs) {
+long get_pos(state_t* state) {
   long pos = ftell(fs);
   if (pos == -1) {
     perror("ftell");
@@ -185,7 +185,7 @@ long get_pos(FILE* fs) {
   return pos;
 }
 
-int seek(FILE* fs, long offset, int whence) {
+int seek(state_t* state, long offset, int whence) {
   int ret = fseek(fs, offset, whence);
   if (ret == -1) {
     perror("fseek");
@@ -200,7 +200,7 @@ int seek(FILE* fs, long offset, int whence) {
  * Exits in case of EOF.
  * Are size_t and EOF compatible?
  */
-size_t check_for_match(FILE* fs, char* s) {
+size_t check_for_match(state_t* state, char* s) {
   if (*s == 0) {
     return get_pos(fs);
   }
@@ -214,7 +214,7 @@ size_t check_for_match(FILE* fs, char* s) {
   return check_for_match(fs, s + 1);
 }
 
-size_t check_for_match_seek_back(FILE* fs, char* s) {
+size_t check_for_match_seek_back(state_t* state, char* s) {
   long pos = get_pos(fs);
   size_t result = check_for_match(fs, s);
   seek(fs, pos, SEEK_SET);
@@ -223,7 +223,7 @@ size_t check_for_match_seek_back(FILE* fs, char* s) {
 
 // TODO: perhaps validate the sequence? Make sure it is null terminated
 // at the given length?
-int find_backwards(FILE* fs, char* sequence, int len) {
+int find_backwards(state_t* state, char* sequence, int len) {
   if (len > 15) {
     fprintf(stderr, "Sequence too long: %i\n", len);
     return 0;
@@ -248,7 +248,7 @@ int find_backwards(FILE* fs, char* sequence, int len) {
   return 1;
 }
 
-void cexit(FILE* fs, int code) {
+void cexit(state_t* state, int code) {
   void *array[10];
   size_t size;
 
@@ -263,8 +263,8 @@ void cexit(FILE* fs, int code) {
   exit(code);
 }
 
-char* fs_read(FILE* fs, size_t size) {
-  char* bytes = allocate(size + 1);
+unsigned char* fs_read(state_t* state, size_t size) {
+  unsigned char* bytes = allocate(size + 1);
   size_t read = fread(bytes, 1, size, fs);
 
   if (read == size) {
@@ -282,6 +282,6 @@ char* fs_read(FILE* fs, size_t size) {
     fprintf(stderr, "Unknown error from fread.\n");
   }
   cexit(fs, 1);
+  // Return just to make the compiler happy
   return NULL;
 }
-

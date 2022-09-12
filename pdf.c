@@ -9,7 +9,7 @@
 #include "xref.h"
 
 FILE* file_exists(char* path) {
-  FILE* fs = fopen(path, "r");
+  state_t* state = fopen(path, "r");
   if (fs) {
     return fs;
   }
@@ -18,12 +18,12 @@ FILE* file_exists(char* path) {
   return 0;
 }
 
-int supported_version(FILE* fs) {
+int supported_version(state_t* state) {
   const int prefix_len = 5;
   const int version_len = 3;
   const int header_len = prefix_len + version_len;
   const char* prefix = "%PDF-";
-  const char version[3][5] = {"1", ".", "4576"};
+  const char version[3][6] = {"1", ".", "34576"};
   char bytes[header_len+1];
   char c;
 
@@ -66,7 +66,7 @@ int supported_version(FILE* fs) {
   return 1;
 }
 
-int read_bin_comment(FILE* fs) {
+int read_bin_comment(state_t* state) {
   char c = (char) get_char(fs, FAIL);
   if (c != '%') {
     unget_char(fs, c, FAIL);
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  FILE* fs = file_exists(argv[1]);
+  state_t* state = file_exists(argv[1]);
   if (fs) {
     if (supported_version(fs)) {
       trailer_t* trailer = get_trailer(fs);
