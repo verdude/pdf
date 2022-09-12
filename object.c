@@ -157,7 +157,7 @@ object_t* get_term(state_t* state, enum term type) {
   }
 
   long offset = get_pos(state->fs);
-  int success = check_for_match(state, str);
+  int success = check_for_match(state->fs, str);
   if (!success) {
     fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(state->fs));
     return NULL;

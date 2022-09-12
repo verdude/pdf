@@ -65,7 +65,7 @@ indirect_t* get_indirect(state_t* state, int c) {
       }
     }
     consume_whitespace(state);
-    match = check_for_match(state, "endobj");
+    match = check_for_match(state->fs, "endobj");
 
     if (!match) {
       fprintf(stderr, "Missing endobj.\n");
