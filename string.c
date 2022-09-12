@@ -110,8 +110,8 @@ object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
   consume_whitespace(pdf->fs);
   int c = get_char(pdf->fs, FAIL);
   if (!first_char(enc, c)) {
-    fprintf(stderr, "Invalid first char for string: [%c]. Should be: %c\n",
-        c, get_first_char(enc));
+    fprintf(stderr, "Invalid first char for string: [%c] aka. [0x%04x]. Should be: %c\n",
+        c, c, get_first_char(enc));
     cexit(pdf->fs, 1);
   }
 

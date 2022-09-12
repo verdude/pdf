@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
         scexit(pdf, 1);
       }
       success = get_xref(pdf);
-      if (!success) {
+      if (success) {
         parse_entries(pdf);
       }
       free_pdf_t(pdf);
@@ -128,4 +128,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
