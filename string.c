@@ -73,7 +73,7 @@ static int add_string_char(state_t* state, int c, string_t* string) {
       return string->enc == HexString ? -1 : string->enc == LiteralString ? 1 : 0;
     case 0x5c:
       // \ backslash
-      int escaped = get_char(fs, FAIL);
+      int escaped = get_char(state->fs, FAIL);
       return add_byte(escaped, string);
   }
 
@@ -107,16 +107,16 @@ int get_first_char(enum encoding enc) {
 }
 
 object_t* get_string_type_obj(state_t* state, enum encoding enc) {
-  consume_whitespace(fs);
-  int c = get_char(fs, FAIL);
+  consume_whitespace(state->fs);
+  int c = get_char(state->fs, FAIL);
   if (!first_char(enc, c)) {
     fprintf(stderr, "Invalid first char for string: [%c]. Should be: %c\n",
         c, get_first_char(enc));
-    cexit(fs, 1);
+    cexit(state->fs, 1);
   }
 
   object_t* obj = allocate(sizeof(object_t));
-  obj->offset = get_pos(fs);
+  obj->offset = get_pos(state->fs);
   obj->len = 0;
   obj->val = allocate(sizeof(string_t));
   switch (enc) {
@@ -131,7 +131,7 @@ object_t* get_string_type_obj(state_t* state, enum encoding enc) {
       break;
     default:
       fprintf(stderr, "Invalid string encoding type: %i\n", enc);
-      cexit(fs, 1);
+      scexit(state, 1);
   }
 
   string_t* val = obj->val;
@@ -143,13 +143,13 @@ object_t* get_string_type_obj(state_t* state, enum encoding enc) {
 }
 
 object_t* get_string(state_t* state) {
-  object_t* string = get_string_type_obj(fs, LiteralString);
+  object_t* string = get_string_type_obj(state->fs, LiteralString);
 
   string_t* s = (string_t*) string->val;
   int c;
 
-  while ((c = get_char(fs, FAIL)) != EOF) {
-    int char_len = add_string_char(fs, c, s);
+  while ((c = get_char(state->fs, FAIL)) != EOF) {
+    int char_len = add_string_char(state->fs, c, s);
 
     if (char_len == -1) {
       break;

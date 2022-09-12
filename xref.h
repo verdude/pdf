@@ -1,6 +1,11 @@
+#ifndef xref_h
+#define xref_h
+
 #include <stdio.h>
 
+#include "pdf.h"
 #include "object.h"
+#include "typedef.h"
 
 #define ENTRY_WIDTH 20
 
@@ -26,14 +31,14 @@ typedef struct {
  * ce_index: The index of the current entry in the xref table.
  * ce_offset: byte offset from the beginning of the file to the current entry.
  */
-typedef struct {
+struct xref {
   long x_offset;
   long t_offset;
   long obj_num;
   long count;
   long ce_index;
   long ce_offset;
-} xref_t;
+};
 
 /**
  * Parses the xref table.
@@ -55,5 +60,6 @@ object_t* get_object(state_t* state, int obj_num);
 /**
  * Parse and print EVERY entry in the xref table.
  */
-void parse_entries(FILE*, xref_t*);
+void parse_entries(state_t*, xref_t*);
 
+#endif // xref_h

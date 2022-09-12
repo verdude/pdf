@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "pdf.h"
+
 /**
  * boo -> int
  * num -> long
@@ -129,9 +131,9 @@ typedef struct {
  * Function pointer types to read a dictionary entry or object.
  * read_element for casting.
  */
-typedef d_entry_t* (*read_dict_entry)(FILE*);
-typedef object_t* (*read_object)(FILE*);
-typedef void* (*read_element)(FILE*);
+typedef d_entry_t* (*read_dict_entry)(state_t* state);
+typedef object_t* (*read_object)(state_t* state);
+typedef void* (*read_element)(state_t* state);
 
 /**
  * Gets an indirect.
@@ -190,7 +192,7 @@ object_t* parse_num(state_t* state);
 /**
  * Creates a number object_t.
  */
-object_t* create_num_obj(FILE*, long, long);
+object_t* create_num_obj(state_t*, long, long);
 
 /**
  * Reads and parses a number at the current position.

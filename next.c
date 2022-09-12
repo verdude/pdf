@@ -5,10 +5,11 @@
 #include <string.h>
 #include <execinfo.h>
 
+#include "pdf.h"
 #include "next.h"
 #include "object.h"
 
-int get_char(state_t* state, int eof_fail) {
+int get_char(FILE* fs, int eof_fail) {
   int c = fgetc(fs);
   if (c == EOF && eof_fail) {
     fprintf(stderr, "Premature EOF.\n");
@@ -18,7 +19,7 @@ int get_char(state_t* state, int eof_fail) {
   return c;
 }
 
-void unget_char(state_t* state, int c, int fail_on_error) {
+void unget_char(FILE* fs, int c, int fail_on_error) {
   clearerr(fs);
   int r = ungetc(c, fs);
   if (r == EOF && fail_on_error) {
@@ -27,7 +28,7 @@ void unget_char(state_t* state, int c, int fail_on_error) {
   }
 }
 
-void unget_chars(state_t* state, unsigned char* s, int len) {
+void unget_chars(FILE* fs, unsigned char* s, int len) {
   for (int i = 0; i < len; ++i) {
     unget_char(fs, s[i], FAIL);
   }
@@ -43,7 +44,7 @@ void* allocate(int len) {
   return m;
 }
 
-void skip_while(state_t* state, int (*fn)(int)) {
+void skip_while(FILE* fs, int (*fn)(int)) {
   int c;
   do {
     c = get_char(fs, FAIL);
@@ -56,21 +57,21 @@ void skip_while(state_t* state, int (*fn)(int)) {
  * Preceding char is '<', check what type of object it could be.
  */
 static object_t* next_angle_bracket_sym(state_t* state) {
-  int c = get_char(fs, FAIL);
+  int c = get_char(state->fs, FAIL);
 
   switch ((unsigned char) c) {
     case '<':
-      unget_chars(fs, (unsigned char*) "<<", 2);
-      return get_list(fs, DictionaryEntry);
+      unget_chars(state->fs, (unsigned char*) "<<", 2);
+      return get_list(state, DictionaryEntry);
     default:
-      unget_char(fs, c, FAIL);
-      unget_char(fs, '<', FAIL);
-      return get_hex_string(fs);
+      unget_char(state->fs, c, FAIL);
+      unget_char(state->fs, '<', FAIL);
+      return get_hex_string(state);
   }
 }
 
 // rename to next_token or something
-char* consume_chars(state_t* state, int (*fn)(int), int len) {
+char* consume_chars(FILE* fs, int (*fn)(int), int len) {
   char* chars = allocate(len);
   int c;
 
@@ -87,7 +88,7 @@ char* consume_chars(state_t* state, int (*fn)(int), int len) {
   return chars;
 }
 
-void consume_chars_stack(state_t* state, int (*fn)(int), char* chars, int len) {
+void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len) {
   int c;
   for (size_t i = 0; i < len - 1; ++i) {
     c = get_char(fs, IGNORE);
@@ -109,11 +110,11 @@ long estrtol(char* s, char** endptr, int base) {
   return n;
 }
 
-void consume_whitespace(state_t* state) {
+void consume_whitespace(FILE* fs) {
   skip_while(fs, &isspace);
 }
 
-int skip_string(state_t* state, char* s, long pos) {
+int skip_string(FILE* fs, char* s, long pos) {
   if (*s == 0) {
     return 1;
   }
@@ -132,51 +133,51 @@ int is_not_space(int c) {
 }
 
 object_t* next_sym(state_t* state) {
-  consume_whitespace(fs);
+  consume_whitespace(state->fs);
 
-  int c = get_char(fs, IGNORE);
+  int c = get_char(state->fs, IGNORE);
   if (c == EOF) {
     printf("Reached EOF.");
     return NULL;
   }
 
   if (isdigit(c)) {
-    unget_char(fs, c, FAIL);
-    return parse_num(fs);
+    unget_char(state->fs, c, FAIL);
+    return parse_num(state);
   }
 
   switch ((unsigned char) c) {
     case '/':
-      unget_char(fs, c, FAIL);
-      return get_name(fs, FAIL);
+      unget_char(state->fs, c, FAIL);
+      return get_name(state, FAIL);
     case '<':
-      return next_angle_bracket_sym(fs);
+      return next_angle_bracket_sym(state);
     case '(':
-      unget_char(fs, c, FAIL);
-      return get_string(fs);
+      unget_char(state->fs, c, FAIL);
+      return get_string(state);
     case '[':
-      unget_char(fs, c, FAIL);
-      return get_list(fs, Object);
+      unget_char(state->fs, c, FAIL);
+      return get_list(state, Object);
     case 'n':
-      unget_char(fs, c, FAIL);
-      return get_term(fs, NullTerm);
+      unget_char(state->fs, c, FAIL);
+      return get_term(state, NullTerm);
     case 't':
-      unget_char(fs, c, FAIL);
-      return get_term(fs, TrueTerm);
+      unget_char(state->fs, c, FAIL);
+      return get_term(state, TrueTerm);
     case 'f':
-      unget_char(fs, c, FAIL);
-      return get_term(fs, FalseTerm);
+      unget_char(state->fs, c, FAIL);
+      return get_term(state, FalseTerm);
     case '-':
-      long n = get_num(fs, 10, FAIL);
-      return create_num_obj(fs, get_pos(fs) - 1, -n);
+      long n = get_num(state, 10, FAIL);
+      return create_num_obj(state, get_pos(state->fs) - 1, -n);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
-      fprintf(stderr, "pos: %li\n", get_pos(fs)-1);
+      fprintf(stderr, "pos: %li\n", get_pos(state->fs)-1);
       return NULL;
   }
 }
 
-long get_pos(state_t* state) {
+long get_pos(FILE* fs) {
   long pos = ftell(fs);
   if (pos == -1) {
     perror("ftell");
@@ -185,7 +186,7 @@ long get_pos(state_t* state) {
   return pos;
 }
 
-int seek(state_t* state, long offset, int whence) {
+int seek(FILE* fs, long offset, int whence) {
   int ret = fseek(fs, offset, whence);
   if (ret == -1) {
     perror("fseek");
@@ -200,7 +201,7 @@ int seek(state_t* state, long offset, int whence) {
  * Exits in case of EOF.
  * Are size_t and EOF compatible?
  */
-size_t check_for_match(state_t* state, char* s) {
+size_t check_for_match(FILE* fs, char* s) {
   if (*s == 0) {
     return get_pos(fs);
   }
@@ -214,7 +215,7 @@ size_t check_for_match(state_t* state, char* s) {
   return check_for_match(fs, s + 1);
 }
 
-size_t check_for_match_seek_back(state_t* state, char* s) {
+size_t check_for_match_seek_back(FILE* fs, char* s) {
   long pos = get_pos(fs);
   size_t result = check_for_match(fs, s);
   seek(fs, pos, SEEK_SET);
@@ -223,7 +224,7 @@ size_t check_for_match_seek_back(state_t* state, char* s) {
 
 // TODO: perhaps validate the sequence? Make sure it is null terminated
 // at the given length?
-int find_backwards(state_t* state, char* sequence, int len) {
+int find_backwards(FILE* fs, char* sequence, int len) {
   if (len > 15) {
     fprintf(stderr, "Sequence too long: %i\n", len);
     return 0;
@@ -248,11 +249,11 @@ int find_backwards(state_t* state, char* sequence, int len) {
   return 1;
 }
 
-void cexit(state_t* state, int code) {
+void cexit(FILE* fs, int code) {
   void *array[10];
   size_t size;
 
-  fprintf(stderr, "~~~~> Offset: %li\n", get_pos(fs));
+  fprintf(stderr, "~~~~> Offset: %li\n", ftell(fs));
   fprintf(stderr, "~~~~> Exiting with code: %i\n", code);
   if (fs) {
     fclose(fs);
@@ -263,7 +264,12 @@ void cexit(state_t* state, int code) {
   exit(code);
 }
 
-unsigned char* fs_read(state_t* state, size_t size) {
+void scexit(state_t* state, int code) {
+  free_state_t(state);
+  cexit(NULL, code);
+}
+
+unsigned char* fs_read(FILE* fs, size_t size) {
   unsigned char* bytes = allocate(size + 1);
   size_t read = fread(bytes, 1, size, fs);
 

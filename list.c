@@ -62,7 +62,7 @@ list_t* create_list(enum el_t el_type) {
 }
 
 object_t* get_list(state_t* state, enum el_t el_type) {
-  size_t pos = get_pos(fs);
+  size_t pos = get_pos(state->fs);
   size_t end = pos;
 
   list_t* list = create_list(el_type);
@@ -73,33 +73,33 @@ object_t* get_list(state_t* state, enum el_t el_type) {
   if (list->el_type == DictionaryEntry) {
     terminator = ">>";
     // Needs to consume these chars to get into position
-    check_for_match(fs, "<<");
+    check_for_match(state, "<<");
     re = (read_element) &get_entry;
   } else {
     terminator = "]";
-    check_for_match(fs, "[");
+    check_for_match(state, "[");
     re = (read_element) &next_sym;
   }
 
-  consume_whitespace(fs);
+  consume_whitespace(state);
 
-  while (!(end = check_for_match_seek_back(fs, terminator))) {
-    void* element = (*re)(fs);
+  while (!(end = check_for_match_seek_back(state, terminator))) {
+    void* element = (*re)(state);
 
     if (element == NULL) {
       fprintf(stderr, "Failed to get object\n");
-      cexit(fs, 1);
+      cexit(state->fs, 1);
     }
 
     int success = add_obj_to_list(list, element);
     if (!success) {
       fprintf(stderr, "not success! adding object to list\n");
     }
-    consume_whitespace(fs);
+    consume_whitespace(state);
   }
 
   // skip terminator
-  seek(fs, strlen(terminator), SEEK_CUR);
+  seek(state, strlen(terminator), SEEK_CUR);
 
   object_t* obj = allocate(sizeof(object_t));
   obj->type = el_type == DictionaryEntry ? Dict : Arr;

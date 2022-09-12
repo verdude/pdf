@@ -1,16 +1,17 @@
-#ifndef tailer_h
+#ifndef trailer_h
 #define trailer_h
 
 #define EOF_LEN 5
 
+#include "typedef.h"
 #include "object.h"
 
-typedef struct {
+struct trailer {
   long offset;
   object_t* dictionary;
   long startxref_offset;
   object_t* encryption;
-} trailer_t;
+};
 
 trailer_t* get_trailer();
 

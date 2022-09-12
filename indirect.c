@@ -26,7 +26,7 @@ long get_stream_len(state_t* state, object_t* o) {
   } else if (length_obj->type == Num) {
     return get_num_val(length_obj->val);
   } else {
-    cexit(fs, 1);
+    cexit(state->fs, 1);
     // return for compiler
     return 0;
   }
@@ -34,42 +34,42 @@ long get_stream_len(state_t* state, object_t* o) {
 
 indirect_t* get_indirect(state_t* state, int c) {
   indirect_t* indirect = allocate(sizeof(indirect_t));
-  indirect->obj_num = num;
-  indirect->gen_num = gen_num;
+  indirect->obj_num = 0; //TODO
+  indirect->gen_num = 0; // TODO
   indirect->obj = NULL;
 
   if (c == 'o') {
-    unget_char(fs, c, FAIL);
-    skip_string(fs, "obj", get_pos(fs));
-    consume_whitespace(fs);
-    indirect->obj = next_sym(fs);
-    consume_whitespace(fs);
+    unget_char(state, c, FAIL);
+    skip_string(state, "obj", get_pos(state->fs));
+    consume_whitespace(state);
+    indirect->obj = next_sym(state);
+    consume_whitespace(state);
 
-    size_t match = check_for_match_seek_back(fs, "stream");
+    size_t match = check_for_match_seek_back(state, "stream");
     if (indirect->obj->type == Dict && match) {
       object_t* len = get_entry_value(indirect->obj, "Length");
       long stream_len = -1;
 
       if (len->type == Num) {
-	stream_len = *(long*)len->val;
-	indirect->stream = try_read_stream(fs, stream_len);
+  stream_len = *(long*)len->val;
+  indirect->stream = try_read_stream(state, stream_len);
       } else if (len->type == Ind) {
-	stream_len = get_num_val(
-	indirect->stream = try_read_stream(fs, stream_len);
-	if (!indirect->stream) {
-	  fprintf(stderr, "Warning: Length %li found but stream read failed.\n", stream_len);
-	  fprintf(stderr, "  at: %li\n", get_pos(fs));
-	}
+        //stream_len = get_num_val(); // TODO !!!!
+        indirect->stream = try_read_stream(state, stream_len);
+        if (!indirect->stream) {
+          fprintf(stderr, "Warning: Length %li found but stream read failed.\n", stream_len);
+          fprintf(stderr, "  at: %li\n", get_pos(state->fs));
+        }
       } else {
-	fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
+  fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
       }
     }
-    consume_whitespace(fs);
-    size_t match = check_for_match(fs, "endobj");
+    consume_whitespace(state);
+    match = check_for_match(state, "endobj");
 
     if (!match) {
       fprintf(stderr, "Missing endobj.\n");
-      cexit(fs, 1);
+      cexit(state->fs, 1);
     }
   }
 

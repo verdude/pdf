@@ -9,7 +9,7 @@
 #include "xref.h"
 
 FILE* file_exists(char* path) {
-  state_t* state = fopen(path, "r");
+  FILE* fs = fopen(path, "r");
   if (fs) {
     return fs;
   }
@@ -18,7 +18,19 @@ FILE* file_exists(char* path) {
   return 0;
 }
 
-int supported_version(state_t* state) {
+void free_state_t(state_t* state) {
+  if (!state) {
+    return;
+  }
+
+  free_trailer_t(state->trailer);
+  free_xref_t(state->xref);
+  if (state->fs) {
+    fclose(state->fs);
+  }
+}
+
+int supported_version(FILE* fs) {
   const int prefix_len = 5;
   const int version_len = 3;
   const int header_len = prefix_len + version_len;
@@ -66,7 +78,7 @@ int supported_version(state_t* state) {
   return 1;
 }
 
-int read_bin_comment(state_t* state) {
+int read_bin_comment(FILE* fs) {
   char c = (char) get_char(fs, FAIL);
   if (c != '%') {
     unget_char(fs, c, FAIL);
@@ -95,19 +107,20 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  state_t* state = file_exists(argv[1]);
+  FILE* fs = file_exists(argv[1]);
+  state_t* state;
   if (fs) {
     if (supported_version(fs)) {
       trailer_t* trailer = get_trailer(fs);
       if (!trailer) {
         cexit(fs, 1);
       }
-      xref_t* xref = get_xref(fs, trailer->startxref_offset);
+      xref_t* xref = get_xref(state, trailer->startxref_offset);
       if (trailer) {
         free_trailer_t(trailer);
       }
       if (xref) {
-        parse_entries(fs, xref);
+        parse_entries(state, xref);
         free_xref_t(xref);
       }
     }
