@@ -33,7 +33,7 @@ long get_num(state_t* state, int base, int fail_on_error) {
     size_t extra = strnlen(end, len);
     seek(state, -extra, SEEK_CUR);
     if (*end == '.') {
-      get_char(state, FAIL);
+      get_char(state->fs, FAIL);
       // read decimal
       consume_chars_stack(state, &isdigit, decimal, len);
     }
@@ -64,22 +64,22 @@ object_t* parse_num(state_t* state) {
   long cpos = get_pos(state->fs);
   long pos = cpos;
   long num = get_num(state, 0, FAIL);
-  int c = get_char(state, FAIL);
+  int c = get_char(state->fs, FAIL);
   cpos = get_pos(state->fs);
 
   if (c != ' ') {
-    unget_char(state, c, FAIL);
+    unget_char(state->fs, c, FAIL);
     return create_num_obj(state, pos, num);
   }
 
   long gen_num = get_num(state, 0, IGNORE);
-  c = get_char(state, FAIL);
+  c = get_char(state->fs, FAIL);
   if (c != ' ' || gen_num < 0) {
     seek(state, cpos, SEEK_SET);
     return create_num_obj(state, pos, num);
   }
 
-  c = get_char(state, FAIL);
+  c = get_char(state->fs, FAIL);
   if (c != 'R' && c != 'o') {
     seek(state, cpos, SEEK_SET);
     return create_num_obj(state, pos, num);

@@ -6,8 +6,8 @@
 #include "object.h"
 
 static unsigned char get_hex_char(state_t* state) {
-  int c1 = get_char(state, FAIL);
-  int c2 = get_char(state, FAIL);
+  int c1 = get_char(state->fs, FAIL);
+  int c2 = get_char(state->fs, FAIL);
   char hex_str[] = { (unsigned char) c1, (unsigned char) c2 };
 
   // Validate hex_str by converting to long
@@ -120,12 +120,12 @@ object_t* get_name(state_t* state, int fail_on_error) {
   string_t* name_val = name_obj->val;
   int c;
 
-  while ((c = get_char(state, FAIL)) != EOF) {
+  while ((c = get_char(state->fs, FAIL)) != EOF) {
     int char_len = add_name_char(state, c, name_val);
 
     if (!char_len) {
       // finished reading name
-      unget_char(state, c, FAIL);
+      unget_char(state->fs, c, FAIL);
       break;
     } else {
       name_obj->len += char_len;

@@ -39,7 +39,7 @@ indirect_t* get_indirect(state_t* state, int c) {
   indirect->obj = NULL;
 
   if (c == 'o') {
-    unget_char(state, c, FAIL);
+    unget_char(state->fs, c, FAIL);
     skip_string(state, "obj", get_pos(state->fs));
     consume_whitespace(state);
     indirect->obj = next_sym(state);

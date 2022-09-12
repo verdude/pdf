@@ -11,7 +11,7 @@ static int is_hex_char(char c) {
 }
 
 static int add_hex_string_char(state_t* state, int c, string_t* hstring) {
-  int c2 = get_char(state, FAIL);
+  int c2 = get_char(state->fs, FAIL);
   if (is_hex_char(c) && is_hex_char(c2)) {
     int success = add_byte(c, hstring) & add_byte(c2, hstring);
     if (!success) {
@@ -20,7 +20,7 @@ static int add_hex_string_char(state_t* state, int c, string_t* hstring) {
     return 2;
   }
 
-  unget_char(state, c2, FAIL);
+  unget_char(state->fs, c2, FAIL);
   return 0;
 }
 
@@ -29,7 +29,7 @@ object_t* get_hex_string(state_t* state) {
   string_t* hstring = obj->val;
 
   int c;
-  while ((c = get_char(state, FAIL)) != EOF) {
+  while ((c = get_char(state->fs, FAIL)) != EOF) {
     int char_len = add_hex_string_char(state, c, hstring);
 
     if (!char_len) {
