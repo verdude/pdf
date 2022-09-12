@@ -17,14 +17,16 @@ void print_xref(xref_t* x) {
 }
 
 void free_xref_t(xref_t* x) {
-  free(x);
+  if (x) {
+    free(x);
+  }
 }
 
-static int read_size(state_t* state, xref_t* x) {
-  x->obj_num = get_num(state, 0, FAIL);
+static int read_size(state_t* state) {
+  state->xref->obj_num = get_num(state, 0, FAIL);
   consume_whitespace(state->fs);
 
-  x->count = get_num(state, 0, FAIL);
+  state->xref->count = get_num(state, 0, FAIL);
   consume_whitespace(state->fs);
 
   return 1;
@@ -35,7 +37,8 @@ static long get_nth_offset(xref_t* xref, long n) {
   return xref->t_offset + offset_in_table;
 }
 
-static void checkout_next_obj(state_t* state, xref_t* xref) {
+static void checkout_next_obj(state_t* state) {
+  xref_t* xref = state->xref;
   if (xref->ce_index + 1 >= xref->count) {
     printf("attempt to seek past end of xref table. Entry %li\n",
         xref->ce_index);
@@ -62,9 +65,9 @@ static int valid_xref_entry(xref_t* xref) {
  * 1 for normal entry
  * 0 for free entry
  */
-static int get_status(state_t* state, xref_t* xref) {
-  if (!valid_xref_entry(xref)) {
-    fprintf(stderr, "Invalid xref entry offset: %li\n", xref->ce_offset);
+static int get_status(state_t* state) {
+  if (!valid_xref_entry(state->xref)) {
+    fprintf(stderr, "Invalid xref entry offset: %li\n", state->xref->ce_offset);
     return -1;
   }
 
@@ -85,23 +88,24 @@ static int get_status(state_t* state, xref_t* xref) {
  * Returns the offset of the object as listed in the current
  * entry.
  */
-static long get_obj_offset(state_t* state, xref_t* xref) {
-  seek(state->fs, xref->ce_offset, SEEK_SET);
+static long get_obj_offset(state_t* state) {
+  seek(state->fs, state->xref->ce_offset, SEEK_SET);
   return get_num(state, 10, FAIL);
 }
 
-object_t* next_obj(state_t* state, xref_t* xref) {
+object_t* next_obj(state_t* state) {
+  xref_t* xref = state->xref;
   int status;
   seek(state->fs, xref->ce_offset, SEEK_SET);
-  while (!(status = get_status(state, xref))) {
+  while (!(status = get_status(state))) {
     if (status == -1) {
       fprintf(stderr, "Invalid entry status.");
       scexit(state, 1);
     }
-    checkout_next_obj(state, xref);
+    checkout_next_obj(state);
   }
 
-  long offset = get_obj_offset(state, xref);
+  long offset = get_obj_offset(state);
 
   seek(state->fs, offset, SEEK_SET);
 
@@ -112,47 +116,48 @@ object_t* get_object(state_t* state, int obj_num) {
   return NULL;
 }
 
-xref_t* get_xref(state_t* state, long offset) {
+int get_xref(state_t* state) {
   char* xref_string = "xref";
-  xref_t* xref;
   size_t match;
+  long offset = state->trailer->startxref_offset;
 
   seek(state->fs, offset, SEEK_SET);
   if (!(match = check_for_match(state->fs, xref_string))) {
     fprintf(stderr, "Did not find xref table at offset: %li\n", offset);
-    return NULL;
+    return 0;
   }
 
   consume_whitespace(state->fs);
-  xref = allocate(sizeof(xref_t));
+  state->xref = allocate(sizeof(xref_t));
 
-  int success = read_size(state, xref);
+  int success = read_size(state);
   if (!success) {
     fprintf(stderr, "Failed to read xref obj index/size.\n");
-    free_xref_t(xref);
-    return NULL;
+    free_xref_t(state->xref);
+    return 0;
   }
 
-  xref->t_offset = get_pos(state->fs);
-  xref->ce_offset = xref->t_offset;
-  xref->ce_index = 0;
+  state->xref->t_offset = get_pos(state->fs);
+  state->xref->ce_offset = state->xref->t_offset;
+  state->xref->ce_index = 0;
 
-  return xref;
+  return 1;
 }
 
 static int has_next(xref_t* xref) {
   return xref->ce_index < xref->count - 1;
 }
 
-void parse_entries(state_t* state, xref_t* xref) {
+void parse_entries(state_t* state) {
+  xref_t* xref = state->xref;
   for (int i = xref->ce_index; i < xref->count; ++i) {
     if (!has_next(xref)) {
       printf("Traversed whole xref table.\n");
       break;
     }
-    object_t* o = next_obj(state, xref);
+    object_t* o = next_obj(state);
     printf("Type Name: %s\n", get_type_name(o));
     free_object_t(o);
-    checkout_next_obj(state, xref);
+    checkout_next_obj(state);
   }
 }

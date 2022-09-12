@@ -111,20 +111,17 @@ int main(int argc, char** argv) {
   state_t* state;
   if (fs) {
     if (supported_version(fs)) {
-      trailer_t* trailer = get_trailer(fs);
-      if (!trailer) {
-        cexit(fs, 1);
+      state = allocate(sizeof(state));
+      int success = get_trailer(state);
+      if (success) {
+        scexit(state, 1);
       }
-      xref_t* xref = get_xref(state, trailer->startxref_offset);
-      if (trailer) {
-        free_trailer_t(trailer);
+      success = get_xref(state);
+      if (success) {
+        parse_entries(state);
       }
-      if (xref) {
-        parse_entries(state, xref);
-        free_xref_t(xref);
-      }
+      free_state_t(state);
     }
-    fclose(fs);
   }
 
   return 0;

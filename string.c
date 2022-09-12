@@ -143,13 +143,11 @@ object_t* get_string_type_obj(state_t* state, enum encoding enc) {
 }
 
 object_t* get_string(state_t* state) {
-  object_t* string = get_string_type_obj(state->fs, LiteralString);
+  object_t* string = get_string_type_obj(state, LiteralString);
 
-  string_t* s = (string_t*) string->val;
   int c;
-
   while ((c = get_char(state->fs, FAIL)) != EOF) {
-    int char_len = get_char(state, c, s);
+    int char_len = get_char(state->fs, FAIL);
 
     if (char_len == -1) {
       break;

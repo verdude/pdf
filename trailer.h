@@ -13,7 +13,7 @@ struct trailer {
   object_t* encryption;
 };
 
-trailer_t* get_trailer();
+int get_trailer();
 
 void free_trailer_t(trailer_t* t);
 

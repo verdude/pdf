@@ -11,7 +11,7 @@ object_t* get_encryption(trailer_t* trailer) {
   return get_entry_value(trailer->dictionary, "Encrypt");
 }
 
-trailer_t* get_trailer(state_t* state) {
+int get_trailer(state_t* state) {
   seek(state->fs, -(EOF_LEN+1), SEEK_END);
   trailer_t* t = allocate(sizeof(trailer_t));
 
@@ -33,7 +33,7 @@ trailer_t* get_trailer(state_t* state) {
   if (!found) {
     fprintf(stderr, "Failed to find trailer.\n");
     free(t);
-    return NULL;
+    return 0;
   }
 
   t->offset = get_pos(state->fs) - trailer_len;
@@ -51,11 +51,16 @@ trailer_t* get_trailer(state_t* state) {
 
   printf("startxref: %li\n", t->startxref_offset);
 
-  return t;
+  state->trailer = t;
+  return 1;
 }
 
 void free_trailer_t(trailer_t* t) {
-  free_object_t(t->dictionary);
-  free(t);
+  if (t) {
+    if (t->dictionary) {
+      free_object_t(t->dictionary);
+    }
+    free(t);
+  }
 }
 

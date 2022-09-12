@@ -40,12 +40,12 @@ indirect_t* get_indirect(state_t* state, int c) {
 
   if (c == 'o') {
     unget_char(state->fs, c, FAIL);
-    skip_string(state, "obj", get_pos(state->fs));
-    consume_whitespace(state);
+    skip_string(state->fs, "obj", get_pos(state->fs));
+    consume_whitespace(state->fs);
     indirect->obj = next_sym(state);
-    consume_whitespace(state);
+    consume_whitespace(state->fs);
 
-    size_t match = check_for_match_seek_back(state, "stream");
+    size_t match = check_for_match_seek_back(state->fs, "stream");
     if (indirect->obj->type == Dict && match) {
       object_t* len = get_entry_value(indirect->obj, "Length");
       long stream_len = -1;
@@ -64,7 +64,7 @@ indirect_t* get_indirect(state_t* state, int c) {
   fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
       }
     }
-    consume_whitespace(state);
+    consume_whitespace(state->fs);
     match = check_for_match(state->fs, "endobj");
 
     if (!match) {

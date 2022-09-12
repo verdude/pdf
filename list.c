@@ -81,9 +81,9 @@ object_t* get_list(state_t* state, enum el_t el_type) {
     re = (read_element) &next_sym;
   }
 
-  consume_whitespace(state);
+  consume_whitespace(state->fs);
 
-  while (!(end = check_for_match_seek_back(state, terminator))) {
+  while (!(end = check_for_match_seek_back(state->fs, terminator))) {
     void* element = (*re)(state);
 
     if (element == NULL) {
@@ -95,7 +95,7 @@ object_t* get_list(state_t* state, enum el_t el_type) {
     if (!success) {
       fprintf(stderr, "not success! adding object to list\n");
     }
-    consume_whitespace(state);
+    consume_whitespace(state->fs);
   }
 
   // skip terminator
