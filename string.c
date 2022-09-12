@@ -149,7 +149,7 @@ object_t* get_string(state_t* state) {
   int c;
 
   while ((c = get_char(state->fs, FAIL)) != EOF) {
-    int char_len = add_string_char(state->fs, c, s);
+    int char_len = get_char(state, c, s);
 
     if (char_len == -1) {
       break;

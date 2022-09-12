@@ -17,7 +17,7 @@ long get_num(state_t* state, int base, int fail_on_error) {
   const int len = 64;
   char s[64] = {0};
   char decimal[64] = {0};
-  consume_chars_stack(state, &num_char, s, len);
+  consume_chars_stack(state->fs, &num_char, s, len);
   char* end;
   size_t slen = strnlen(s, len);
 
@@ -31,11 +31,11 @@ long get_num(state_t* state, int base, int fail_on_error) {
   long n = estrtol(s, &end, base);
   if (*end != 0) {
     size_t extra = strnlen(end, len);
-    seek(state, -extra, SEEK_CUR);
+    seek(state->fs, -extra, SEEK_CUR);
     if (*end == '.') {
       get_char(state->fs, FAIL);
       // read decimal
-      consume_chars_stack(state, &isdigit, decimal, len);
+      consume_chars_stack(state->fs, &isdigit, decimal, len);
     }
   } else if (end == s) {
     fprintf(stderr, "whole string is not a num! [%s]\n", s);
@@ -75,13 +75,13 @@ object_t* parse_num(state_t* state) {
   long gen_num = get_num(state, 0, IGNORE);
   c = get_char(state->fs, FAIL);
   if (c != ' ' || gen_num < 0) {
-    seek(state, cpos, SEEK_SET);
+    seek(state->fs, cpos, SEEK_SET);
     return create_num_obj(state, pos, num);
   }
 
   c = get_char(state->fs, FAIL);
   if (c != 'R' && c != 'o') {
-    seek(state, cpos, SEEK_SET);
+    seek(state->fs, cpos, SEEK_SET);
     return create_num_obj(state, pos, num);
   }
 

@@ -99,7 +99,7 @@ object_t* get_list(state_t* state, enum el_t el_type) {
   }
 
   // skip terminator
-  seek(state, strlen(terminator), SEEK_CUR);
+  seek(state->fs, strlen(terminator), SEEK_CUR);
 
   object_t* obj = allocate(sizeof(object_t));
   obj->type = el_type == DictionaryEntry ? Dict : Arr;
