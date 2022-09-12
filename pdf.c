@@ -114,12 +114,12 @@ int main(int argc, char** argv) {
       pdf = allocate(sizeof(pdf));
       pdf->fs = fs;
       int success = get_trailer(pdf);
-      if (success) {
+      if (!success) {
         fprintf(stderr, "failed to get trailer\n");
         scexit(pdf, 1);
       }
       success = get_xref(pdf);
-      if (success) {
+      if (!success) {
         parse_entries(pdf);
       }
       free_pdf_t(pdf);
