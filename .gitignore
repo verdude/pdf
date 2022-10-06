@@ -4,3 +4,5 @@ assets/**
 vgcore.*
 test/*.o
 test/tester
+\#*\#
+.\#*

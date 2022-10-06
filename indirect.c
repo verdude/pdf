@@ -13,6 +13,10 @@ void print_indirect(indirect_t* i) {
 }
 
 long get_stream_len(pdf_t* pdf, object_t* o) {
+  if (o->type != Ind) {
+    fprintf(stderr, "Invalid type for get_stream_len: %s\n", get_type_name(o));
+    return 0;
+  }
   indirect_t* ind = o->val;
   object_t* length_obj = get_entry_value(ind->obj, "Length");
 
@@ -21,8 +25,18 @@ long get_stream_len(pdf_t* pdf, object_t* o) {
   }
 
   if (length_obj->type == Ind) {
-    // get Ind obj
-    return 0;
+    indirect_t* len_ref = length_obj->val;
+    object_t* obj = len_ref->obj;
+    if (obj) {
+      if (obj->type != Num) {
+        fprintf(stderr, "Bad Length Object type for stream length: %s\n", get_type_name(obj));
+        scexit(pdf, 1);
+      }
+      return get_num_val(len_ref->obj);
+    } else {
+      fprintf(stderr, "um\n");
+      scexit(pdf, 1);
+    }
   } else if (length_obj->type == Num) {
     return get_num_val(length_obj->val);
   } else {
@@ -30,20 +44,20 @@ long get_stream_len(pdf_t* pdf, object_t* o) {
     // return for compiler
     return 0;
   }
+  return 0;
 }
 
 indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
-  printf("entering experimental territory...\n");
   indirect_t* indirect = allocate(sizeof(indirect_t));
   indirect->obj_num = on;
   indirect->gen_num = gn;
   indirect->obj = NULL;
 
   if (nc == 'o') {
+    printf("Getting indirect object at %li\n", get_pos(pdf->fs));
     unget_char(pdf->fs, nc, FAIL);
     skip_string(pdf->fs, "obj", get_pos(pdf->fs));
     consume_whitespace(pdf->fs);
-    printf("Getting next_sym...\n");
     indirect->obj = next_sym(pdf);
     consume_whitespace(pdf->fs);
 
@@ -56,8 +70,8 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
         stream_len = *(long*)len->val;
         indirect->stream = try_read_stream(pdf, stream_len);
       } else if (len->type == Ind) {
-        printf("Stream encountered... will fail without a doubt.\n");
-        //stream_len = get_num_val(); // TODO !!!!
+        printf("Stream with indirect length encountered...\n");
+        stream_len = get_stream_len(pdf, len);
         indirect->stream = try_read_stream(pdf, stream_len);
         if (!indirect->stream) {
           fprintf(stderr, "Warning: Length %li found but stream read failed.\n", stream_len);

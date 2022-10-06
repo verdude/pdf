@@ -32,9 +32,9 @@ static int read_size(pdf_t* pdf) {
   return 1;
 }
 
-static long get_nth_offset(xref_t* xref, long n) {
+static long get_nth_offset(pdf_t* pdf, long n) {
   long offset_in_table = n * ENTRY_WIDTH;
-  return xref->t_offset + offset_in_table;
+  return pdf->xref->t_offset + offset_in_table;
 }
 
 static void checkout_next_obj(pdf_t* pdf) {
@@ -67,7 +67,7 @@ static int valid_xref_entry(xref_t* xref) {
  */
 static int get_status(pdf_t* pdf) {
   if (!valid_xref_entry(pdf->xref)) {
-    fprintf(stderr, "Invalid xref entry offset: %li\n", pdf->xref->ce_offset);
+    fprintf(stderr, "Invalid xref entry offset %li\n", pdf->xref->ce_offset);
     return -1;
   }
 
@@ -102,6 +102,7 @@ object_t* next_obj(pdf_t* pdf) {
       fprintf(stderr, "Invalid entry status.");
       scexit(pdf, 1);
     }
+    printf("Skipping entry %li with invalid status: %i\n", pdf->xref->ce_offset, status);
     checkout_next_obj(pdf);
   }
 
@@ -114,7 +115,20 @@ object_t* next_obj(pdf_t* pdf) {
 }
 
 object_t* get_object(pdf_t* pdf, int obj_num) {
-  return NULL;
+  xref_t* x = pdf->xref;
+  int i = x->obj_num;
+  if (obj_num < i || obj_num > x->obj_num + x->count) {
+    fprintf(stderr, "Could not find obj #%i in the xref table\n", obj_num);
+    scexit(pdf, 1);
+  }
+  pdf->xref->ce_offset = get_nth_offset(pdf, obj_num);
+  pdf->xref->ce_index = obj_num;
+  int status = get_status(pdf);
+  if (status == -1 || !status) {
+    fprintf(stderr, "Tried to read object with invalid status: %i\n", status);
+    scexit(pdf, 1);
+  }
+  return next_obj(pdf);
 }
 
 int get_xref(pdf_t* pdf) {

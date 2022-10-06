@@ -136,7 +136,8 @@ typedef object_t* (*read_object)(pdf_t* pdf);
 typedef void* (*read_element)(pdf_t* pdf);
 
 /**
- * Gets an indirect.
+ * Gets an indirect reference/object.
+ * Reads stream if one is found.
  * c: previous character. Should be either 'R' or 'o'.
  * on: object number
  * gn: generation number
@@ -213,6 +214,13 @@ long get_num_val(object_t* o);
  * after len bytes followed by 'endstream'.
  */
 stream_t* try_read_stream(pdf_t* pdf, long len);
+
+/**
+ * Get The length of the stream from the stream dictionary.
+ * Reads length from indirect. Does not follow multiple references.
+ * o: The Length entry from the stream dictionary.
+ */
+long get_stream_len(pdf_t* pdf, object_t* o);
 
 /**
  * Get object_t* with val pointing to string_t.

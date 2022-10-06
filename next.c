@@ -141,8 +141,6 @@ object_t* next_sym(pdf_t* pdf) {
     return NULL;
   }
 
-  printf("Got char: %c\n", c);
-
   if (isdigit(c)) {
     unget_char(pdf->fs, c, FAIL);
     return parse_num(pdf);
@@ -272,7 +270,7 @@ void scexit(pdf_t* pdf, int code) {
 }
 
 unsigned char* fs_read(FILE* fs, size_t size) {
-  unsigned char* bytes = allocate(size + 1);
+  unsigned char* bytes = allocate(size);
   size_t read = fread(bytes, 1, size, fs);
 
   if (read == size) {
