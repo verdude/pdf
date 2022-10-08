@@ -156,10 +156,10 @@ object_t* get_term(pdf_t* pdf, enum term type) {
       return NULL;
   }
 
-  long offset = get_pos(pdf->fs);
-  int success = check_for_match(pdf->fs, str);
+  long offset = get_pos(pdf);
+  int success = check_for_match(pdf, str);
   if (!success) {
-    fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(pdf->fs));
+    fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(pdf));
     return NULL;
   }
 

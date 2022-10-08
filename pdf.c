@@ -108,11 +108,10 @@ int main(int argc, char** argv) {
   }
 
   FILE* fs = file_exists(argv[1]);
-  pdf_t* pdf;
+  pdf_t* pdf = allocate(sizeof(pdf));
   if (fs) {
-    if (supported_version(fs)) {
-      pdf = allocate(sizeof(pdf));
-      pdf->fs = fs;
+    pdf->fs = fs;
+    if (supported_version(pdf)) {
       printf("Getting trailer...\n");
       int success = get_trailer(pdf);
       if (!success) {

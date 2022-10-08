@@ -62,7 +62,7 @@ list_t* create_list(enum el_t el_type) {
 }
 
 object_t* get_list(pdf_t* pdf, enum el_t el_type) {
-  size_t pos = get_pos(pdf->fs);
+  size_t pos = get_pos(pdf);
   size_t end = pos;
 
   list_t* list = create_list(el_type);
@@ -73,17 +73,17 @@ object_t* get_list(pdf_t* pdf, enum el_t el_type) {
   if (list->el_type == DictionaryEntry) {
     terminator = ">>";
     // Needs to consume these chars to get into position
-    check_for_match(pdf->fs, "<<");
+    check_for_match(pdf, "<<");
     re = (read_element) &get_entry;
   } else {
     terminator = "]";
-    check_for_match(pdf->fs, "[");
+    check_for_match(pdf, "[");
     re = (read_element) &next_sym;
   }
 
-  consume_whitespace(pdf->fs);
+  consume_whitespace(pdf);
 
-  while (!(end = check_for_match_seek_back(pdf->fs, terminator))) {
+  while (!(end = check_for_match_seek_back(pdf, terminator))) {
     void* element = (*re)(pdf);
 
     if (element == NULL) {
@@ -95,11 +95,11 @@ object_t* get_list(pdf_t* pdf, enum el_t el_type) {
     if (!success) {
       fprintf(stderr, "not success! adding object to list\n");
     }
-    consume_whitespace(pdf->fs);
+    consume_whitespace(pdf);
   }
 
   // skip terminator
-  seek(pdf->fs, strlen(terminator), SEEK_CUR);
+  seek(pdf, strlen(terminator), SEEK_CUR);
 
   object_t* obj = allocate(sizeof(object_t));
   obj->type = el_type == DictionaryEntry ? Dict : Arr;

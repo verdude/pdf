@@ -13,18 +13,18 @@
  * Returns the next character.
  * If eof_fail is non-zero, will exit on EOF; otherwise, EOF is returned.
  */
-int get_char(FILE* fs, int eof_fail);
+int get_char(pdf_t* pdf, int eof_fail);
 
 /**
  * ungetc wrapper.
  */
-void unget_char(FILE* fs, int c, int fail_on_error);
+void unget_char(pdf_t* pdf, int c, int fail_on_error);
 
 /**
  * unget wrapper for list of unsigned char cast to int.
  * TODO: remove?
  */
-void unget_chars(FILE* fs, unsigned char* c, int len);
+void unget_chars(pdf_t* pdf, unsigned char* c, int len);
 
 /**
  * Finds the next symbol.
@@ -45,8 +45,8 @@ void* allocate(int len);
  * Returns char* pointer.
  * There will be at least one 0 at the end of the string.
  */
-char* consume_chars(FILE* fs, int (*fn)(int), int len);
-void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len);
+char* consume_chars(pdf_t* pdf, int (*fn)(int), int len);
+void consume_chars_stack(pdf_t* pdf, int (*fn)(int), char* chars, int len);
 
 /**
  * Moves the fs position to the first byte after
@@ -54,18 +54,18 @@ void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len);
  * Returns 0 if there is no match at the current position
  * and resets to the starting position.
  */
-int skip_string(FILE* fs, char* s, long pos);
+int skip_string(pdf_t* pdf, char* s, long pos);
 
 /**
  * ftell wrapper.
  * Exits on failure.
  */
-long get_pos(FILE* fs);
+long get_pos(pdf_t* pdf);
 
 /**
  * fseek wrapper.
  */
-int seek(FILE* fs, long offset, int whence);
+int seek(pdf_t* pdf, long offset, int whence);
 
 /**
  * Checks for a match at the current position.
@@ -73,8 +73,8 @@ int seek(FILE* fs, long offset, int whence);
  * check_for_match_seek_back returns to the current position
  * after checking for a match if one was not found.
  */
-size_t check_for_match(FILE* fs, char* s);
-size_t check_for_match_seek_back(FILE* fs, char* s);
+size_t check_for_match(pdf_t* pdf, char* s);
+size_t check_for_match_seek_back(pdf_t* pdf, char* s);
 
 /**
  * Finds a sequence searching backwards through the stream.
@@ -84,7 +84,7 @@ size_t check_for_match_seek_back(FILE* fs, char* s);
  * returns 0 if not found and 1 if found.
  * O(n) where n is the length of the pdf in bytes.
  */
-int find_backwards(FILE* fs, char* sequence, int len);
+int find_backwards(pdf_t* pdf, char* sequence, int len);
 
 /**
  * Does what you think it does.
@@ -94,14 +94,14 @@ void scexit(pdf_t* pdf, int code);
 /**
  * Skips whitespace.
  */
-void consume_whitespace(FILE* fs);
+void consume_whitespace(pdf_t* pdf);
 
 int is_not_space(int c);
 
 /**
  * Reads n bytes.
  */
-unsigned char* fs_read(FILE* fs, size_t n);
+unsigned char* fs_read(pdf_t* pdf, size_t n);
 
 /**
  * strtol wrapper

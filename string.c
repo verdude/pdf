@@ -73,7 +73,7 @@ static int add_string_char(pdf_t* pdf, int c, string_t* string) {
       return string->enc == HexString ? -1 : string->enc == LiteralString ? 1 : 0;
     case 0x5c:
       // \ backslash
-      int escaped = get_char(pdf->fs, FAIL);
+      int escaped = get_char(pdf, FAIL);
       // TODO: perhaps add length to the string?
       return add_byte(escaped, string);
   }
@@ -108,8 +108,8 @@ int get_first_char(enum encoding enc) {
 }
 
 object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
-  consume_whitespace(pdf->fs);
-  int c = get_char(pdf->fs, FAIL);
+  consume_whitespace(pdf);
+  int c = get_char(pdf, FAIL);
   if (!first_char(enc, c)) {
     fprintf(stderr, "Invalid first char for string: [%c] aka. [0x%04x]. Should be: %c\n",
         c, c, get_first_char(enc));
@@ -117,7 +117,7 @@ object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
   }
 
   object_t* obj = allocate(sizeof(object_t));
-  obj->offset = get_pos(pdf->fs);
+  obj->offset = get_pos(pdf);
   obj->len = 0;
   obj->val = allocate(sizeof(string_t));
   switch (enc) {
@@ -147,7 +147,7 @@ object_t* get_string(pdf_t* pdf) {
   object_t* string = get_string_type_obj(pdf, LiteralString);
 
   int c;
-  while ((c = get_char(pdf->fs, FAIL)) != EOF) {
+  while ((c = get_char(pdf, FAIL)) != EOF) {
     int success = add_string_char(pdf, c, string->val);
 
     if (!success || success == -1) {

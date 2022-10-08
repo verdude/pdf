@@ -40,7 +40,7 @@ char* get_key(object_t* key) {
 
 d_entry_t* get_entry(pdf_t* pdf) {
   object_t* first_key = get_name(pdf, FAIL);
-  printf("got name %s from dictionary at: %li\n", get_key(first_key), get_pos(pdf->fs));
+  printf("got name %s from dictionary at: %li\n", get_key(first_key), get_pos(pdf));
 
   d_entry_t* list_t = allocate(sizeof(d_entry_t));
   list_t->key = first_key;

@@ -54,14 +54,14 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
   indirect->obj = NULL;
 
   if (nc == 'o') {
-    printf("Getting indirect object at %li\n", get_pos(pdf->fs));
-    unget_char(pdf->fs, nc, FAIL);
-    skip_string(pdf->fs, "obj", get_pos(pdf->fs));
-    consume_whitespace(pdf->fs);
+    printf("Getting indirect object at %li\n", get_pos(pdf));
+    unget_char(pdf, nc, FAIL);
+    skip_string(pdf, "obj", get_pos(pdf));
+    consume_whitespace(pdf);
     indirect->obj = next_sym(pdf);
-    consume_whitespace(pdf->fs);
+    consume_whitespace(pdf);
 
-    size_t match = check_for_match_seek_back(pdf->fs, "stream");
+    size_t match = check_for_match_seek_back(pdf, "stream");
     if (indirect->obj->type == Dict && match) {
       object_t* len = get_entry_value(indirect->obj, "Length");
       long stream_len = -1;
@@ -75,20 +75,20 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
         indirect->stream = try_read_stream(pdf, stream_len);
         if (!indirect->stream) {
           fprintf(stderr, "Warning: Length %li found but stream read failed.\n", stream_len);
-          fprintf(stderr, "  at: %li\n", get_pos(pdf->fs));
+          fprintf(stderr, "  at: %li\n", get_pos(pdf));
         }
       } else {
         fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
       }
     }
-    consume_whitespace(pdf->fs);
-    match = check_for_match(pdf->fs, "endobj");
+    consume_whitespace(pdf);
+    match = check_for_match(pdf, "endobj");
 
     if (!match) {
       fprintf(stderr, "Missing endobj.\n");
       scexit(pdf, 1);
     } else {
-      printf("Got endobj at pos: %li\n", get_pos(pdf->fs));
+      printf("Got endobj at pos: %li\n", get_pos(pdf));
     }
   }
 

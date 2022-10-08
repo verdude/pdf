@@ -28,9 +28,9 @@ void unget_char(pdf_t* pdf, int c, int fail_on_error) {
   }
 }
 
-void unget_chars(FILE* fs, unsigned char* s, int len) {
+void unget_chars(pdf_t* pdf, unsigned char* s, int len) {
   for (int i = 0; i < len; ++i) {
-    unget_char(fs, s[i], FAIL);
+    unget_char(pdf, s[i], FAIL);
   }
 }
 
@@ -44,43 +44,43 @@ void* allocate(int len) {
   return m;
 }
 
-void skip_while(FILE* fs, int (*fn)(int)) {
+void skip_while(pdf_t* pdf, int (*fn)(int)) {
   int c;
   do {
-    c = get_char(fs, FAIL);
+    c = get_char(pdf, FAIL);
   } while ((*fn)(c));
 
-  unget_char(fs, c, FAIL);
+  unget_char(pdf, c, FAIL);
 }
 
 /**
  * Preceding char is '<', check what type of object it could be.
  */
 static object_t* next_angle_bracket_sym(pdf_t* pdf) {
-  int c = get_char(pdf->fs, FAIL);
+  int c = get_char(pdf, FAIL);
 
   switch ((unsigned char) c) {
     case '<':
-      unget_chars(pdf->fs, (unsigned char*) "<<", 2);
+      unget_chars(pdf, (unsigned char*) "<<", 2);
       return get_list(pdf, DictionaryEntry);
     default:
-      unget_char(pdf->fs, c, FAIL);
-      unget_char(pdf->fs, '<', FAIL);
+      unget_char(pdf, c, FAIL);
+      unget_char(pdf, '<', FAIL);
       return get_hex_string(pdf);
   }
 }
 
 // rename to next_token or something
-char* consume_chars(FILE* fs, int (*fn)(int), int len) {
+char* consume_chars(pdf_t* pdf, int (*fn)(int), int len) {
   char* chars = allocate(len);
   int c;
 
   for (size_t i = 0; i < len - 1; ++i) {
-    c = get_char(fs, IGNORE);
+    c = get_char(pdf, IGNORE);
     if ((*fn)(c)) {
       chars[i] = c;
     } else {
-      unget_char(fs, c, IGNORE);
+      unget_char(pdf, c, IGNORE);
       break;
     }
   }
@@ -88,14 +88,14 @@ char* consume_chars(FILE* fs, int (*fn)(int), int len) {
   return chars;
 }
 
-void consume_chars_stack(FILE* fs, int (*fn)(int), char* chars, int len) {
+void consume_chars_stack(pdf_t* pdf, int (*fn)(int), char* chars, int len) {
   int c;
   for (size_t i = 0; i < len - 1; ++i) {
-    c = get_char(fs, IGNORE);
+    c = get_char(pdf, IGNORE);
     if ((*fn)(c)) {
       chars[i] = c;
     } else {
-      unget_char(fs, c, IGNORE);
+      unget_char(pdf, c, IGNORE);
       break;
     }
   }
@@ -110,22 +110,22 @@ long estrtol(char* s, char** endptr, int base) {
   return n;
 }
 
-void consume_whitespace(FILE* fs) {
-  skip_while(fs, &isspace);
+void consume_whitespace(pdf_t* pdf) {
+  skip_while(pdf, &isspace);
 }
 
-int skip_string(FILE* fs, char* s, long pos) {
+int skip_string(pdf_t* pdf, char* s, long pos) {
   if (*s == 0) {
     return 1;
   }
-  int c = get_char(fs, FAIL);
+  int c = get_char(pdf, FAIL);
 
   if (*s != (char) c) {
-    seek(fs, pos, SEEK_SET);
+    seek(pdf, pos, SEEK_SET);
     return 0;
   }
 
-  return skip_string(fs, s+1, pos);
+  return skip_string(pdf, s+1, pos);
 }
 
 int is_not_space(int c) {
@@ -133,52 +133,52 @@ int is_not_space(int c) {
 }
 
 object_t* next_sym(pdf_t* pdf) {
-  consume_whitespace(pdf->fs);
+  consume_whitespace(pdf);
 
-  int c = get_char(pdf->fs, IGNORE);
+  int c = get_char(pdf, FAIL);
   if (c == EOF) {
     printf("Reached EOF.");
     return NULL;
   }
 
   if (isdigit(c)) {
-    unget_char(pdf->fs, c, FAIL);
+    unget_char(pdf, c, FAIL);
     return parse_num(pdf);
   }
 
   switch ((unsigned char) c) {
     case '/':
-      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf, c, FAIL);
       return get_name(pdf, FAIL);
     case '<':
       return next_angle_bracket_sym(pdf);
     case '(':
-      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf, c, FAIL);
       return get_string(pdf);
     case '[':
-      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf, c, FAIL);
       return get_list(pdf, Object);
     case 'n':
-      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf, c, FAIL);
       return get_term(pdf, NullTerm);
     case 't':
-      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf, c, FAIL);
       return get_term(pdf, TrueTerm);
     case 'f':
-      unget_char(pdf->fs, c, FAIL);
+      unget_char(pdf, c, FAIL);
       return get_term(pdf, FalseTerm);
     case '-':
       long n = get_num(pdf, 10, FAIL);
-      return create_num_obj(pdf, get_pos(pdf->fs) - 1, -n);
+      return create_num_obj(pdf, get_pos(pdf), -n);
     default:
       fprintf(stderr, "next_sym: unknown symbol! [%c] int: %i\n", c, c);
-      fprintf(stderr, "pos: %li\n", get_pos(pdf->fs)-1);
+      fprintf(stderr, "pos: %li\n", get_pos(pdf)-1);
       return NULL;
   }
 }
 
-long get_pos(FILE* fs) {
-  long pos = ftell(fs);
+long get_pos(pdf_t* pdf) {
+  long pos = ftell(pdf->fs);
   if (pos == -1) {
     perror("ftell");
     exit(1);
@@ -201,39 +201,39 @@ int seek(pdf_t* pdf, long offset, int whence) {
  * Exits in case of EOF.
  * Are size_t and EOF compatible?
  */
-size_t check_for_match(FILE* fs, char* s) {
+size_t check_for_match(pdf_t* pdf, char* s) {
   if (*s == 0) {
-    return get_pos(fs);
+    return get_pos(pdf);
   }
 
-  int c = get_char(fs, FAIL);
+  int c = get_char(pdf, FAIL);
 
   if (c != *s) {
     return 0;
   }
 
-  return check_for_match(fs, s + 1);
+  return check_for_match(pdf, s + 1);
 }
 
-size_t check_for_match_seek_back(FILE* fs, char* s) {
-  long pos = get_pos(fs);
-  size_t result = check_for_match(fs, s);
-  seek(fs, pos, SEEK_SET);
+size_t check_for_match_seek_back(pdf_t* pdf, char* s) {
+  long pos = get_pos(pdf);
+  size_t result = check_for_match(pdf, s);
+  seek(pdf, pos, SEEK_SET);
   return result;
 }
 
 // TODO: perhaps validate the sequence? Make sure it is null terminated
 // at the given length?
-int find_backwards(FILE* fs, char* sequence, int len) {
+int find_backwards(pdf_t* pdf, char* sequence, int len) {
   if (len > 15) {
     fprintf(stderr, "Sequence too long: %i\n", len);
     return 0;
   }
 
-  long curr_pos = get_pos(fs);
+  long curr_pos = get_pos(pdf);
   size_t match = 0;
 
-  while ((match = check_for_match(fs, sequence)) <= 0) {
+  while ((match = check_for_match(pdf, sequence)) <= 0) {
     if (match == EOF) {
       return 0;
     }
@@ -242,7 +242,7 @@ int find_backwards(FILE* fs, char* sequence, int len) {
       fprintf(stderr, "Could not find sequence %s in file\n", sequence);
       return 0;
     }
-    seek(fs, new_pos, SEEK_SET);
+    seek(pdf, new_pos, SEEK_SET);
     curr_pos = new_pos;
   }
 
@@ -253,10 +253,10 @@ void scexit(pdf_t* pdf, int code) {
   void *array[10];
   size_t size;
 
-  if (pdf->fs) {
-    fprintf(stderr, "~~~~> Offset: %li\n", ftell(fs));
+  if (pdf) {
+    fprintf(stderr, "~~~~> Offset: %li\n", ftell(pdf->fs));
   } else {
-    fprintf(stderr, "~~~~> File Stream is NULL.\n");
+    fprintf(stderr, "~~~~> PDF/File Stream is NULL.\n");
   }
 
   fprintf(stderr, "~~~~> Exiting with code: %i\n", code);
@@ -269,9 +269,9 @@ void scexit(pdf_t* pdf, int code) {
   exit(code);
 }
 
-unsigned char* fs_read(FILE* fs, size_t size) {
+unsigned char* fs_read(pdf_t* pdf, size_t size) {
   unsigned char* bytes = allocate(size);
-  size_t read = fread(bytes, 1, size, fs);
+  size_t read = fread(bytes, 1, size, pdf->fs);
 
   if (read == size) {
     return bytes;
@@ -280,9 +280,9 @@ unsigned char* fs_read(FILE* fs, size_t size) {
   fprintf(stderr,
       "fs_read expected to read %li bytes. Read %li instead.\n", size, read);
 
-  if (feof(fs)) {
+  if (feof(pdf->fs)) {
     fprintf(stderr, "Got EOF before could read bytes");
-  } else if (ferror(fs)) {
+  } else if (ferror(pdf->fs)) {
     perror("fread error:");
   } else {
     fprintf(stderr, "Unknown error from fread.\n");

@@ -24,10 +24,10 @@ void free_xref_t(xref_t* x) {
 
 static int read_size(pdf_t* pdf) {
   pdf->xref->obj_num = get_num(pdf, 0, FAIL);
-  consume_whitespace(pdf->fs);
+  consume_whitespace(pdf);
 
   pdf->xref->count = get_num(pdf, 0, FAIL);
-  consume_whitespace(pdf->fs);
+  consume_whitespace(pdf);
 
   return 1;
 }
@@ -47,7 +47,7 @@ static void checkout_next_obj(pdf_t* pdf) {
 
   xref->ce_offset = xref->ce_offset + ENTRY_WIDTH;
   xref->ce_index++;
-  seek(pdf->fs, xref->ce_offset, SEEK_SET);
+  seek(pdf, xref->ce_offset, SEEK_SET);
 }
 
 // returns 1 if pointing to a valid xref entry
@@ -71,8 +71,8 @@ static int get_status(pdf_t* pdf) {
     return -1;
   }
 
-  seek(pdf->fs, ENTRY_WIDTH - 3, SEEK_CUR);
-  int c = get_char(pdf->fs, FAIL);
+  seek(pdf, ENTRY_WIDTH - 3, SEEK_CUR);
+  int c = get_char(pdf, FAIL);
   switch ((unsigned char) c) {
     case 'f':
       return 0;
@@ -89,14 +89,14 @@ static int get_status(pdf_t* pdf) {
  * entry.
  */
 static long get_obj_offset(pdf_t* pdf) {
-  seek(pdf->fs, pdf->xref->ce_offset, SEEK_SET);
+  seek(pdf, pdf->xref->ce_offset, SEEK_SET);
   return get_num(pdf, 10, FAIL);
 }
 
 object_t* next_obj(pdf_t* pdf) {
   printf("Getting xref entry #%li\n", pdf->xref->ce_index);
   int status;
-  seek(pdf->fs, pdf->xref->ce_offset, SEEK_SET);
+  seek(pdf, pdf->xref->ce_offset, SEEK_SET);
   while (!(status = get_status(pdf))) {
     if (status == -1) {
       fprintf(stderr, "Invalid entry status.");
@@ -108,9 +108,9 @@ object_t* next_obj(pdf_t* pdf) {
 
   long offset = get_obj_offset(pdf);
 
-  seek(pdf->fs, offset, SEEK_SET);
+  seek(pdf, offset, SEEK_SET);
 
-  printf("Getting next obj at %li\n", get_pos(pdf->fs));
+  printf("Getting next obj at %li\n", get_pos(pdf));
   return next_sym(pdf);
 }
 
@@ -136,13 +136,13 @@ int get_xref(pdf_t* pdf) {
   size_t match;
   long offset = pdf->trailer->startxref_offset;
 
-  seek(pdf->fs, offset, SEEK_SET);
-  if (!(match = check_for_match(pdf->fs, xref_string))) {
+  seek(pdf, offset, SEEK_SET);
+  if (!(match = check_for_match(pdf, xref_string))) {
     fprintf(stderr, "Did not find xref table at offset: %li\n", offset);
     return 0;
   }
 
-  consume_whitespace(pdf->fs);
+  consume_whitespace(pdf);
   pdf->xref = allocate(sizeof(xref_t));
 
   int success = read_size(pdf);
@@ -152,7 +152,7 @@ int get_xref(pdf_t* pdf) {
     return 0;
   }
 
-  pdf->xref->t_offset = get_pos(pdf->fs);
+  pdf->xref->t_offset = get_pos(pdf);
   pdf->xref->ce_offset = pdf->xref->t_offset;
   pdf->xref->ce_index = 0;
 
