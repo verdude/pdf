@@ -23,7 +23,7 @@ long get_num(pdf_t* pdf, int base, int fail_on_error) {
 
   if (!slen && fail_on_error) {
     fprintf(stderr, "bad number. [%s]\n", s);
-    cexit(pdf->fs, 1);
+    scexit(pdf, 1);
   } else if (!slen) {
     return -1;
   }
@@ -39,7 +39,7 @@ long get_num(pdf_t* pdf, int base, int fail_on_error) {
     }
   } else if (end == s) {
     fprintf(stderr, "whole string is not a num! [%s]\n", s);
-    cexit(pdf->fs, 1);
+    scexit(pdf, 1);
   }
 
   return n;

@@ -30,7 +30,7 @@ void free_pdf_t(pdf_t* pdf) {
   }
 }
 
-int supported_version(FILE* fs) {
+int supported_version(pdf_t* pdf) {
   const int prefix_len = 5;
   const int version_len = 3;
   const int header_len = prefix_len + version_len;
@@ -40,7 +40,7 @@ int supported_version(FILE* fs) {
   char c;
 
   for (size_t i = 0; i < prefix_len; ++i) {
-    c = get_char(fs, FAIL);
+    c = get_char(pdf, FAIL);
     bytes[i] = (char) c;
 
     if (c != prefix[i]) {
@@ -52,7 +52,7 @@ int supported_version(FILE* fs) {
 
   for (size_t i = 0; i < version_len; ++i) {
     int ok = 0;
-    c = get_char(fs, FAIL);
+    c = get_char(pdf, FAIL);
     bytes[i] = (char) c;
 
     for (size_t j = 0; j < strlen(version[i]); ++j) {
@@ -69,26 +69,26 @@ int supported_version(FILE* fs) {
     }
   }
 
-  c = (char) get_char(fs, FAIL);
+  c = (char) get_char(pdf, FAIL);
   if (c != '\n') {
     bytes[header_len] = 0;
     fprintf(stderr, "Invalid char following header[%s]: %#4x\n", bytes, c);
-    cexit(fs, 1);
+    scexit(pdf, 1);
   }
   return 1;
 }
 
-int read_bin_comment(FILE* fs) {
-  char c = (char) get_char(fs, FAIL);
+int read_bin_comment(pdf_t* pdf) {
+  char c = (char) get_char(pdf, FAIL);
   if (c != '%') {
-    unget_char(fs, c, FAIL);
+    unget_char(pdf, c, FAIL);
     return 0;
   }
 
   // arbitrary size. Doesn't seem like there is a limit in 2008 spec.
   const size_t len = 1024;
   char chars[1024] = {0};
-  consume_chars_stack(fs, &is_not_space, chars, len);
+  consume_chars_stack(pdf, &is_not_space, chars, len);
 
   int i = 0;
   while (chars[i] != 0) {

@@ -89,7 +89,6 @@ int find_backwards(FILE* fs, char* sequence, int len);
 /**
  * Does what you think it does.
  */
-void cexit(FILE* fs, int code);
 void scexit(pdf_t* pdf, int code);
 
 /**

@@ -40,7 +40,7 @@ long get_stream_len(pdf_t* pdf, object_t* o) {
   } else if (length_obj->type == Num) {
     return get_num_val(length_obj->val);
   } else {
-    cexit(pdf->fs, 1);
+    scexit(pdf, 1);
     // return for compiler
     return 0;
   }
@@ -86,7 +86,7 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
 
     if (!match) {
       fprintf(stderr, "Missing endobj.\n");
-      cexit(pdf->fs, 1);
+      scexit(pdf, 1);
     } else {
       printf("Got endobj at pos: %li\n", get_pos(pdf->fs));
     }

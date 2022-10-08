@@ -15,7 +15,7 @@ static int add_hex_string_char(pdf_t* pdf, int c, string_t* hstring) {
   if (is_hex_char(c) && is_hex_char(c2)) {
     int success = add_byte(c, hstring) & add_byte(c2, hstring);
     if (!success) {
-      cexit(pdf->fs, 1);
+      scexit(fs, 1);
     }
     return 2;
   }
@@ -41,7 +41,7 @@ object_t* get_hex_string(pdf_t* pdf) {
 
   if (c != '>') {
     printf("Bad char in hex string: %c\n", c);
-    cexit(pdf->fs, 1);
+    scexit(fs, 1);
   }
 
   return obj;

@@ -88,7 +88,7 @@ object_t* get_list(pdf_t* pdf, enum el_t el_type) {
 
     if (element == NULL) {
       fprintf(stderr, "Failed to get object\n");
-      cexit(pdf->fs, 1);
+      scexit(pdf, 1);
     }
 
     int success = add_obj_to_list(list, element);

@@ -9,22 +9,22 @@
 #include "next.h"
 #include "object.h"
 
-int get_char(FILE* fs, int eof_fail) {
-  int c = fgetc(fs);
+int get_char(pdf_t* pdf, int eof_fail) {
+  int c = fgetc(pdf->fs);
   if (c == EOF && eof_fail) {
     fprintf(stderr, "Premature EOF.\n");
     perror("get_char");
-    cexit(fs, 1);
+    scexit(pdf, 1);
   }
   return c;
 }
 
-void unget_char(FILE* fs, int c, int fail_on_error) {
-  clearerr(fs);
-  int r = ungetc(c, fs);
+void unget_char(pdf_t* pdf, int c, int fail_on_error) {
+  clearerr(pdf->fs);
+  int r = ungetc(c, pdf->fs);
   if (r == EOF && fail_on_error) {
     perror("unget_char failure");
-    cexit(fs, 1);
+    scexit(pdf, 1);
   }
 }
 
@@ -105,7 +105,7 @@ long estrtol(char* s, char** endptr, int base) {
   long n = strtol(s, endptr, base);
   if (n == LONG_MIN || n == LONG_MAX) {
     fprintf(stderr, "strtol failed on input: %s\n", s);
-    cexit(NULL, 1);
+    scexit(NULL, 1);
   }
   return n;
 }
@@ -186,11 +186,11 @@ long get_pos(FILE* fs) {
   return pos;
 }
 
-int seek(FILE* fs, long offset, int whence) {
-  int ret = fseek(fs, offset, whence);
+int seek(pdf_t* pdf, long offset, int whence) {
+  int ret = fseek(pdf->fs, offset, whence);
   if (ret == -1) {
     perror("fseek");
-    cexit(fs, 1);
+    scexit(pdf, 1);
   }
   return ret;
 }
@@ -249,24 +249,24 @@ int find_backwards(FILE* fs, char* sequence, int len) {
   return 1;
 }
 
-void cexit(FILE* fs, int code) {
+void scexit(pdf_t* pdf, int code) {
   void *array[10];
   size_t size;
 
-  fprintf(stderr, "~~~~> Offset: %li\n", ftell(fs));
-  fprintf(stderr, "~~~~> Exiting with code: %i\n", code);
-  if (fs) {
-    fclose(fs);
+  if (pdf->fs) {
+    fprintf(stderr, "~~~~> Offset: %li\n", ftell(fs));
+  } else {
+    fprintf(stderr, "~~~~> File Stream is NULL.\n");
   }
+
+  fprintf(stderr, "~~~~> Exiting with code: %i\n", code);
 
   size = backtrace(array, 10);
   backtrace_symbols_fd(array, size, 1);
-  exit(code);
-}
 
-void scexit(pdf_t* pdf, int code) {
   free_pdf_t(pdf);
-  cexit(NULL, code);
+
+  exit(code);
 }
 
 unsigned char* fs_read(FILE* fs, size_t size) {
@@ -287,7 +287,7 @@ unsigned char* fs_read(FILE* fs, size_t size) {
   } else {
     fprintf(stderr, "Unknown error from fread.\n");
   }
-  cexit(fs, 1);
+  scexit(pdf, 1);
   // Return just to make the compiler happy
   return NULL;
 }

@@ -98,7 +98,7 @@ static int add_name_char(pdf_t* pdf, int c, string_t* name) {
     }
     int success = add_byte(c, name);
     if (!success) {
-      cexit(pdf->fs, 1);
+      scexit(pdf, 1);
     }
     return 1;
   }
@@ -107,7 +107,7 @@ static int add_name_char(pdf_t* pdf, int c, string_t* name) {
     unsigned char h_char = get_hex_char(pdf);
     int success = add_byte(h_char, name);
     if (!success) {
-      cexit(pdf->fs, 1);
+      scexit(pdf, 1);
     }
     return 3;
   } else {

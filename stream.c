@@ -44,7 +44,7 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
   match = check_for_match_seek_back(pdf->fs, stream_end);
   if (!match) {
     fprintf(stderr, "Missing endstream.\n");
-    cexit(pdf->fs, 1);
+    scexit(pdf, 1);
   }
 
   return stream;
