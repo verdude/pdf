@@ -32,20 +32,25 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
   }
 
   stream_t* stream = allocate(sizeof(stream_t));
+  int eol_len = read_eol_marker(pdf);
+  if (!eol_len) {
+    fprintf(stderr, "Bad eol after stream start\n");
+    scexit(pdf, 1);
+  }
   printf("Reading %li bytes from start of stream at: %li\n", len, get_pos(pdf));
   stream->bytes = fs_read(pdf, len);
 
-  int eol_len = read_eol_marker(pdf);
+  eol_len = read_eol_marker(pdf);
   if (!eol_len) {
     scexit(pdf, 1);
   }
 
-  printf("valid EOL for stream of len: %i\n", eol_len);
-  match = check_for_match_seek_back(pdf, stream_end);
+  match = check_for_match(pdf, stream_end);
   if (!match) {
     fprintf(stderr, "Missing endstream.\n");
     scexit(pdf, 1);
   }
 
+  consume_whitespace(pdf);
   return stream;
 }
