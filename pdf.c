@@ -131,8 +131,6 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-
-
   FILE* fs = file_exists(argv[optind]);
   pdf_t* pdf = allocate(sizeof(pdf));
   if (fs) {

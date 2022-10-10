@@ -19,7 +19,7 @@ int get_trailer(pdf_t* pdf) {
   char* startxref_string = "\nstartxref\n";
   size_t startxref_len = strlen(startxref_string);
 
-  int xro_offset = find_backwards(pdf, startxref_string, startxref_len + 1);
+  int xro_offset = find(pdf, startxref_string, startxref_len + 1, BACKWARD);
   if (xro_offset) {
     long xro = get_num(pdf, 0, FAIL);
     t->startxref_offset = xro;
@@ -29,7 +29,7 @@ int get_trailer(pdf_t* pdf) {
 
   char* trailer_string = "\ntrailer";
   size_t trailer_len = strlen(trailer_string);
-  int found = find_backwards(pdf, trailer_string, trailer_len + 1);
+  int found = find(pdf, trailer_string, trailer_len + 1, BACKWARD);
 
   if (!found) {
     log_e("Failed to find trailer.");

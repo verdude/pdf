@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "object.h"
 #include "next.h"
@@ -34,22 +35,14 @@ int dump_stream(stream_t* stream, char* fname) {
   return written;
 }
 
-stream_t* try_read_stream(pdf_t* pdf, long len) {
-  log_v("attempting to get stream");
-  char* stream_end = "endstream";
-  char* stream_start = stream_end + 3;
-  size_t match = check_for_match(pdf, stream_start);
-
-  if (!match) {
-    return NULL;
-  }
-
+static stream_t* read_stream(pdf_t* pdf, long len, char* stream_end) {
   stream_t* stream = allocate(sizeof(stream_t));
   int eol_len = read_eol_marker(pdf);
   if (!eol_len) {
     log_e("Bad eol after stream start");
     scexit(pdf, 1);
   }
+
   log_v("Reading %li bytes from start of stream at: %li", len, get_pos(pdf));
   stream->bytes = fs_read(pdf, len);
   stream->len = len;
@@ -59,10 +52,31 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
     scexit(pdf, 1);
   }
 
-  match = check_for_match(pdf, stream_end);
+  size_t match = check_for_match(pdf, stream_end);
   if (!match) {
     log_e("Missing endstream.");
     scexit(pdf, 1);
+  }
+  return stream;
+}
+
+stream_t* try_read_stream(pdf_t* pdf, long len) {
+  log_v("attempting to get stream");
+  char* stream_end = "endstream";
+  char* stream_start = stream_end + 3;
+  size_t match = check_for_match(pdf, stream_start);
+  stream_t* stream = NULL;
+
+  if (!match) {
+    return NULL;
+  }
+
+  if (len <= 0) {
+    log_i("skipping stream of length: %li at: %li", len, get_pos(pdf));
+    find(pdf, stream_end, strlen(stream_end), FORWARD);
+  }
+  else {
+    stream = read_stream(pdf, len, stream_end);
   }
 
   consume_whitespace(pdf);

@@ -223,9 +223,19 @@ size_t check_for_match_seek_back(pdf_t* pdf, char* s) {
   return result;
 }
 
+void find_start(pdf_t* pdf, char* sequence, int len, direction_t d) {
+  int success = find(pdf, sequence, len, d);
+
+  if (!success) {
+    scexit(pdf, 1);
+  }
+
+  seek(pdf, -len, SEEK_CUR);
+}
+
 // TODO: perhaps validate the sequence? Make sure it is null terminated
 // at the given length?
-int find_backwards(pdf_t* pdf, char* sequence, int len) {
+int find(pdf_t* pdf, char* sequence, int len, direction_t d) {
   if (len > 15) {
     log_e("Sequence too long: %i", len);
     return 0;
@@ -238,11 +248,19 @@ int find_backwards(pdf_t* pdf, char* sequence, int len) {
     if (match == EOF) {
       return 0;
     }
-    int new_pos = curr_pos - 1 > 0 ? curr_pos - 1 : 0;
+
+    int new_pos;
+    if (d == FORWARD) {
+      new_pos = curr_pos + 1 > 0 ? curr_pos + 1 : 0;
+    } else {
+      new_pos = curr_pos - 1 > 0 ? curr_pos - 1 : 0;
+    }
+
     if (new_pos == curr_pos) {
       log_e("Could not find sequence %s in file", sequence);
       return 0;
     }
+
     seek(pdf, new_pos, SEEK_SET);
     curr_pos = new_pos;
   }

@@ -9,6 +9,11 @@
 #include "xref.h"
 #include "trailer.h"
 
+typedef enum {
+  FORWARD,
+  BACKWARD,
+} direction_t;
+
 /**
  * Returns the next character.
  * If eof_fail is non-zero, will exit on EOF; otherwise, EOF is returned.
@@ -77,14 +82,19 @@ size_t check_for_match(pdf_t* pdf, char* s);
 size_t check_for_match_seek_back(pdf_t* pdf, char* s);
 
 /**
- * Finds a sequence searching backwards through the stream.
+ * Finds a sequence searching through the pdf.
  * sequence is the length of len.
  * Max 15 char sequence for now.
  * fs will point to the char after the sequence.
  * returns 0 if not found and 1 if found.
  * O(n) where n is the length of the pdf in bytes.
  */
-int find_backwards(pdf_t* pdf, char* sequence, int len);
+int find(pdf_t* pdf, char* sequence, int len, direction_t d);
+
+/**
+ * Find the symbol and seeks to the start of the symbol.
+ */
+void find_start(pdf_t*, char*, int, direction_t);
 
 /**
  * Does what you think it does.
