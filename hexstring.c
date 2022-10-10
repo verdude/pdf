@@ -2,6 +2,7 @@
 
 #include "object.h"
 #include "next.h"
+#include "log.h"
 
 static int is_hex_char(char c) {
   if (('A' <= c && c <= 'F') || ('a' <= c && c <= 'f') || ('0' <= c && c <= '9')) {

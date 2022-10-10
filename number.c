@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "next.h"
+#include "log.h"
 
 int num_char(int c) {
   if (isdigit(c) || c == '.') {

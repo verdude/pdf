@@ -8,6 +8,7 @@
 #include "pdf.h"
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 int get_char(pdf_t* pdf, int eof_fail) {
   int c = fgetc(pdf->fs);

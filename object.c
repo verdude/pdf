@@ -5,6 +5,7 @@
 
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 void free_num_boo(void* n) {
   free(n);

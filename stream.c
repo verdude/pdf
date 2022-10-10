@@ -2,6 +2,7 @@
 
 #include "object.h"
 #include "next.h"
+#include "log.h"
 
 int read_eol_marker(pdf_t* pdf) {
   int c = get_char(pdf, FAIL);
@@ -19,6 +20,18 @@ int read_eol_marker(pdf_t* pdf) {
 
   fprintf(stderr, "Invalid EOL Marker seq: 0x%02x 0x%02x\n", c, c2);
   return 0;
+}
+
+int dump_stream(stream_t* stream, char* fname) {
+  FILE* f = fopen(fname, "wb");
+  int written = fwrite(stream->bytes, 1, stream->len, f);
+
+  if (written != stream->len) {
+    printf("oh no oh my\n");
+  }
+  printf("writtine %i\n", written);
+  fclose(f);
+  return written;
 }
 
 stream_t* try_read_stream(pdf_t* pdf, long len) {
@@ -39,6 +52,7 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
   }
   printf("Reading %li bytes from start of stream at: %li\n", len, get_pos(pdf));
   stream->bytes = fs_read(pdf, len);
+  stream->len = len;
 
   eol_len = read_eol_marker(pdf);
   if (!eol_len) {
@@ -51,6 +65,7 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
     scexit(pdf, 1);
   }
 
+  scexit(pdf, 0);
   consume_whitespace(pdf);
   return stream;
 }

@@ -3,6 +3,7 @@
 
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 char* get_string_type(string_t* s) {
   switch (s->enc) {

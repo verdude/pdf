@@ -6,6 +6,7 @@
 #include "object.h"
 #include "trailer.h"
 #include "pdf.h"
+#include "log.h"
 
 object_t* get_encryption(trailer_t* trailer) {
   return get_entry_value(trailer->dictionary, "Encrypt");

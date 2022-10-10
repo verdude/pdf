@@ -5,6 +5,7 @@
 #include "pdf.h"
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 char* get_entry_name(d_entry_t* entry) {
   return ((string_t*)entry->key->val)->str;

@@ -7,6 +7,7 @@
 #include "next.h"
 #include "trailer.h"
 #include "xref.h"
+#include "log.h"
 
 FILE* file_exists(char* path) {
   FILE* fs = fopen(path, "r");
@@ -106,6 +107,21 @@ int main(int argc, char** argv) {
   if (argc < 2) {
     return 1;
   }
+
+  int opt;
+
+  while((opt = getopt(argc, argv, ":v")) != -1) {
+    switch (opt) {
+      case 'v':
+        log_quiet();
+        break;
+      default:
+        log_i("umm, haha...");
+        break;
+    }
+  }
+
+  return 1;
 
   FILE* fs = file_exists(argv[1]);
   pdf_t* pdf = allocate(sizeof(pdf));

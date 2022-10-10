@@ -3,6 +3,8 @@
 #include <string.h>
 #include <zlib.h>
 
+#include "log.h"
+
 #define CHUNK 16384
 int inf(FILE* source)
 {

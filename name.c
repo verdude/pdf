@@ -4,6 +4,7 @@
 
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 static unsigned char get_hex_char(pdf_t* pdf) {
   int c1 = get_char(pdf, FAIL);

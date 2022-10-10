@@ -5,6 +5,7 @@
 #include "xref.h"
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 void print_x_entry(x_entry_t* e) {
     printf("%li %li %c\n", e->offset, e->gen, e->status);

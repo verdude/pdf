@@ -4,6 +4,7 @@
 
 #include "next.h"
 #include "object.h"
+#include "log.h"
 
 void print_list(list_t* l) {
   for (int i = 0; i < l->len; ++i) {
