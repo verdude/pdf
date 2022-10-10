@@ -10,7 +10,8 @@ enum log_level {
 };
 
 void log_quiet();
-void log_level(enum log_level level);
+void log_info();
+void log_verbose();
 void log_msg(enum log_level level, char* format, ...);
 
 #define log_v(...) log_msg(VERBOSE, __VA_ARGS__)

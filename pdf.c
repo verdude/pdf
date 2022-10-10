@@ -110,9 +110,14 @@ int main(int argc, char** argv) {
 
   int opt;
 
-  while((opt = getopt(argc, argv, ":v")) != -1) {
+  log_info();
+
+  while((opt = getopt(argc, argv, ":ve")) != -1) {
     switch (opt) {
       case 'v':
+        log_verbose();
+        break;
+      case 'e':
         log_quiet();
         break;
       default:
@@ -121,9 +126,14 @@ int main(int argc, char** argv) {
     }
   }
 
-  return 1;
+  if (optind >= argc) {
+    log_e("missing filename.");
+    return 1;
+  }
 
-  FILE* fs = file_exists(argv[1]);
+
+
+  FILE* fs = file_exists(argv[optind]);
   pdf_t* pdf = allocate(sizeof(pdf));
   if (fs) {
     pdf->fs = fs;

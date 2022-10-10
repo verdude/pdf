@@ -12,8 +12,12 @@ void log_quiet() {
   log.level = ERROR;
 }
 
-void log_level(enum log_level level) {
-  log.level = level;
+void log_info() {
+  log.level = INFO;
+}
+
+void log_verbose() {
+  log.level = VERBOSE;
 }
 
 void log_msg(enum log_level level, char* format, ...) {
