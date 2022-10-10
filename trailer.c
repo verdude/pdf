@@ -46,11 +46,11 @@ int get_trailer(pdf_t* pdf) {
   if (!t->encryption) {
     log_e("Warning: Encryption key not found.\n");
   } else {
-    printf("encryption:\n");
+    log_v("encryption:\n");
     print_object(t->encryption);
   }
 
-  printf("startxref: %li\n", t->startxref_offset);
+  log_v("startxref: %li\n", t->startxref_offset);
 
   pdf->trailer = t;
   print_object(pdf->trailer->dictionary);

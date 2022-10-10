@@ -14,7 +14,7 @@ static unsigned char get_hex_char(pdf_t* pdf) {
   // Validate hex_str by converting to long
   long abnormal = strtol(hex_str, NULL, 16);
   if (abnormal == LONG_MAX) {
-    fprintf(stderr,
+    flog_v(stderr,
         "Invalid hex character [0x%c%c] at: %li\n",
         c1, c2, get_pos(pdf));
     perror("get_name_char_len");
@@ -93,7 +93,7 @@ static int add_name_char(pdf_t* pdf, int c, string_t* name) {
       // Invalid format but assume the pdf
       // contains something like: /Key/Val
       if (c == '(') {
-        printf("kicked in the mouth\n");
+        log_v("kicked in the mouth\n");
       }
       return 0;
     }

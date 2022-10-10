@@ -40,27 +40,27 @@ static int add_string_char(pdf_t* pdf, int c, string_t* string) {
   switch (c) {
     case 0x8:
       // backspace
-      printf("backspace literal in string\n");
+      log_v("backspace literal in string\n");
       return 0;
     case 0xa:
       // newline
-      printf("newline literal in string\n");
+      log_v("newline literal in string\n");
       return 0;
     case 0x9:
       // horizontal tab
-      printf("htab literal in string\n");
+      log_v("htab literal in string\n");
       return 0;
     case 0xd:
       // carriage return
-      printf("cr literal in string\n");
+      log_v("cr literal in string\n");
       return 0;
     case 0xc:
       // form feed
-      printf("ff literal in string\n");
+      log_v("ff literal in string\n");
       return 0;
     case 0x28:
       // (
-      printf("open paren in string\n");
+      log_v("open paren in string\n");
       return 0;
     case 0x29:
       // )
@@ -162,6 +162,6 @@ object_t* get_string(pdf_t* pdf) {
 }
 
 void print_string(string_t* s, char open, char close) {
-  printf("%c%s%c\n", open, s->str, close);
+  log_v("%c%s%c\n", open, s->str, close);
 }
 

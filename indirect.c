@@ -5,9 +5,9 @@
 #include "log.h"
 
 void print_indirect(indirect_t* i) {
-  printf("%li %li ", i->obj_num, i->gen_num);
+  log_v("%li %li ", i->obj_num, i->gen_num);
   if (i->obj == NULL) {
-    printf("R\n");
+    log_v("R\n");
   } else {
     print_object(i->obj);
   }
@@ -55,7 +55,7 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
   indirect->obj = NULL;
 
   if (nc == 'o') {
-    printf("Getting indirect object at %li\n", get_pos(pdf));
+    log_v("Getting indirect object at %li\n", get_pos(pdf));
     unget_char(pdf, nc, FAIL);
     skip_string(pdf, "obj", get_pos(pdf));
     consume_whitespace(pdf);
@@ -71,7 +71,7 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
         stream_len = *(long*)len->val;
         indirect->stream = try_read_stream(pdf, stream_len);
       } else if (len->type == Ind) {
-        printf("Stream with indirect length encountered...\n");
+        log_v("Stream with indirect length encountered...\n");
         stream_len = get_stream_len(pdf, len);
         indirect->stream = try_read_stream(pdf, stream_len);
         if (!indirect->stream) {
@@ -89,7 +89,7 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
       log_e("Missing endobj.\n");
       scexit(pdf, 1);
     } else {
-      printf("Got endobj at pos: %li\n", get_pos(pdf));
+      log_v("Got endobj at pos: %li\n", get_pos(pdf));
     }
   }
 

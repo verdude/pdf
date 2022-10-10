@@ -27,15 +27,15 @@ int dump_stream(stream_t* stream, char* fname) {
   int written = fwrite(stream->bytes, 1, stream->len, f);
 
   if (written != stream->len) {
-    printf("oh no oh my\n");
+    log_v("oh no oh my\n");
   }
-  printf("writtine %i\n", written);
+  log_v("writtine %i\n", written);
   fclose(f);
   return written;
 }
 
 stream_t* try_read_stream(pdf_t* pdf, long len) {
-  printf("attempting to get stream\n");
+  log_v("attempting to get stream\n");
   char* stream_end = "endstream";
   char* stream_start = stream_end + 3;
   size_t match = check_for_match(pdf, stream_start);
@@ -50,7 +50,7 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
     log_e("Bad eol after stream start\n");
     scexit(pdf, 1);
   }
-  printf("Reading %li bytes from start of stream at: %li\n", len, get_pos(pdf));
+  log_v("Reading %li bytes from start of stream at: %li\n", len, get_pos(pdf));
   stream->bytes = fs_read(pdf, len);
   stream->len = len;
 

@@ -25,8 +25,8 @@ void log_msg(enum log_level level, char* format, ...) {
   }
 
   va_start(args, format);
-  vfprintf(stream, format, args);
+  vflog_v(stream, format, args);
   va_end(args);
 
-  fprintf(stream, "\n");
+  flog_v(stream, "\n");
 }

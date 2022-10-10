@@ -138,7 +138,7 @@ object_t* next_sym(pdf_t* pdf) {
 
   int c = get_char(pdf, FAIL);
   if (c == EOF) {
-    printf("Reached EOF.");
+    log_v("Reached EOF.");
     return NULL;
   }
 
@@ -278,7 +278,7 @@ unsigned char* fs_read(pdf_t* pdf, size_t size) {
     return bytes;
   }
 
-  fprintf(stderr,
+  flog_v(stderr,
       "fs_read expected to read %li bytes. Read %li instead.\n", size, read);
 
   if (feof(pdf->fs)) {

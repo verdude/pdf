@@ -8,13 +8,13 @@
 #include "log.h"
 
 void print_x_entry(x_entry_t* e) {
-    printf("%li %li %c\n", e->offset, e->gen, e->status);
+    log_v("%li %li %c\n", e->offset, e->gen, e->status);
 }
 
 void print_xref(xref_t* x) {
-  printf("%li %li\n", x->obj_num, x->count);
-  printf("Current entry offset: %li\n", x->ce_offset);
-  printf("Current entry index: %li\n", x->ce_index);
+  log_v("%li %li\n", x->obj_num, x->count);
+  log_v("Current entry offset: %li\n", x->ce_offset);
+  log_v("Current entry index: %li\n", x->ce_index);
 }
 
 void free_xref_t(xref_t* x) {
@@ -41,7 +41,7 @@ static long get_nth_offset(pdf_t* pdf, long n) {
 static void checkout_next_obj(pdf_t* pdf) {
   xref_t* xref = pdf->xref;
   if (xref->ce_index + 1 >= xref->count) {
-    printf("attempt to seek past end of xref table. Entry %li\n",
+    log_v("attempt to seek past end of xref table. Entry %li\n",
         xref->ce_index);
     return;
   }
@@ -95,7 +95,7 @@ static long get_obj_offset(pdf_t* pdf) {
 }
 
 object_t* next_obj(pdf_t* pdf) {
-  printf("Getting xref entry #%li\n", pdf->xref->ce_index);
+  log_v("Getting xref entry #%li\n", pdf->xref->ce_index);
   int status;
   seek(pdf, pdf->xref->ce_offset, SEEK_SET);
   while (!(status = get_status(pdf))) {
@@ -103,7 +103,7 @@ object_t* next_obj(pdf_t* pdf) {
       log_e("Invalid entry status.");
       scexit(pdf, 1);
     }
-    printf("Skipping entry %li with invalid status: %i\n", pdf->xref->ce_offset, status);
+    log_v("Skipping entry %li with invalid status: %i\n", pdf->xref->ce_offset, status);
     checkout_next_obj(pdf);
   }
 
@@ -111,7 +111,7 @@ object_t* next_obj(pdf_t* pdf) {
 
   seek(pdf, offset, SEEK_SET);
 
-  printf("Getting next obj at %li\n", get_pos(pdf));
+  log_v("Getting next obj at %li\n", get_pos(pdf));
   return next_sym(pdf);
 }
 
@@ -167,11 +167,11 @@ static int has_next(xref_t* xref) {
 void parse_entries(pdf_t* pdf) {
   for (int i = pdf->xref->ce_index; i < pdf->xref->count; ++i) {
     if (!has_next(pdf->xref)) {
-      printf("Traversed whole xref table.\n");
+      log_v("Traversed whole xref table.\n");
       break;
     }
     object_t* o = next_obj(pdf);
-    printf("Type Name: %s\n", get_type_name(o));
+    log_v("Type Name: %s\n", get_type_name(o));
     free_object_t(o);
     checkout_next_obj(pdf);
   }

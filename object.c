@@ -81,13 +81,13 @@ void free_object_t(object_t* o) {
 void print_term(int v, enum o_type type) {
   switch (type) {
     case Null:
-      printf("null ");
+      log_v("null ");
       break;
     case Boo:
-      printf(v ? "true " : "false ");
+      log_v(v ? "true " : "false ");
       break;
     default:
-      printf("called print with unknown term\n");
+      log_v("called print with unknown term\n");
   }
 }
 
@@ -95,7 +95,7 @@ void print_object(object_t* o) {
   enum o_type type = o->type;
   switch (type) {
     case Num:
-      printf("%li\n", *(long*)o->val);
+      log_v("%li\n", *(long*)o->val);
       break;
     case Boo:
       print_term(*((int*)o->val), o->type);
@@ -110,14 +110,14 @@ void print_object(object_t* o) {
       print_string(o->val, '/', 0);
       break;
     case Dict:
-      printf("<<\n");
+      log_v("<<\n");
       print_list(o->val);
-      printf(">>\n");
+      log_v(">>\n");
       break;
     case Arr:
-      printf("[");
+      log_v("[");
       print_list(o->val);
-      printf("]\n");
+      log_v("]\n");
       break;
     case Ind:
       print_indirect(o->val);
