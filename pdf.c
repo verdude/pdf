@@ -73,7 +73,7 @@ int supported_version(pdf_t* pdf) {
   c = (char) get_char(pdf, FAIL);
   if (c != '\n') {
     bytes[header_len] = 0;
-    fprintf(stderr, "Invalid char following header[%s]: %#4x\n", bytes, c);
+    log_e("Invalid char following header[%s]: %#4x\n", bytes, c);
     scexit(pdf, 1);
   }
   return 1;
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
       printf("Getting trailer...\n");
       int success = get_trailer(pdf);
       if (!success) {
-        fprintf(stderr, "failed to get trailer\n");
+        log_e("failed to get trailer\n");
         scexit(pdf, 1);
       }
       printf("Getting xref table\n");

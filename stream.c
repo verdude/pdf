@@ -18,7 +18,7 @@ int read_eol_marker(pdf_t* pdf) {
     }
   }
 
-  fprintf(stderr, "Invalid EOL Marker seq: 0x%02x 0x%02x\n", c, c2);
+  log_e("Invalid EOL Marker seq: 0x%02x 0x%02x\n", c, c2);
   return 0;
 }
 
@@ -47,7 +47,7 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
   stream_t* stream = allocate(sizeof(stream_t));
   int eol_len = read_eol_marker(pdf);
   if (!eol_len) {
-    fprintf(stderr, "Bad eol after stream start\n");
+    log_e("Bad eol after stream start\n");
     scexit(pdf, 1);
   }
   printf("Reading %li bytes from start of stream at: %li\n", len, get_pos(pdf));
@@ -61,7 +61,7 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
 
   match = check_for_match(pdf, stream_end);
   if (!match) {
-    fprintf(stderr, "Missing endstream.\n");
+    log_e("Missing endstream.\n");
     scexit(pdf, 1);
   }
 

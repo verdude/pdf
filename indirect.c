@@ -15,7 +15,7 @@ void print_indirect(indirect_t* i) {
 
 long get_stream_len(pdf_t* pdf, object_t* o) {
   if (o->type != Ind) {
-    fprintf(stderr, "Invalid type for get_stream_len: %s\n", get_type_name(o));
+    log_e("Invalid type for get_stream_len: %s\n", get_type_name(o));
     return 0;
   }
   indirect_t* ind = o->val;
@@ -30,12 +30,12 @@ long get_stream_len(pdf_t* pdf, object_t* o) {
     object_t* obj = len_ref->obj;
     if (obj) {
       if (obj->type != Num) {
-        fprintf(stderr, "Bad Length Object type for stream length: %s\n", get_type_name(obj));
+        log_e("Bad Length Object type for stream length: %s\n", get_type_name(obj));
         scexit(pdf, 1);
       }
       return get_num_val(len_ref->obj);
     } else {
-      fprintf(stderr, "um\n");
+      log_e("um\n");
       scexit(pdf, 1);
     }
   } else if (length_obj->type == Num) {
@@ -75,18 +75,18 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
         stream_len = get_stream_len(pdf, len);
         indirect->stream = try_read_stream(pdf, stream_len);
         if (!indirect->stream) {
-          fprintf(stderr, "Warning: Length %li found but stream read failed.\n", stream_len);
-          fprintf(stderr, "  at: %li\n", get_pos(pdf));
+          log_e("Warning: Length %li found but stream read failed.\n", stream_len);
+          log_e("  at: %li\n", get_pos(pdf));
         }
       } else {
-        fprintf(stderr, "Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
+        log_e("Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
       }
     }
     consume_whitespace(pdf);
     match = check_for_match(pdf, "endobj");
 
     if (!match) {
-      fprintf(stderr, "Missing endobj.\n");
+      log_e("Missing endobj.\n");
       scexit(pdf, 1);
     } else {
       printf("Got endobj at pos: %li\n", get_pos(pdf));

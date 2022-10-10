@@ -25,7 +25,7 @@ int string_equals(object_t* o, char* s, int n) {
     case Name:
       break;
     default:
-      fprintf(stderr, "Bad object for string_equals: %s\n", get_type_name(o));
+      log_e("Bad object for string_equals: %s\n", get_type_name(o));
       return -1;
   }
   string_t* string = o->val;
@@ -112,7 +112,7 @@ object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
   consume_whitespace(pdf);
   int c = get_char(pdf, FAIL);
   if (!first_char(enc, c)) {
-    fprintf(stderr, "Invalid first char for string: [%c] aka. [0x%04x]. Should be: %c\n",
+    log_e("Invalid first char for string: [%c] aka. [0x%04x]. Should be: %c\n",
         c, c, get_first_char(enc));
     scexit(pdf, 1);
   }
@@ -132,7 +132,7 @@ object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
       obj->type = Str;
       break;
     default:
-      fprintf(stderr, "Invalid string encoding type: %i\n", enc);
+      log_e("Invalid string encoding type: %i\n", enc);
       scexit(pdf, 1);
   }
 

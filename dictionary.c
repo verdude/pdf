@@ -13,7 +13,7 @@ char* get_entry_name(d_entry_t* entry) {
 
 object_t* get_entry_value(object_t* o, char* key) {
   if (o->type != Dict) {
-    fprintf(stderr, "Invalid object for dictionary#get_entry_value: %s\n", get_type_name(o));
+    log_e("Invalid object for dictionary#get_entry_value: %s\n", get_type_name(o));
     return NULL;
   }
   list_t* dict = o->val;

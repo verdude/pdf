@@ -39,7 +39,7 @@ void free_list_t(list_t* l) {
         free_object_t(l->el[i]);
         break;
       default:
-        fprintf(stderr, "Invalid list type: %i\n", l->el_type);
+        log_e("Invalid list type: %i\n", l->el_type);
     }
   }
   free(l->el);
@@ -68,10 +68,10 @@ void free_object_t(object_t* o) {
     case Null:
       break;
     case Stream:
-      fprintf(stderr, "Called free object with unhandled object type: %i\n", type);
+      log_e("Called free object with unhandled object type: %i\n", type);
       break;
     default:
-      fprintf(stderr, "free_object: Bad object type: %i\n", type);
+      log_e("free_object: Bad object type: %i\n", type);
       return;
   }
 
@@ -126,10 +126,10 @@ void print_object(object_t* o) {
       print_term(0, o->type);
       break;
     case Stream:
-      fprintf(stderr, "Called print with unhandled object type: %i\n", type);
+      log_e("Called print with unhandled object type: %i\n", type);
       break;
     default:
-      fprintf(stderr, "Bad object type (print_object): %i\n", type);
+      log_e("Bad object type (print_object): %i\n", type);
   }
 }
 
@@ -153,14 +153,14 @@ object_t* get_term(pdf_t* pdf, enum term type) {
       str = null_str;
       break;
     default:
-      fprintf(stderr, "Unknown term type: %i\n", type);
+      log_e("Unknown term type: %i\n", type);
       return NULL;
   }
 
   long offset = get_pos(pdf);
   int success = check_for_match(pdf, str);
   if (!success) {
-    fprintf(stderr, "Expected '%s' at %li.\n", str, get_pos(pdf));
+    log_e("Expected '%s' at %li.\n", str, get_pos(pdf));
     return NULL;
   }
 

@@ -68,7 +68,7 @@ static int valid_xref_entry(xref_t* xref) {
  */
 static int get_status(pdf_t* pdf) {
   if (!valid_xref_entry(pdf->xref)) {
-    fprintf(stderr, "Invalid xref entry offset %li\n", pdf->xref->ce_offset);
+    log_e("Invalid xref entry offset %li\n", pdf->xref->ce_offset);
     return -1;
   }
 
@@ -80,7 +80,7 @@ static int get_status(pdf_t* pdf) {
     case 'n':
       return 1;
     default:
-      fprintf(stderr, "Invalid xref entry char: [%c].\n", c);
+      log_e("Invalid xref entry char: [%c].\n", c);
       return -1;
   }
 }
@@ -100,7 +100,7 @@ object_t* next_obj(pdf_t* pdf) {
   seek(pdf, pdf->xref->ce_offset, SEEK_SET);
   while (!(status = get_status(pdf))) {
     if (status == -1) {
-      fprintf(stderr, "Invalid entry status.");
+      log_e("Invalid entry status.");
       scexit(pdf, 1);
     }
     printf("Skipping entry %li with invalid status: %i\n", pdf->xref->ce_offset, status);
@@ -119,14 +119,14 @@ object_t* get_object(pdf_t* pdf, int obj_num) {
   xref_t* x = pdf->xref;
   int i = x->obj_num;
   if (obj_num < i || obj_num > x->obj_num + x->count) {
-    fprintf(stderr, "Could not find obj #%i in the xref table\n", obj_num);
+    log_e("Could not find obj #%i in the xref table\n", obj_num);
     scexit(pdf, 1);
   }
   pdf->xref->ce_offset = get_nth_offset(pdf, obj_num);
   pdf->xref->ce_index = obj_num;
   int status = get_status(pdf);
   if (status == -1 || !status) {
-    fprintf(stderr, "Tried to read object with invalid status: %i\n", status);
+    log_e("Tried to read object with invalid status: %i\n", status);
     scexit(pdf, 1);
   }
   return next_obj(pdf);
@@ -139,7 +139,7 @@ int get_xref(pdf_t* pdf) {
 
   seek(pdf, offset, SEEK_SET);
   if (!(match = check_for_match(pdf, xref_string))) {
-    fprintf(stderr, "Did not find xref table at offset: %li\n", offset);
+    log_e("Did not find xref table at offset: %li\n", offset);
     return 0;
   }
 
@@ -148,7 +148,7 @@ int get_xref(pdf_t* pdf) {
 
   int success = read_size(pdf);
   if (!success) {
-    fprintf(stderr, "Failed to read xref obj index/size.\n");
+    log_e("Failed to read xref obj index/size.\n");
     free_xref_t(pdf->xref);
     return 0;
   }

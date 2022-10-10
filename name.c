@@ -37,7 +37,7 @@ int add_byte(unsigned char c, string_t* st) {
   }
 
   if (new_size < 0) {
-    fprintf(stderr, "Overflow computing new size: ptr:"
+    log_e("Overflow computing new size: ptr:"
         " %p memsize: %i strlen: %i\n", st->str, st->memsize, st->len);
     return 0;
   }
