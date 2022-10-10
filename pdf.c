@@ -46,7 +46,7 @@ int supported_version(pdf_t* pdf) {
 
     if (c != prefix[i]) {
       bytes[i+1] = 0;
-      log_v("Unsupported prefix: %s, Should prefix(v): %s\n", bytes, prefix);
+      log_v("Unsupported prefix: %s, Should prefix(v): %s", bytes, prefix);
       return 0;
     }
   }
@@ -65,7 +65,7 @@ int supported_version(pdf_t* pdf) {
 
     if (!ok) {
       bytes[i+1] = 0;
-      log_v("Unsupported version string prefix: %s\n", bytes);
+      log_v("Unsupported version string prefix: %s", bytes);
       return 0;
     }
   }
@@ -73,7 +73,7 @@ int supported_version(pdf_t* pdf) {
   c = (char) get_char(pdf, FAIL);
   if (c != '\n') {
     bytes[header_len] = 0;
-    log_e("Invalid char following header[%s]: %#4x\n", bytes, c);
+    log_e("Invalid char following header[%s]: %#4x", bytes, c);
     scexit(pdf, 1);
   }
   return 1;
@@ -94,7 +94,7 @@ int read_bin_comment(pdf_t* pdf) {
   int i = 0;
   while (chars[i] != 0) {
     if ((unsigned char) chars[i] <= 128) {
-      log_v("Non-bin char in comment: %#4x\n", chars[i]);
+      log_v("Non-bin char in comment: %#4x", chars[i]);
       return 0;
     }
     ++i;
@@ -138,16 +138,16 @@ int main(int argc, char** argv) {
   if (fs) {
     pdf->fs = fs;
     if (supported_version(pdf)) {
-      log_v("Getting trailer...\n");
+      log_v("Getting trailer...");
       int success = get_trailer(pdf);
       if (!success) {
-        log_e("failed to get trailer\n");
+        log_e("failed to get trailer");
         scexit(pdf, 1);
       }
-      log_v("Getting xref table\n");
+      log_v("Getting xref table");
       success = get_xref(pdf);
       if (success) {
-        log_v("Getting entries\n");
+        log_v("Getting entries");
         parse_entries(pdf);
       }
       free_pdf_t(pdf);

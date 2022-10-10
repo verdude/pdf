@@ -18,7 +18,7 @@ int read_eol_marker(pdf_t* pdf) {
     }
   }
 
-  log_e("Invalid EOL Marker seq: 0x%02x 0x%02x\n", c, c2);
+  log_e("Invalid EOL Marker seq: 0x%02x 0x%02x", c, c2);
   return 0;
 }
 
@@ -27,15 +27,15 @@ int dump_stream(stream_t* stream, char* fname) {
   int written = fwrite(stream->bytes, 1, stream->len, f);
 
   if (written != stream->len) {
-    log_v("oh no oh my\n");
+    log_v("oh no oh my");
   }
-  log_v("writtine %i\n", written);
+  log_v("writtine %i", written);
   fclose(f);
   return written;
 }
 
 stream_t* try_read_stream(pdf_t* pdf, long len) {
-  log_v("attempting to get stream\n");
+  log_v("attempting to get stream");
   char* stream_end = "endstream";
   char* stream_start = stream_end + 3;
   size_t match = check_for_match(pdf, stream_start);
@@ -47,10 +47,10 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
   stream_t* stream = allocate(sizeof(stream_t));
   int eol_len = read_eol_marker(pdf);
   if (!eol_len) {
-    log_e("Bad eol after stream start\n");
+    log_e("Bad eol after stream start");
     scexit(pdf, 1);
   }
-  log_v("Reading %li bytes from start of stream at: %li\n", len, get_pos(pdf));
+  log_v("Reading %li bytes from start of stream at: %li", len, get_pos(pdf));
   stream->bytes = fs_read(pdf, len);
   stream->len = len;
 
@@ -61,11 +61,10 @@ stream_t* try_read_stream(pdf_t* pdf, long len) {
 
   match = check_for_match(pdf, stream_end);
   if (!match) {
-    log_e("Missing endstream.\n");
+    log_e("Missing endstream.");
     scexit(pdf, 1);
   }
 
-  scexit(pdf, 0);
   consume_whitespace(pdf);
   return stream;
 }

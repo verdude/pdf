@@ -39,7 +39,7 @@ void free_list_t(list_t* l) {
         free_object_t(l->el[i]);
         break;
       default:
-        log_e("Invalid list type: %i\n", l->el_type);
+        log_e("Invalid list type: %i", l->el_type);
     }
   }
   free(l->el);
@@ -68,10 +68,10 @@ void free_object_t(object_t* o) {
     case Null:
       break;
     case Stream:
-      log_e("Called free object with unhandled object type: %i\n", type);
+      log_e("Called free object with unhandled object type: %i", type);
       break;
     default:
-      log_e("free_object: Bad object type: %i\n", type);
+      log_e("free_object: Bad object type: %i", type);
       return;
   }
 
@@ -87,7 +87,7 @@ void print_term(int v, enum o_type type) {
       log_v(v ? "true " : "false ");
       break;
     default:
-      log_v("called print with unknown term\n");
+      log_v("called print with unknown term");
   }
 }
 
@@ -95,7 +95,7 @@ void print_object(object_t* o) {
   enum o_type type = o->type;
   switch (type) {
     case Num:
-      log_v("%li\n", *(long*)o->val);
+      log_v("%li", *(long*)o->val);
       break;
     case Boo:
       print_term(*((int*)o->val), o->type);
@@ -110,14 +110,14 @@ void print_object(object_t* o) {
       print_string(o->val, '/', 0);
       break;
     case Dict:
-      log_v("<<\n");
+      log_v("<<");
       print_list(o->val);
-      log_v(">>\n");
+      log_v(">>");
       break;
     case Arr:
       log_v("[");
       print_list(o->val);
-      log_v("]\n");
+      log_v("]");
       break;
     case Ind:
       print_indirect(o->val);
@@ -126,10 +126,10 @@ void print_object(object_t* o) {
       print_term(0, o->type);
       break;
     case Stream:
-      log_e("Called print with unhandled object type: %i\n", type);
+      log_e("Called print with unhandled object type: %i", type);
       break;
     default:
-      log_e("Bad object type (print_object): %i\n", type);
+      log_e("Bad object type (print_object): %i", type);
   }
 }
 
@@ -153,14 +153,14 @@ object_t* get_term(pdf_t* pdf, enum term type) {
       str = null_str;
       break;
     default:
-      log_e("Unknown term type: %i\n", type);
+      log_e("Unknown term type: %i", type);
       return NULL;
   }
 
   long offset = get_pos(pdf);
   int success = check_for_match(pdf, str);
   if (!success) {
-    log_e("Expected '%s' at %li.\n", str, get_pos(pdf));
+    log_e("Expected '%s' at %li.", str, get_pos(pdf));
     return NULL;
   }
 

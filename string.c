@@ -25,7 +25,7 @@ int string_equals(object_t* o, char* s, int n) {
     case Name:
       break;
     default:
-      log_e("Bad object for string_equals: %s\n", get_type_name(o));
+      log_e("Bad object for string_equals: %s", get_type_name(o));
       return -1;
   }
   string_t* string = o->val;
@@ -40,27 +40,27 @@ static int add_string_char(pdf_t* pdf, int c, string_t* string) {
   switch (c) {
     case 0x8:
       // backspace
-      log_v("backspace literal in string\n");
+      log_v("backspace literal in string");
       return 0;
     case 0xa:
       // newline
-      log_v("newline literal in string\n");
+      log_v("newline literal in string");
       return 0;
     case 0x9:
       // horizontal tab
-      log_v("htab literal in string\n");
+      log_v("htab literal in string");
       return 0;
     case 0xd:
       // carriage return
-      log_v("cr literal in string\n");
+      log_v("cr literal in string");
       return 0;
     case 0xc:
       // form feed
-      log_v("ff literal in string\n");
+      log_v("ff literal in string");
       return 0;
     case 0x28:
       // (
-      log_v("open paren in string\n");
+      log_v("open paren in string");
       return 0;
     case 0x29:
       // )
@@ -112,7 +112,7 @@ object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
   consume_whitespace(pdf);
   int c = get_char(pdf, FAIL);
   if (!first_char(enc, c)) {
-    log_e("Invalid first char for string: [%c] aka. [0x%04x]. Should be: %c\n",
+    log_e("Invalid first char for string: [%c] aka. [0x%04x]. Should be: %c",
         c, c, get_first_char(enc));
     scexit(pdf, 1);
   }
@@ -132,7 +132,7 @@ object_t* get_string_type_obj(pdf_t* pdf, enum encoding enc) {
       obj->type = Str;
       break;
     default:
-      log_e("Invalid string encoding type: %i\n", enc);
+      log_e("Invalid string encoding type: %i", enc);
       scexit(pdf, 1);
   }
 
@@ -162,6 +162,6 @@ object_t* get_string(pdf_t* pdf) {
 }
 
 void print_string(string_t* s, char open, char close) {
-  log_v("%c%s%c\n", open, s->str, close);
+  log_v("%c%s%c", open, s->str, close);
 }
 

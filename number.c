@@ -23,7 +23,7 @@ long get_num(pdf_t* pdf, int base, int fail_on_error) {
   size_t slen = strnlen(s, len);
 
   if (!slen && fail_on_error) {
-    log_e("bad number. [%s]\n", s);
+    log_e("bad number. [0x%09x]", s);
     scexit(pdf, 1);
   } else if (!slen) {
     return -1;
@@ -39,7 +39,7 @@ long get_num(pdf_t* pdf, int base, int fail_on_error) {
       consume_chars_stack(pdf, &isdigit, decimal, len);
     }
   } else if (end == s) {
-    log_e("whole string is not a num! [%s]\n", s);
+    log_e("whole string is not a num! [%s]", s);
     scexit(pdf, 1);
   }
 

@@ -13,7 +13,7 @@ char* get_entry_name(d_entry_t* entry) {
 
 object_t* get_entry_value(object_t* o, char* key) {
   if (o->type != Dict) {
-    log_e("Invalid object for dictionary#get_entry_value: %s\n", get_type_name(o));
+    log_e("Invalid object for dictionary#get_entry_value: %s", get_type_name(o));
     return NULL;
   }
   list_t* dict = o->val;
@@ -41,7 +41,7 @@ char* get_key(object_t* key) {
 
 d_entry_t* get_entry(pdf_t* pdf) {
   object_t* first_key = get_name(pdf, FAIL);
-  log_v("got name %s from dictionary at: %li\n", get_key(first_key), get_pos(pdf));
+  log_v("got name %s from dictionary at: %li", get_key(first_key), get_pos(pdf));
 
   d_entry_t* list_t = allocate(sizeof(d_entry_t));
   list_t->key = first_key;

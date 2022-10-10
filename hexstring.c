@@ -41,7 +41,7 @@ object_t* get_hex_string(pdf_t* pdf) {
   }
 
   if (c != '>') {
-    log_v("Bad char in hex string: %c\n", c);
+    log_v("Bad char in hex string: %c", c);
     scexit(pdf, 1);
   }
 

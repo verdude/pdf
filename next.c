@@ -13,7 +13,7 @@
 int get_char(pdf_t* pdf, int eof_fail) {
   int c = fgetc(pdf->fs);
   if (c == EOF && eof_fail) {
-    log_e("Premature EOF.\n");
+    log_e("Premature EOF.");
     perror("get_char");
     scexit(pdf, 1);
   }
@@ -38,7 +38,7 @@ void unget_chars(pdf_t* pdf, unsigned char* s, int len) {
 void* allocate(int len) {
   void* m = calloc(len, 1);
   if (m == NULL) {
-    log_e("Failed to allocate mem of length: %i\n", len);
+    log_e("Failed to allocate mem of length: %i", len);
     perror("allocate");
     exit(1);
   }
@@ -105,7 +105,7 @@ void consume_chars_stack(pdf_t* pdf, int (*fn)(int), char* chars, int len) {
 long estrtol(char* s, char** endptr, int base) {
   long n = strtol(s, endptr, base);
   if (n == LONG_MIN || n == LONG_MAX) {
-    log_e("strtol failed on input: %s\n", s);
+    log_e("strtol failed on input: %s", s);
     scexit(NULL, 1);
   }
   return n;
@@ -172,8 +172,8 @@ object_t* next_sym(pdf_t* pdf) {
       long n = get_num(pdf, 10, FAIL);
       return create_num_obj(pdf, get_pos(pdf), -n);
     default:
-      log_e("next_sym: unknown symbol! [%c] int: %i\n", c, c);
-      log_e("pos: %li\n", get_pos(pdf)-1);
+      log_e("next_sym: unknown symbol! [%c] int: %i", c, c);
+      log_e("pos: %li", get_pos(pdf)-1);
       return NULL;
   }
 }
@@ -227,7 +227,7 @@ size_t check_for_match_seek_back(pdf_t* pdf, char* s) {
 // at the given length?
 int find_backwards(pdf_t* pdf, char* sequence, int len) {
   if (len > 15) {
-    log_e("Sequence too long: %i\n", len);
+    log_e("Sequence too long: %i", len);
     return 0;
   }
 
@@ -240,7 +240,7 @@ int find_backwards(pdf_t* pdf, char* sequence, int len) {
     }
     int new_pos = curr_pos - 1 > 0 ? curr_pos - 1 : 0;
     if (new_pos == curr_pos) {
-      log_e("Could not find sequence %s in file\n", sequence);
+      log_e("Could not find sequence %s in file", sequence);
       return 0;
     }
     seek(pdf, new_pos, SEEK_SET);
@@ -255,12 +255,12 @@ void scexit(pdf_t* pdf, int code) {
   size_t size;
 
   if (pdf) {
-    log_e("~~~~> Offset: %li\n", ftell(pdf->fs));
+    log_e("~~~~> Offset: %li", ftell(pdf->fs));
   } else {
-    log_e("~~~~> PDF/File Stream is NULL.\n");
+    log_e("~~~~> PDF/File Stream is NULL.");
   }
 
-  log_e("~~~~> Exiting with code: %i\n", code);
+  log_e("~~~~> Exiting with code: %i", code);
 
   size = backtrace(array, 10);
   backtrace_symbols_fd(array, size, 1);
@@ -278,14 +278,14 @@ unsigned char* fs_read(pdf_t* pdf, size_t size) {
     return bytes;
   }
 
-  log_e("fs_read expected to read %li bytes. Read %li instead.\n", size, read);
+  log_e("fs_read expected to read %li bytes. Read %li instead.", size, read);
 
   if (feof(pdf->fs)) {
     log_e("Got EOF before could read bytes");
   } else if (ferror(pdf->fs)) {
     perror("fread error:");
   } else {
-    log_e("Unknown error from fread.\n");
+    log_e("Unknown error from fread.");
   }
   scexit(pdf, 1);
   // Return just to make the compiler happy

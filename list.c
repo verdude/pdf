@@ -16,7 +16,7 @@ void print_list(list_t* l) {
         print_d_entry(l->el[i]);
         break;
       default:
-        log_e("Bad List type: %i\n", l->el_type);
+        log_e("Bad List type: %i", l->el_type);
         return;
     }
   }
@@ -31,7 +31,7 @@ int add_obj_to_list(list_t* list, void* ptr) {
   }
 
   if (new_size < 0) {
-    log_e("add_obj_to_list failed, overflow.\n");
+    log_e("add_obj_to_list failed, overflow.");
     return 0;
   }
 
@@ -88,13 +88,13 @@ object_t* get_list(pdf_t* pdf, enum el_t el_type) {
     void* element = (*re)(pdf);
 
     if (element == NULL) {
-      log_e("Failed to get object\n");
+      log_e("Failed to get object");
       scexit(pdf, 1);
     }
 
     int success = add_obj_to_list(list, element);
     if (!success) {
-      log_e("not success! adding object to list\n");
+      log_e("not success! adding object to list");
     }
     consume_whitespace(pdf);
   }

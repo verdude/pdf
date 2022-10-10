@@ -14,7 +14,7 @@ static unsigned char get_hex_char(pdf_t* pdf) {
   // Validate hex_str by converting to long
   long abnormal = strtol(hex_str, NULL, 16);
   if (abnormal == LONG_MAX) {
-    log_e("Invalid hex character [0x%c%c] at: %li\n",
+    log_e("Invalid hex character [0x%c%c] at: %li",
         c1, c2, get_pos(pdf));
     perror("get_name_char_len");
     return 0;
@@ -37,7 +37,7 @@ int add_byte(unsigned char c, string_t* st) {
 
   if (new_size < 0) {
     log_e("Overflow computing new size: ptr:"
-        " %p memsize: %i strlen: %i\n", st->str, st->memsize, st->len);
+        " %p memsize: %i strlen: %i", st->str, st->memsize, st->len);
     return 0;
   }
 
@@ -92,7 +92,7 @@ static int add_name_char(pdf_t* pdf, int c, string_t* name) {
       // Invalid format but assume the pdf
       // contains something like: /Key/Val
       if (c == '(') {
-        log_v("kicked in the mouth\n");
+        log_v("kicked in the mouth");
       }
       return 0;
     }

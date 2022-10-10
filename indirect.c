@@ -7,7 +7,7 @@
 void print_indirect(indirect_t* i) {
   log_v("%li %li ", i->obj_num, i->gen_num);
   if (i->obj == NULL) {
-    log_v("R\n");
+    log_v("R");
   } else {
     print_object(i->obj);
   }
@@ -15,7 +15,7 @@ void print_indirect(indirect_t* i) {
 
 long get_stream_len(pdf_t* pdf, object_t* o) {
   if (o->type != Ind) {
-    log_e("Invalid type for get_stream_len: %s\n", get_type_name(o));
+    log_e("Invalid type for get_stream_len: %s", get_type_name(o));
     return 0;
   }
   indirect_t* ind = o->val;
@@ -30,12 +30,12 @@ long get_stream_len(pdf_t* pdf, object_t* o) {
     object_t* obj = len_ref->obj;
     if (obj) {
       if (obj->type != Num) {
-        log_e("Bad Length Object type for stream length: %s\n", get_type_name(obj));
+        log_e("Bad Length Object type for stream length: %s", get_type_name(obj));
         scexit(pdf, 1);
       }
       return get_num_val(len_ref->obj);
     } else {
-      log_e("um\n");
+      log_e("um");
       scexit(pdf, 1);
     }
   } else if (length_obj->type == Num) {
@@ -55,7 +55,7 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
   indirect->obj = NULL;
 
   if (nc == 'o') {
-    log_v("Getting indirect object at %li\n", get_pos(pdf));
+    log_v("Getting indirect object at %li", get_pos(pdf));
     unget_char(pdf, nc, FAIL);
     skip_string(pdf, "obj", get_pos(pdf));
     consume_whitespace(pdf);
@@ -71,25 +71,25 @@ indirect_t* get_indirect(pdf_t* pdf, int nc, long on, long gn) {
         stream_len = *(long*)len->val;
         indirect->stream = try_read_stream(pdf, stream_len);
       } else if (len->type == Ind) {
-        log_v("Stream with indirect length encountered...\n");
+        log_v("Stream with indirect length encountered...");
         stream_len = get_stream_len(pdf, len);
         indirect->stream = try_read_stream(pdf, stream_len);
         if (!indirect->stream) {
-          log_e("Warning: Length %li found but stream read failed.\n", stream_len);
-          log_e("  at: %li\n", get_pos(pdf));
+          log_e("Warning: Length %li found but stream read failed.", stream_len);
+          log_e("  at: %li", get_pos(pdf));
         }
       } else {
-        log_e("Invalid obj type for indirect object: %s\n", get_type_name(indirect->obj));
+        log_e("Invalid obj type for indirect object: %s", get_type_name(indirect->obj));
       }
     }
     consume_whitespace(pdf);
     match = check_for_match(pdf, "endobj");
 
     if (!match) {
-      log_e("Missing endobj.\n");
+      log_e("Missing endobj.");
       scexit(pdf, 1);
     } else {
-      log_v("Got endobj at pos: %li\n", get_pos(pdf));
+      log_v("Got endobj at pos: %li", get_pos(pdf));
     }
   }
 

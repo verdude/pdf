@@ -24,15 +24,15 @@ int get_trailer(pdf_t* pdf) {
     long xro = get_num(pdf, 0, FAIL);
     t->startxref_offset = xro;
   } else {
-    log_e("startxref string not found.\n");
+    log_e("startxref string not found.");
   }
 
-  char* trailer_string = "\ntrailer\n";
+  char* trailer_string = "\ntrailer";
   size_t trailer_len = strlen(trailer_string);
   int found = find_backwards(pdf, trailer_string, trailer_len + 1);
 
   if (!found) {
-    log_e("Failed to find trailer.\n");
+    log_e("Failed to find trailer.");
     free(t);
     return 0;
   }
@@ -44,13 +44,13 @@ int get_trailer(pdf_t* pdf) {
 
   t->encryption = get_encryption(t);
   if (!t->encryption) {
-    log_e("Warning: Encryption key not found.\n");
+    log_e("Warning: Encryption key not found.");
   } else {
-    log_v("encryption:\n");
+    log_v("encryption:");
     print_object(t->encryption);
   }
 
-  log_v("startxref: %li\n", t->startxref_offset);
+  log_v("startxref: %li", t->startxref_offset);
 
   pdf->trailer = t;
   print_object(pdf->trailer->dictionary);
