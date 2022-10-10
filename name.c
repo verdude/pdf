@@ -14,8 +14,7 @@ static unsigned char get_hex_char(pdf_t* pdf) {
   // Validate hex_str by converting to long
   long abnormal = strtol(hex_str, NULL, 16);
   if (abnormal == LONG_MAX) {
-    flog_v(stderr,
-        "Invalid hex character [0x%c%c] at: %li\n",
+    log_e("Invalid hex character [0x%c%c] at: %li\n",
         c1, c2, get_pos(pdf));
     perror("get_name_char_len");
     return 0;

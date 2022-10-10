@@ -278,8 +278,7 @@ unsigned char* fs_read(pdf_t* pdf, size_t size) {
     return bytes;
   }
 
-  flog_v(stderr,
-      "fs_read expected to read %li bytes. Read %li instead.\n", size, read);
+  log_e("fs_read expected to read %li bytes. Read %li instead.\n", size, read);
 
   if (feof(pdf->fs)) {
     log_e("Got EOF before could read bytes");
