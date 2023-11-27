@@ -1,8 +1,10 @@
 CC := cc
 CFLAGS := -Wall -g3 -rdynamic -lz
+ZIGFLAGS := -lc -lz
 
 BUILDDIR = build
 CLIENT = pdf
+ZIGCLIENT = zig-pdf
 SRC = $(wildcard *.c)
 OBJS = $(SRC:%.c=%.o)
 OBJECTS = $(patsubst %,$(BUILDDIR)/%,$(OBJS))
@@ -17,7 +19,7 @@ $(BUILDDIR)/%.o: %.c
 build:
 	mkdir -p build
 
-.PHONY: clean test
+.PHONY: clean test zig
 clean:
 	rm -rf $(BUILDDIR)
 	rm -f test/tester.o test/tester
@@ -26,3 +28,5 @@ clean:
 test: $(EXE)
 	make -C test
 
+$(BUILDDIR)/$(ZIGCLIENT): build
+	zig build-exe $(ZIGFLAGS) *.c *.h -femit-bin=$(BUILDDIR)/$(ZIGCLIENT)
