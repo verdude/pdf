@@ -72,11 +72,12 @@ static int add_string_char(pdf_t* pdf, int c, string_t* string) {
       // Ok in literal
       // fail in name string
       return string->enc == HexString ? -1 : string->enc == LiteralString ? 1 : 0;
-    case 0x5c:
+    case 0x5c: {
       // \ backslash
       int escaped = get_char(pdf, FAIL);
       // TODO: perhaps add length to the string?
       return add_byte(escaped, string);
+    }
   }
 
   return add_byte(c, string);

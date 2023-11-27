@@ -168,9 +168,10 @@ object_t* next_sym(pdf_t* pdf) {
     case 'f':
       unget_char(pdf, c, FAIL);
       return get_term(pdf, FalseTerm);
-    case '-':
+    case '-': {
       long n = get_num(pdf, 10, FAIL);
       return create_num_obj(pdf, get_pos(pdf), -n);
+    }
     default:
       log_e("next_sym: unknown symbol! [%c] int: %i", c, c);
       log_e("pos: %li", get_pos(pdf)-1);
